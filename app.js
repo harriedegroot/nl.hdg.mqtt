@@ -95,14 +95,16 @@ class MQTTDispatcher extends Homey.App {
         for (let c in device.capabilities) {
             if (device.capabilities.hasOwnProperty(c)) {
                 let capabillity = device.capabilities[c];
-                this.attachEventListener(device, capabillity.id, capabillity);
-                events.push(capabillity.id);
+                if (capabillity && typeof capabillity == 'object' && capabillity.id) {
+                    this.attachEventListener(device, capabillity.id, capabillity);
+                    events.push(capabillity.id);
 
-                const split = capabillity.id.split('_');
-                if (split.length > 1) {
-                    for (let i = 1; i < split.length; i++) {
-                        this.attachEventListener(device, split[i], device.capabilities[capabillity.id]);
-                        events.push(split[i]);
+                    const split = capabillity.id.split('_');
+                    if (split.length > 1) {
+                        for (let i = 1; i < split.length; i++) {
+                            this.attachEventListener(device, split[i], device.capabilities[capabillity.id]);
+                            events.push(split[i]);
+                        }
                     }
                 }
             }
