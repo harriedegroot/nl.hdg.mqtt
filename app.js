@@ -92,19 +92,19 @@ class MQTTDispatcher extends Homey.App {
 
     addStateChangeListeners(device) {
         let events = [];
-        for (let c in device.capabilities) {
-            if (device.capabilities.hasOwnProperty(c)) {
-                let capabillity = device.capabilities[c];
-                if (capabillity && typeof capabillity == 'object' && capabillity.id) {
-                    this.attachEventListener(device, capabillity.id, capabillity);
-                    events.push(capabillity.id);
+        let capabilities = device.capabilitiesObj || device.capabilities; // 1.5.13 vs 2.0
+        for (let c in capabilities) {
+            let capabillity = capabilities[c];
+                
+            if (capabillity && typeof capabillity == 'object' && capabillity.id) {
+                this.attachEventListener(device, capabillity.id, capabillity);
+                events.push(capabillity.id);
 
-                    const split = capabillity.id.split('_');
-                    if (split.length > 1) {
-                        for (let i = 1; i < split.length; i++) {
-                            this.attachEventListener(device, split[i], device.capabilities[capabillity.id]);
-                            events.push(split[i]);
-                        }
+                const split = capabillity.id.split('_');
+                if (split.length > 1) {
+                    for (let i = 1; i < split.length; i++) {
+                        this.attachEventListener(device, split[i], capabilities[capabillity.id]);
+                        events.push(split[i]);
                     }
                 }
             }
