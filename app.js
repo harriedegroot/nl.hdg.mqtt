@@ -2,11 +2,10 @@
 
 const Homey = require('homey');
 const { HomeyAPI } = require('athom-api');
-
 const MQTTClient = new Homey.ApiApp('nl.scanno.mqtt');
 
 class MQTTDispatcher extends Homey.App {
-
+    
     // Get API control function
     getApi() {
         if (!this.api) {
@@ -23,13 +22,12 @@ class MQTTDispatcher extends Homey.App {
 
     async initMQTTClient() {
 
-        this.log(JSON.stringify(MQTTClient, null, 2));
-
         MQTTClient
             .register()
             .on('install', () => this.register())
-            .on('uninstall', () => this.unregister());
-
+            .on('uninstall', () => this.unregister())
+            .on('realtime', (topic, message) => this.onMessage(topic, message));
+        
         MQTTClient.getInstalled()
             .then(installed => {
                 if (installed) {
@@ -37,6 +35,10 @@ class MQTTDispatcher extends Homey.App {
                 }
             })
             .catch(error => this.log(error));
+    }
+
+    onMessage(topic, message) {
+        this.log(topic + ": " + JSON.stringify(message, null, 2));
     }
 
 	onInit() {
@@ -55,11 +57,13 @@ class MQTTDispatcher extends Homey.App {
         }
         this.registered = true;
 
+        // receive all messages from the homey topic
+        MQTTClient.post('subscribe', { topic: 'homey/#' }, (error) => this.log(error || 'subscribed to topic: homey/#'));
+
         // Get the homey object
         const api = await this.getApi();
 
         // Subscribe to realtime events and set all devices global
-        await api.devices.subscribe();
         api.devices.on('device.create', async (id) => {
             console.log('New device found!');
             const device = await api.devices.getDevice({ id: id });
@@ -79,37 +83,54 @@ class MQTTDispatcher extends Homey.App {
         this.log('Devices registered');
         return true;
     }
-  
+
+
     // Add device
     addDevice(device) {
+        this.addStateChangeListeners(device);
+    }
+
+    addStateChangeListeners(device) {
+        let events = [];
         for (let c in device.capabilities) {
             if (device.capabilities.hasOwnProperty(c)) {
                 this.attachEventListener(device, c, device.capabilities[c]);
+                events.push(c);
+
+                const split = c.split('_');
+                if (split.length > 1) {
+                    for (let i = 1; i < split.length; i++) {
+                        this.attachEventListener(device, split[i], device.capabilities[c]);
+                        events.push(split[i]);
+                    }
+                }
             }
         }
+        this.log(device.name + ": " + events.join(', '));
     }
 
     attachEventListener(device, trigger, capabillity) {
-        device.on(trigger, value => this.stateChange(device, trigger, capabillity, value));
+        device.on(trigger, value => this.onStateChange(device, trigger, capabillity, value));
     }
 
     // this function gets called when a device with an attached eventlistener fires an event.
-    stateChange(device, trigger, capabillity, value) {
+    onStateChange(device, trigger, capabillity, value) {
         const state = {
             type: 'state_change',
             device: {
                 id: device.id,
+                type: device.class,
                 name: device.name,
                 state: device.state
             },
-            trigger: trigger,
-            capabillity: capabillity,
-            value: value,
+            trigger,
+            source: capabillity,
+            value,
             timestamp: new Date().getTime()
         };
         this.dispatch(state);
     }
-
+  
     /**
      * Dispatch MQTT message for device trigger with state as payload
      * @param {any} state Message payload (Device state)

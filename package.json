@@ -8,6 +8,6 @@
   "license": "ISC",
   "devDependencies": {},
   "dependencies": {
-    "athom-api": "^2.0.93"
+    "athom-api": "^2.0.148"
   }
 }
