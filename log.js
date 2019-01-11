@@ -1,25 +1,7 @@
 const Homey = require('homey');
 
-var logArray = [];
+const logArray = [];
 const DEBUG = true;
-
-module.exports = {
-   debug: function (line) {
-        writelog('debug', line);
-   },
-   info: function (line) {
-        writelog('info', line);
-   },
-   error: function (line) {
-        writelog('error', line);
-   },
-   writelog: function(level, line) {
-      writelog(level, line);
-   },
-   getLogLines: function() {
-      return getLogLines();
-   }
-}
 
 function getDateTime() {
 
@@ -64,16 +46,20 @@ function getAllFuncs(obj) {
     return props.sort();
 }
 
-function writelog(level, line) {
+function writelog(level, line, notification) {
 
    switch(level) {
        case 'error':
-           Homey.ManagerNotifications.registerNotification({
-               excerpt: line
-           }, function (err, notification) {
-               if (err) return console.error(err);
-               if (DEBUG) console.log('Notification added');
-           });
+           if (notification !== false) {
+               Homey.ManagerNotifications.registerNotification({
+                   excerpt: line
+               }, function (err, notification) {
+                   if (DEBUG) console.log('Notification added');
+                   if (err) return console.error(err);
+               });
+           } else {
+               if (line) return console.error(line);
+           }
            break;
        case 'debug':
            if (DEBUG == false) break;
@@ -84,6 +70,7 @@ function writelog(level, line) {
                    return;
                }
 
+               writelog('info', typeof obj + ' ' + obj.constructor.name);
                writelog('info', typeof obj + ' ' + obj.constructor);
                writelog('info', 'PROPERTIES: ' + JSON.stringify(obj, null, 2));
                writelog('info', 'FUNCTIONS:' + JSON.stringify(getAllFuncs(obj), null, 2));
@@ -107,3 +94,20 @@ function getLogLines() {
    return logArray;
 }
 
+module.exports = {
+    debug: function (line) {
+        writelog('debug', line);
+    },
+    info: function (line) {
+        writelog('info', line);
+    },
+    error: function (line, notification) {
+        writelog('error', line, notification);
+    },
+    writelog: function (level, line) {
+        writelog(level, line);
+    },
+    getLogLines: function () {
+        return getLogLines();
+    }
+}

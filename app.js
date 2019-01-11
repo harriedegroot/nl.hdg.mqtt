@@ -4,79 +4,63 @@ const TOPIC = 'homey/#';
 
 const Homey = require('homey');
 const { HomeyAPI } = require('athom-api');
-
-const LogModule = require("./logmodule.js");
-const Dispatcher = require("./dispatcher.js");
+const Log = require("./log.js");
+const MQTTClient = require('./mqttclient.js');
+const DeviceManager = require("./devicemanager.js");
 const MessageHandler = require("./messagehandler.js");
-const MQTTClient = new Homey.ApiApp('nl.scanno.mqtt');
+const DeviceStateDispatcher = require("./device_state_dispatcher.js");
+const SystemInfoDispatcher = require("./system_info_dispatcher.js");
 
 class MQTTDispatcher extends Homey.App {
 
-    // NOTE: must be executed within app scope...
-    initMQTTClient() {
-
-        // Register to app events
-        MQTTClient
-            .register()
-            .on('install', async () => await this.register())
-            .on('uninstall', () => this.unregister())
-            .on('realtime', (topic, message) => this.onMessage(topic, message));
-
-        // Fetch installed app
-        MQTTClient.getInstalled()
-            .then(async installed => { if (installed) await this.register(); })
-            .catch(error => this.logModule.error(error));
-
-        // Receive all messages from the homey topic
-        MQTTClient.post('subscribe', { topic: TOPIC }, error => {
-            if (error) {
-                this.log.error(error);
-            } else {
-                this.logModule.info('subscribed to topic: ' + TOPIC);
-            }
-        });
-    }
-
 	async onInit() {
-        this.log('MQTT Dispatcher is running...');
+        Log.info('MQTT Dispatcher is running...');
 
-        this.logModule = LogModule;
+        this.mqttClient = new MQTTClient(TOPIC);
         this.api = await HomeyAPI.forCurrentHomey();
-        this.messageHandler = new MessageHandler(this);
-        this.dispatcher = new Dispatcher(this);
+        this.deviceManager = new DeviceManager(this.api);
+        this.messageHandler = new MessageHandler(this.api, this.deviceManager);
+        this.deviceStateDispatcher = new DeviceStateDispatcher(this.api, this.mqttClient, this.deviceManager);
+        this.systemInfoDispatcher = new SystemInfoDispatcher(this.api, this.mqttClient);
 
         this.initMQTTClient();
     }
- 
-    async register() {
-        this.registered = true;
 
-        await this.messageHandler.register();
-        await this.dispatcher.register();
-    }
+    async initMQTTClient() {
+        this.mqttClient.addRegisterdListener(this.register.bind(this));
+        this.mqttClient.addUnRegisterdListener(this.unregister.bind(this));
+        this.mqttClient.addMessageListener(this.onMessage.bind(this));
 
-    unregister() {
-        this.registered = false;
-
-        //await this.messageHandler.unregister();
-        //await this.dispatcher.unregister();
-    }
-
-    onMessage(topic, message) {
-        if (this.registered && this.messageHandler) {
-            this.messageHandler.onMessage(topic, message);
+        if (this.mqttClient.isRegistered()) {
+            await this.register();
         }
     }
+ 
+    async register() {
+        Log.debug("app.register");
+        //await this.deviceStateDispatcher.register();
+        await this.deviceManager.register();
+        await this.messageHandler.register();
+        await this.systemInfoDispatcher.register();
+    }
 
-    publishMessage(msg) {
-        //this.logModule.debug(JSON.stringify(msg, null, 2));
+    async unregister() {
+        Log.debug("app.unregister");
+        await this.messageHandler.unregister();
+        await this.deviceManager.unregister();
+        await this.deviceStateDispatcher.unregister();
+        await this.systemInfoDispatcher.unregister();
+    }
 
+    async onMessage(topic, message) {
+        //Log.debug("app.onMessage");
         try {
-            if (this.registered) {
-                MQTTClient.post('send', msg);
-            }
-        } catch (error) {
-            this.logModule.error(error);
+            await this.messageHandler.onMessage(topic, message);
+        } catch (e) {
+            Log.info('Error handling message');
+            Log.debug(topic);
+            Log.debug(JSON.stringify(message || '', null, 2));
+            Log.error(e, false); // prevent notification spamming
         }
     }
 }
