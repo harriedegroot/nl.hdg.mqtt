@@ -38,7 +38,7 @@ class MQTTDispatcher extends Homey.App {
  
     async register() {
         Log.debug("app.register");
-        //await this.deviceStateDispatcher.register();
+        await this.deviceStateDispatcher.register();
         await this.deviceManager.register();
         await this.messageHandler.register();
         await this.systemInfoDispatcher.register();
