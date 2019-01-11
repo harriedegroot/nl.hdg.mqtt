@@ -1,7 +1,7 @@
 const Homey = require('homey');
 
 const logArray = [];
-const DEBUG = true;
+const DEBUG = process.env.DEBUG === '1';
 
 function getDateTime() {
 
@@ -46,7 +46,7 @@ function getAllFuncs(obj) {
     return props.sort();
 }
 
-function writelog(level, line, notification) {
+function writelog(level, line, notification, functions, implementation) {
 
    switch(level) {
        case 'error':
@@ -55,14 +55,14 @@ function writelog(level, line, notification) {
                    excerpt: line
                }, function (err, notification) {
                    if (DEBUG) console.log('Notification added');
-                   if (err) return console.error(err);
+                   if (line) return console.error(line);
                });
            } else {
                if (line) return console.error(line);
            }
            break;
        case 'debug':
-           if (DEBUG == false) break;
+           if (!DEBUG) break;
            if (typeof line === 'object') {
                let obj = line;
                if (!obj) {
@@ -71,9 +71,13 @@ function writelog(level, line, notification) {
                }
 
                writelog('info', typeof obj + ' ' + obj.constructor.name);
-               writelog('info', typeof obj + ' ' + obj.constructor);
+               if (implementation) {
+                  writelog('info', typeof obj + ' ' + obj.constructor);
+               }
                writelog('info', 'PROPERTIES: ' + JSON.stringify(obj, null, 2));
-               writelog('info', 'FUNCTIONS:' + JSON.stringify(getAllFuncs(obj), null, 2));
+               if (functions) {
+                  writelog('info', 'FUNCTIONS:' + JSON.stringify(getAllFuncs(obj), null, 2));
+               }
                break;
            }
            // NOTE: fall through
@@ -95,8 +99,8 @@ function getLogLines() {
 }
 
 module.exports = {
-    debug: function (line) {
-        writelog('debug', line);
+    debug: function (line, functions, implementation) {
+        writelog('debug', line, null, functions, implementation);
     },
     info: function (line) {
         writelog('info', line);
@@ -110,4 +114,4 @@ module.exports = {
     getLogLines: function () {
         return getLogLines();
     }
-}
+};

@@ -98,7 +98,7 @@ class Topic {
 
     toString() {
         // homey/{device.class}/{zone}/{device.name}/{capability}/{command}
-        return [
+        return this.topic || [
             this.root || DEFAULT_ROOT,
             this.getClass() || DEFAULT_CLASS,
             this.getZoneTopicName() || DEFAULT_ZONE,

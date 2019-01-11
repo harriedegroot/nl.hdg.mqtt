@@ -26,19 +26,20 @@ class DeviceStateDispatcher {
     }
 
     registerDevices() {
-        this.deviceManager.addAddedListener(this.addStateChangeListeners.bind(this));
-        //this.deviceManager.addRemovedListener(...);
-        //this.deviceManager.addUpdateListener(...);
+        this.deviceManager.onAdd.subscribe(this._addStateChangeListeners.bind(this));
+        //this.deviceManager.onRemove.subscribe(id => Log.debug('device remove: ' + id));
+        //this.deviceManager.onUpdate.subscribe(id => Log.debug('device update: ' + id));
     }
 
-    async addStateChangeListeners(device) {
+    async _addStateChangeListeners(device) {
         if (!device) return;
 
         device.on('$state', (state, capability) => {
             if (!this.registered) return;
+
             for (let trigger in state) {
                 if (state.hasOwnProperty(trigger)) {
-                    this.onStateChange(device, trigger, capability, state[trigger]);
+                    this._onStateChange(device, trigger, capability, state[trigger]);
                 }
             }
         });
@@ -46,7 +47,7 @@ class DeviceStateDispatcher {
     }
 
     // this function gets called when a device with an attached eventlistener fires an event.
-    onStateChange(device, trigger, capability, value) {
+    _onStateChange(device, trigger, capability, value) {
         const state = {
             type: 'state_change',
             device: {
@@ -76,13 +77,13 @@ class DeviceStateDispatcher {
         const topic = new Topic(state.device, state.trigger, state.type);
         const msg = new Message(topic, state);
 
-        //Log.debug(JSON.stringify(msg, null, 2));
+        //Log.debug(msg);
 
         try {
             this.mqttClient.publish(msg);
         } catch (error) {
             Log.info('Error publishing message');
-            Log.debug(JSON.stringify(msg || '', null, 2));
+            Log.debug(msg);
             Log.error(error, false); // prevent notification spamming
         }
     }

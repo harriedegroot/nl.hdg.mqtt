@@ -2,46 +2,34 @@
 
 const Homey = require('homey');
 const Log = require("./log.js");
+const EventHandler = require('./eventhandler.js');
 
 class MQTTClient  {
 
-    isRegistered() {
-        return this.registered;
-    }
+    isRegistered() { return this.registered; }
 
-    constructor(topic) {
-        this.topic = topic;
+    constructor() {
         this.clientApp = new Homey.ApiApp('nl.scanno.mqtt');
 
-        this.onRegistered = [];
-        this.onUnRegistered = [];
-        this.onMessage = [];
+        this.onRegistered = new EventHandler('MQTTClient.registered');
+        this.onUnRegistered = new EventHandler('MQTTClient.unregistered');
+        this.onMessage = new EventHandler('MQTTClient.message');
 
-        this.init();
+        this._init();
     }
 
-    init() {
+    _init() {
         // Register to app events
         this.clientApp
             .register()
-            .on('install', this.onClientAppInstalled.bind(this))
-            .on('uninstall', this.onClientAppUninstalled.bind(this))
-            .on('realtime', this.handleMessage.bind(this));
+            .on('install', this._onClientAppInstalled.bind(this))
+            .on('uninstall', this._onClientAppUninstalled.bind(this))
+            .on('realtime', this._handleMessage.bind(this));
 
         // Fetch installed app
         this.clientApp.getInstalled()
-            .then(this.onClientAppInstalled.bind(this))
+            .then(this._onClientAppInstalled.bind(this))
             .catch(error => Log.error(error));
-    }
-    
-    addRegisterdListener(callback) {
-        this.onRegistered.push(callback);
-    }
-    addUnRegisterdListener(callback) {
-        this.onUnRegistered.push(callback);
-    }
-    addMessageListener(callback) {
-        this.onMessage.push(callback);
     }
 
     subscribe(topic) {
@@ -59,45 +47,8 @@ class MQTTClient  {
         }
     }
 
-    async onClientAppInstalled(installed) {
-        Log.debug('mqttClient.onClientAppInstalled');
-        this.registered = true;
-        for (let callback of this.onRegistered) {
-            if (typeof callback === 'function') {
-                await callback();
-            }
-        }
-    }
-
-    async onClientAppUninstalled() {
-        Log.debug('mqttClient.onClientAppInstalled');
-        this.registered = false;
-        for (let callback of this.onUnRegistered) {
-            if (typeof callback === 'function') {
-                await callback();
-            }
-        }
-    }
-
-    async handleMessage(topic, message) {
-        if (!this.registered) return;
-        
-        for (let callback of this.onMessage) {
-            if (typeof callback === 'function') {
-                try {
-                    await callback(topic, message);
-                } catch (e) {
-                    Log.info('Error handling message');
-                    Log.debug(topic);
-                    Log.debug(JSON.stringify(message || '', null, 2));
-                    Log.error(e, false); // note prevent notification spamming
-                }
-            }
-        }
-    }
-
     publish(msg) {
-        Log.debug(JSON.stringify(msg, null, 2));
+        //Log.debug(msg);
 
         try {
             if (this.registered) {
@@ -105,9 +56,27 @@ class MQTTClient  {
             }
         } catch (error) {
             Log.info('Error publising message');
-            Log.debug(JSON.stringify(msg || '', null, 2));
+            Log.debug(msg);
             Log.error(error);
         }
+    }
+
+    async _onClientAppInstalled(installed) {
+        Log.debug('mqttClient.onClientAppInstalled');
+        this.registered = true;
+        await this.onRegistered.emit();
+    }
+
+    async _onClientAppUninstalled() {
+        Log.debug('mqttClient.onClientAppInstalled');
+        this.registered = false;
+        await this.onUnRegistered.emit();
+    }
+
+    async _handleMessage(topic, message) {
+        if (!this.registered) return;
+
+        await this.onMessage.emit(topic, message);
     }
 }
 

@@ -2,38 +2,16 @@
 
 const Topic = require('./topic.js');
 const Log = require('./log.js');
+const EventHandler = require('./eventhandler.js');
 
 class DeviceManager {
-
-    async emit(listeners, value) {
-        for (var i = 0; i < listeners.length; i++) {
-            const callback = listeners[i];
-            if (typeof callback === 'function') {
-                try {
-                    await callback(value);
-                } catch (e) {
-                    Log.error(e);
-                }
-            }
-        }
-    }
 
     constructor(api) {
         this.api = api;
 
-        this.addListeners = [];
-        this.removeListeners = [];
-        this.updateListeners = [];
-    }
-
-    addAddedListener(callback) {
-        this.addListeners.push(callback);
-    }
-    addRemovedListener(callback) {
-        this.removeListeners.push(callback);
-    }
-    addUpdateListener(callback) {
-        this.updateListeners.push(callback);
+        this.onAdd = new EventHandler('Device.add');
+        this.onRemove = new EventHandler('Device.remove');
+        this.onUpdate = new EventHandler('Device.update');
     }
 
     getDeviceId(device) {
@@ -59,7 +37,8 @@ class DeviceManager {
             }
         }
 
-        Log.error("Device id not found: " + JSON.stringify(device || '', null, 2));
+        Log.error("Device id not found");
+        Log.debug(device);
 
         return undefined;
     }
@@ -120,9 +99,9 @@ class DeviceManager {
     async register() {
 
         // Subscribe to realtime events and set all devices global
-        this.api.devices.on('device.create', async id => await this.addDevice(id));
-        this.api.devices.on('device.delete', async id => await this.removeDevice(id));
-        this.api.devices.on('device.update', async id => await this.updateDevice(id));
+        this.api.devices.on('device.create', async id => await this._addDevice(id));
+        this.api.devices.on('device.delete', async id => await this._removeDevice(id));
+        this.api.devices.on('device.update', async id => await this._updateDevice(id));
 
         const devices = await this.api.devices.getDevices();
         if (devices) {
@@ -137,7 +116,6 @@ class DeviceManager {
     async unregister() { }
 
     async registerDevice(device) {
-
         if (typeof device === 'object') {
 
             if (!device.id) {
@@ -172,11 +150,11 @@ class DeviceManager {
                 this.deviceTopics.set(device.id, deviceTopic);
             }
 
-            await this.emit(this.addListeners, device);
+            await this.onAdd.emit(device);
         }
     }
 
-    async addDevice(id) {
+    async _addDevice(id) {
         Log.info('New device found!');
         
         const device = await this.getDeviceById(id);
@@ -187,7 +165,7 @@ class DeviceManager {
         }
     }
 
-    async removeDevice(id) {
+    async _removeDevice(id) {
 
         const deviceName = this.getDeviceName(id);
         const deviceTopic = this.getDeviceTopic(id);
@@ -197,11 +175,11 @@ class DeviceManager {
         if (deviceName && this.deviceNames) this.deviceNames.delete(deviceName);
         if (deviceTopic && this.deviceTopics) this.deviceTopics.delete(deviceTopic);
 
-        await this.emit(this.removeListeners, id);
+        await this.onRemove.emit(id);
     }
 
-    async updateDevice(id) {
-        await this.emit(this.updateListeners, id);
+    async _updateDevice(id) {
+        await this.onUpdate.emit(id);
     }
 
     async getCapabillities(device) {

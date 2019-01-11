@@ -26,13 +26,18 @@ class SystemInfoDispatcher {
     async unregister() {
         this.registered = false;
 
+        this._resetTimeout();
+    }
+
+    _resetTimeout() {
         if (this.timeout) {
-            this.clearTimeout(this.timeout);
+            clearTimeout(this.timeout);
             this.timeout = undefined;
         }
     }
 
     async update() {
+        this._resetTimeout();
         if (!this.registered) return;
 
         try {
@@ -54,7 +59,7 @@ class SystemInfoDispatcher {
 
     /**
      * Dispatch MQTT message for device trigger with state as payload
-     * @param {any} state Message payload (Device state)
+     * @param {info} info Message payload (System info)
      * @see https://github.com/scanno/nl.scanno.mqtt/blob/f887f507be94191fb86b85f1856e0714736039fe/broker.js
      */
     publish(info) {
@@ -64,13 +69,13 @@ class SystemInfoDispatcher {
         const topic = new Topic('system', 'info');
         const msg = new Message(topic, info);
 
-        Log.debug(JSON.stringify(msg, null, 2));
+        //Log.debug(msg);
 
         try {
             this.mqttClient.publish(msg);
         } catch (error) {
             Log.info('Error publishing message');
-            Log.debug(JSON.stringify(msg || '', null, 2));
+            Log.debug(msg);
             Log.error(error, false); // prevent notification spamming
         }
     }

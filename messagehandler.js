@@ -26,12 +26,18 @@ class MessageHandler {
      *
      * @param  {type} topic   topic where message was published on
      * @param  {type} message payload of the received message
+     * @returns {type} message handeled?
      */
     async onMessage(topic, message) {
-        
-        //Log.debug(topic + ": " + JSON.stringify(message, null, 2));
 
-        if (!this.registered || !topic) return;
+        Log.debug('MessageHandler.onMessage: ' + topic);
+
+        if (!this.registered) {
+            Log.debug('[Skip] MessageHandler not registered');
+        }
+        if (!topic) {
+            Log.debug('[Skip] no topic provided');
+        }
 
         topic = new Topic().parse(topic);
         if (SKIP_COMMANDS.indexOf(topic.command) !== -1) {
@@ -39,11 +45,11 @@ class MessageHandler {
             return;
         }
 
-        Log.debug(topic);
-        Log.debug(message);
+        //Log.debug(topic);
+        //Log.debug(message);
 
-        let deviceId = this.getDeviceId(topic, message);
-        Log.debug(message);
+        const deviceId = this.getDeviceId(topic, message);
+        Log.debug("device: " + deviceId);
 
         return this.handleByCommand(topic, message, deviceId)
             || await this.handleByMessageType(topic, message, deviceId);
@@ -61,18 +67,18 @@ class MessageHandler {
 
         switch (topic.getCommand()) {
             case 'update':
-
+                // TODO: allow publishing to topic like homey/{device}/{capability}/update with message:{ value: 5 }
                 return true;
             default:
                 break;
         }
-        // TODO: allow publishing to topic like homey/{device}/{capability}/update with message:{ value: 5 }
         // TODO: request state
 
         return false;
     }
     async handleByMessageType(topic, message, deviceId) {
         if (typeof message === 'object') {
+            Log.info('handleByMessageType: ' + message.type || '<unknown>');
             switch (message.type) {
                 case 'set_capability':
                     await this.setCapability(topic, message, deviceId);
@@ -82,6 +88,8 @@ class MessageHandler {
                     // nothing
                     break;
             }
+        } else {
+            Log.info("Invalid message");
         }
         return false;
     }
@@ -118,11 +126,13 @@ class MessageHandler {
     }
 
     async setCapability(topic, message, deviceId) {
-        Log.debug('set capability: ' + topic);
+        Log.debug('set capability: ');
+        //Log.debug(topic);
 
         const capabilityId = this.getCapabilityIdFromMessage(message) || this.getCapabilityIdFromTopic(topic);
         if (!capabilityId) {
             Log.error("capability not found for topic: " + topic.toString());
+            Log.debug(message);
             return;
         }
 
