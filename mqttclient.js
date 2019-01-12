@@ -1,8 +1,8 @@
 'use strict';
 
 const Homey = require('homey');
-const Log = require("./log.js");
-const EventHandler = require('./eventhandler.js');
+const Log = require("./Log.js");
+const EventHandler = require('./EventHandler.js');
 
 class MQTTClient  {
 

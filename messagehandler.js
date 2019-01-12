@@ -1,15 +1,16 @@
 "use strict";
 
-const Log = require('./log.js');
-const Topic = require('./topic.js');
+const Log = require('./Log.js');
+const Topic = require('./Topic.js');
 
-const SKIP_COMMANDS = ['state_change', 'state'];
+const SKIP_COMMANDS = ['state'];
 
 class MessageHandler {
 
     constructor(api, deviceManager) {
         this.api = api;
         this.deviceManager = deviceManager;
+        this._commandHandlers = new Map();
     }
 
     async register() {
@@ -17,6 +18,18 @@ class MessageHandler {
     }
     async unregister() {
         this.registered = false;
+    }
+
+    addCommandHandler(commandHandler) {
+        if (!commandHandler || !Array.isArray(commandHandler.commands) || typeof commandHandler.process !== 'function') {
+            throw new Error('Invalid CommandHandler');
+        }
+
+        for (let command of commandHandler.commands) {
+            let commandHandlers = this._commandHandlers.get(command) || [];
+            commandHandlers.push(commandHandler);
+            this._commandHandlers.set(command, commandHandlers);
+        }
     }
 
     /**
@@ -51,8 +64,8 @@ class MessageHandler {
         const deviceId = this.getDeviceId(topic, message);
         Log.debug("device: " + deviceId);
 
-        return this.handleByCommand(topic, message, deviceId)
-            || await this.handleByMessageType(topic, message, deviceId);
+        const command = this.getCommand(topic, message);
+        await this._process(command, topic, message, deviceId);
     }
 
     getDeviceId(topic, message) {
@@ -63,100 +76,34 @@ class MessageHandler {
         return deviceId || this.deviceManager.getDeviceId(topic.getDeviceTopicName());
     }
 
-    handleByCommand(topic, message, deviceId) {
-
-        switch (topic.getCommand()) {
-            case 'update':
-                // TODO: allow publishing to topic like homey/{device}/{capability}/update with message:{ value: 5 }
-                return true;
-            default:
-                break;
-        }
-        // TODO: request state
-
-        return false;
-    }
-    async handleByMessageType(topic, message, deviceId) {
-        if (typeof message === 'object') {
-            Log.info('handleByMessageType: ' + message.type || '<unknown>');
-            switch (message.type) {
-                case 'set_capability':
-                    await this.setCapability(topic, message, deviceId);
-                    return true;
-                case 'state_change': // NOTE: fall through
-                default:
-                    // nothing
-                    break;
-            }
-        } else {
-            Log.info("Invalid message");
-        }
-        return false;
+    getCommand(topic, message) {
+        const command = typeof message === 'object' ? message.command : undefined;
+        return command || topic.getCommand();
     }
 
-    getCapabilityIdFromMessage(message) {
-        if (!message || !message.capability)
-            return undefined;
+    // TODO: Register command handlers
+    async _process(command, topic, message, deviceId) {
 
-        return typeof message.capability === 'object' ? message.capability.id : message.capability;
-    }
-
-    getCapabilityIdFromTopic(topic) {
-        // TODO: Return registered capability id from device manager?
-        return topic.trigger;
-    }
-
-    parseValue(message, capabilityId) {
-        if (message === undefined || message === null) return undefined;
-        let value = typeof message === 'object' ? message.value : message.toString();
-
-        // TODO: parse value to correct type
-        if (capabilityId) {
-
-            let numeric = Number(value);
-            value = isNaN(numeric) ? value : numeric;
-
-            //switch (capability.???) {
-            //    case 'number':
-            //        return Number(value);
-            // if(invalid): throw 'Invalid value FOO for capability Bar'
-            //}
-        }
-        return value;
-    }
-
-    async setCapability(topic, message, deviceId) {
-        Log.debug('set capability: ');
-        //Log.debug(topic);
-
-        const capabilityId = this.getCapabilityIdFromMessage(message) || this.getCapabilityIdFromTopic(topic);
-        if (!capabilityId) {
-            Log.error("capability not found for topic: " + topic.toString());
+        Log.info('process: ' + (command || '<unknown>'));
+        if (!command) {
             Log.debug(message);
-            return;
         }
 
-        // TODO: Check if capability exists
-        //let capability = this.deviceManager.getCapability(device, capabilityId);
-        //if (!capability) {
-        //    Log.error("capability '" + capabilityId + "' not found for device: " + device.name);
-        //    return;
-        //}
-
-        try {
-            const value = this.parseValue(message, capabilityId);
-            const state = {
-                id: deviceId,
-                capability: capabilityId,
-                value: value
-            };
-            Log.debug("state: " + JSON.stringify(state));
-            await this.api.devices.setDeviceCapabilityState(state);
-        } catch (e) {
-            Log.info("Failed to update capability value");
-            Log.error(e);
+        const handlers = this._commandHandlers.get(command);
+        if (handlers) {
+            for (let handler of handlers) {
+                if (typeof handler === 'object' && typeof handler.process === 'function') {
+                    try {
+                        await handler.process({ command, topic, message, deviceId });
+                    } catch (e) {
+                        Log.info('Error processing command: ' + command);
+                        Log.error(e, false); // note prevent notification spamming
+                    }
+                }
+            }
         }
     }
+
 }
 
 module.exports = MessageHandler;

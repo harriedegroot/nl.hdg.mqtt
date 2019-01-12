@@ -1,8 +1,8 @@
 "use strict";
 
-const Topic = require('./topic.js');
-const Log = require('./log.js');
-const EventHandler = require('./eventhandler.js');
+const Topic = require('./Topic.js');
+const Log = require('./Log.js');
+const EventHandler = require('./EventHandler.js');
 
 class DeviceManager {
 
@@ -146,8 +146,8 @@ class DeviceManager {
             this.deviceNames.set(deviceName, device.id);
 
             if (deviceTopic) {
-                this.deviceTopicIds.set(deviceTopic, device.id);
-                this.deviceTopics.set(device.id, deviceTopic);
+                this.deviceTopicIds.set(device.id, deviceTopic);
+                this.deviceTopics.set(deviceTopic, device.id);
             }
 
             await this.onAdd.emit(device);

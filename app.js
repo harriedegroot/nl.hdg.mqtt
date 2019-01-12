@@ -4,12 +4,13 @@ const TOPIC = 'homey/#';
 
 const Homey = require('homey');
 const { HomeyAPI } = require('athom-api');
-const Log = require("./log.js");
-const MQTTClient = require('./mqttclient.js');
-const DeviceManager = require("./devicemanager.js");
-const MessageHandler = require("./messagehandler.js");
-const DeviceStateDispatcher = require("./device_state_dispatcher.js");
-const SystemInfoDispatcher = require("./system_info_dispatcher.js");
+const Log = require("./Log.js");
+const MQTTClient = require('./MQTTClient.js');
+const DeviceManager = require("./DeviceManager.js");
+const MessageHandler = require("./MessageHandler.js");
+const DeviceStateDispatcher = require("./DeviceStateDispatcher.js");
+const SystemInfoDispatcher = require("./SystemInfoDispatcher.js");
+const DeviceStateCommandHandler = require("./DeviceStateCommandHandler.js");
 
 class MQTTDispatcher extends Homey.App {
 
@@ -22,6 +23,8 @@ class MQTTDispatcher extends Homey.App {
         this.messageHandler = new MessageHandler(this.api, this.deviceManager);
         this.deviceStateDispatcher = new DeviceStateDispatcher(this.api, this.mqttClient, this.deviceManager);
         this.systemInfoDispatcher = new SystemInfoDispatcher(this.api, this.mqttClient);
+
+        this.messageHandler.addCommandHandler(new DeviceStateCommandHandler(this.api, this.mqttClient));
 
         this._initMQTTClient();
     }

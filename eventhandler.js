@@ -1,6 +1,6 @@
 "use strict";
 
-const Log = require('./log.js');
+const Log = require('./Log.js');
 
 class EventHandler {
 

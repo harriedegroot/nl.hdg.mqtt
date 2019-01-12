@@ -1,8 +1,8 @@
 "use strict";
 
-const Log = require('./log.js');
-const Topic = require('./topic.js');
-const Message = require('./message.js');
+const Log = require('./Log.js');
+const Topic = require('./Topic.js');
+const Message = require('./Message.js');
 
 const DELAY = 30000;
 
