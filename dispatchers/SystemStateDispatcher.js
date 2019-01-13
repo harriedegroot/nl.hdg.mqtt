@@ -1,12 +1,12 @@
 "use strict";
 
-const Log = require('./Log.js');
-const Topic = require('./Topic.js');
-const Message = require('./Message.js');
+const Log = require('../Log.js');
+const Topic = require('../mqtt/Topic.js');
+const Message = require('../mqtt/Message.js');
 
 const DELAY = 30000;
 
-class SystemInfoDispatcher {
+class SystemStateDispatcher {
 
     constructor(api, mqttClient) {
         this.api = api;
@@ -41,13 +41,18 @@ class SystemInfoDispatcher {
         if (!this.registered) return;
 
         try {
+            // TODO: Create state value messages for each value of interest
             const info = {
                 system: await this.api.system.getInfo(),
                 storage: await this.api.system.getStorageStats(),
                 memory: await this.api.system.getMemoryStats(),
                 timestamp: new Date().getTime()
             };
-            this.publish(info);
+
+            const topic = new Topic('system', 'general', 'state');
+            const msg = new Message(topic, info);
+            this.mqttClient.publish(msg);
+
         } catch (e) {
             Log.info(e);
             Log.error("Failed to fetch system info");
@@ -56,29 +61,6 @@ class SystemInfoDispatcher {
         // loop
         this.timeout = setTimeout(this.update.bind(this), DELAY);
     }
-
-    /**
-     * Dispatch MQTT message for device trigger with state as payload
-     * @param {info} info Message payload (System info)
-     * @see https://github.com/scanno/nl.scanno.mqtt/blob/f887f507be94191fb86b85f1856e0714736039fe/broker.js
-     */
-    publish(info) {
-
-        if (!info) return;
-
-        const topic = new Topic('system', 'info');
-        const msg = new Message(topic, info);
-
-        //Log.debug(msg);
-
-        try {
-            this.mqttClient.publish(msg);
-        } catch (error) {
-            Log.info('Error publishing message');
-            Log.debug(msg);
-            Log.error(error, false); // prevent notification spamming
-        }
-    }
 }
 
-module.exports = SystemInfoDispatcher;
+module.exports = SystemStateDispatcher;

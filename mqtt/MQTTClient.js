@@ -1,8 +1,8 @@
 'use strict';
 
 const Homey = require('homey');
-const Log = require("./Log.js");
-const EventHandler = require('./EventHandler.js');
+const Log = require("../Log.js");
+const EventHandler = require('../EventHandler.js');
 
 class MQTTClient  {
 
@@ -47,6 +47,10 @@ class MQTTClient  {
         }
     }
 
+    /**
+     * Publish MQTT Message
+     * @param {any} msg Message model
+     */
     publish(msg) {
         //Log.debug(msg);
 
@@ -55,7 +59,7 @@ class MQTTClient  {
                 this.clientApp.post('send', msg);
             }
         } catch (error) {
-            Log.info('Error publising message');
+            Log.info('Error publishing message');
             Log.debug(msg);
             Log.error(error);
         }

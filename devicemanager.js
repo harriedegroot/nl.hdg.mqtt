@@ -1,6 +1,6 @@
 "use strict";
 
-const Topic = require('./Topic.js');
+const Topic = require('./mqtt/Topic.js');
 const Log = require('./Log.js');
 const EventHandler = require('./EventHandler.js');
 
@@ -99,15 +99,15 @@ class DeviceManager {
     async register() {
 
         // Subscribe to realtime events and set all devices global
-        this.api.devices.on('device.create', async id => await this._addDevice(id));
-        this.api.devices.on('device.delete', async id => await this._removeDevice(id));
-        this.api.devices.on('device.update', async id => await this._updateDevice(id));
+        this.api.devices.on('device.create', this._addDevice.bind(this));
+        this.api.devices.on('device.delete', this._removeDevice.bind(this));
+        this.api.devices.on('device.update', this._updateDevice.bind(this));
 
-        const devices = await this.api.devices.getDevices();
-        if (devices) {
-            for (let key in devices) {
-                if (Array.isArray(devices) || devices.hasOwnProperty(key)) {
-                    await this.registerDevice(devices[key]);
+        this.devices = await this.api.devices.getDevices();
+        if (this.devices) {
+            for (let key in this.devices) {
+                if (Array.isArray(this.devices) || this.devices.hasOwnProperty(key)) {
+                    await this.registerDevice(this.devices[key]);
                 }
             }
         }
@@ -149,8 +149,6 @@ class DeviceManager {
                 this.deviceTopicIds.set(device.id, deviceTopic);
                 this.deviceTopics.set(deviceTopic, device.id);
             }
-
-            await this.onAdd.emit(device);
         }
     }
 
@@ -159,7 +157,12 @@ class DeviceManager {
         
         const device = await this.getDeviceById(id);
         if (device) {
+            this.devices = this.devices || [];
+            if (!this.devices.find(device)) {
+                this.devices.push(device);
+            }
             await this.registerDevice(device);
+            await this.onAdd.emit(device);
         } else {
             Log.warning('Device not found: ' + id);
         }
@@ -174,6 +177,10 @@ class DeviceManager {
         if (this.deviceTopicIds) this.deviceIds.delete(id);
         if (deviceName && this.deviceNames) this.deviceNames.delete(deviceName);
         if (deviceTopic && this.deviceTopics) this.deviceTopics.delete(deviceTopic);
+
+        if (this.devices) {
+            this.devices = this.devices.filter(d => d.id !== id);
+        }
 
         await this.onRemove.emit(id);
     }

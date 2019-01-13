@@ -4,10 +4,10 @@
   "compatibility": ">=1.5.0",
   "sdk": 2,
   "name": {
-    "en": "MQTT dispatcher"
+    "en": "MQTT Gateway"
   },
   "description": {
-    "en": "Dispatch MQTT messages for all Homey triggers"
+    "en": "MQTT Gateway for Athom Homey"
   },
   "category": [
     "tools"

@@ -1,10 +1,12 @@
 "use strict";
 
 const Log = require('./Log.js');
-const Topic = require('./Topic.js');
+const Topic = require('./mqtt/Topic.js');
 
 const SKIP_COMMANDS = ['state'];
 
+
+// DEPRECATED: Use CommandHandlers subscribing to their own topics
 class MessageHandler {
 
     constructor(api, deviceManager) {
@@ -54,7 +56,7 @@ class MessageHandler {
 
         topic = new Topic().parse(topic);
         if (SKIP_COMMANDS.indexOf(topic.command) !== -1) {
-            //Log.debug('skip state_change message: ' + topic.toString());
+            //Log.debug('skip state_change message: ' + topic);
             return;
         }
 

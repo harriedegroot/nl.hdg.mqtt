@@ -4,29 +4,48 @@ const TOPIC = 'homey/#';
 
 const Homey = require('homey');
 const { HomeyAPI } = require('athom-api');
+const MQTTClient = require('./mqtt/MQTTClient.js');
+
+// Services
 const Log = require("./Log.js");
-const MQTTClient = require('./MQTTClient.js');
 const DeviceManager = require("./DeviceManager.js");
 const MessageHandler = require("./MessageHandler.js");
-const DeviceStateDispatcher = require("./DeviceStateDispatcher.js");
-const SystemInfoDispatcher = require("./SystemInfoDispatcher.js");
-const DeviceStateCommandHandler = require("./DeviceStateCommandHandler.js");
 
-class MQTTDispatcher extends Homey.App {
+// Dispatchers
+const DeviceStateChangeDispatcher = require("./dispatchers/DeviceStateChangeDispatcher.js");
+const SystemStateDispatcher = require("./dispatchers/SystemStateDispatcher.js");
+const FlowTriggerDispatcher = require("./dispatchers/FlowTriggerDispatcher.js");
+
+// Commands
+const DescribeCommandHandler = require("./commands/DescribeCommandHandler.js");
+const StateRequestCommandHandler = require("./commands/StateRequestCommandHandler.js");
+const UpdateCommandHandler = require("./commands/UpdateCommandHandler.js");
+
+class MQTTGateway extends Homey.App {
 
 	async onInit() {
-        Log.info('MQTT Dispatcher is running...');
+        Log.info('MQTT Gateway is running...');
 
         this.mqttClient = new MQTTClient();
         this.api = await HomeyAPI.forCurrentHomey();
         this.deviceManager = new DeviceManager(this.api);
         this.messageHandler = new MessageHandler(this.api, this.deviceManager);
-        this.deviceStateDispatcher = new DeviceStateDispatcher(this.api, this.mqttClient, this.deviceManager);
-        this.systemInfoDispatcher = new SystemInfoDispatcher(this.api, this.mqttClient);
 
-        this.messageHandler.addCommandHandler(new DeviceStateCommandHandler(this.api, this.mqttClient));
-
+        this._initDispatchers();
+        this._initCommands();
         this._initMQTTClient();
+    }
+
+    _initDispatchers() {
+        this.deviceStateChangeDispatcher = new DeviceStateChangeDispatcher(this.api, this.mqttClient, this.deviceManager);
+        this.systemStateDispatcher = new SystemStateDispatcher(this.api, this.mqttClient);
+        this.flowTriggerDispatcher = new FlowTriggerDispatcher(this.api, this.mqttClient);
+    }
+
+    _initCommands() {
+        this.messageHandler.addCommandHandler(new DescribeCommandHandler(this.api, this.mqttClient));
+        this.messageHandler.addCommandHandler(new StateRequestCommandHandler(this.api, this.mqttClient));
+        this.messageHandler.addCommandHandler(new UpdateCommandHandler(this.api, this.mqttClient));
     }
 
     async _initMQTTClient() {
@@ -38,24 +57,24 @@ class MQTTDispatcher extends Homey.App {
             await this._register();
         }
     }
- 
+    
     async _register() {
         Log.debug("app.register");
 
-        this.mqttClient.subscribe(TOPIC);
+        this.mqttClient.subscribe(TOPIC); // TOOD: Remove root wildcard subscription!
 
-        await this.deviceStateDispatcher.register();
         await this.deviceManager.register();
         await this.messageHandler.register();
-        await this.systemInfoDispatcher.register();
+        await this.deviceStateChangeDispatcher.register();
+        await this.systemStateDispatcher.register();
     }
 
     async _unregister() {
         Log.debug("app.unregister");
         await this.messageHandler.unregister();
         await this.deviceManager.unregister();
-        await this.deviceStateDispatcher.unregister();
-        await this.systemInfoDispatcher.unregister();
+        await this.deviceStateChangeDispatcher.unregister();
+        await this.systemStateDispatcher.unregister();
     }
 
     async _onMessage(topic, message) {
@@ -73,4 +92,4 @@ class MQTTDispatcher extends Homey.App {
     }
 }
 
-module.exports = MQTTDispatcher;
+module.exports = MQTTGateway;
