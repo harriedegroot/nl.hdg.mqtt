@@ -18,6 +18,7 @@ class DeviceStateChangeDispatcher {
 
         // listeners
         this.deviceManager.onAdd.subscribe(this.registerDevice.bind(this));
+
         //this.deviceManager.onRemove.subscribe(id => Log.debug('device remove: ' + id));
         //this.deviceManager.onUpdate.subscribe(id => Log.debug('device update: ' + id));
 
@@ -45,28 +46,27 @@ class DeviceStateChangeDispatcher {
     registerDevice(device) {
         if (!device) return;
 
-        device.on('$state', (state, capability) => this._handleStateChange(device, state, capability));
-        //device.on('$update', (device) => { console.log("Device updated: " + device.id) });
+        for (let i in device.capabilities) {
+          let listener = async (value) => {
+            this._handleStateChange(device, value, device.capabilities[i])
+          };
+          device.makeCapabilityInstance(device.capabilities[i], listener);
+        }
     }
 
     _handleStateChange(device, state, capability) {
         if (!this.registered) return;
-
+        Log.debug("_handleStateChange called");
         if (!state) {
             Log.debug(state);
             Log.debug(capability);
         }
 
-        for (let trigger in state) {
-            if (state.hasOwnProperty(trigger)) {
-                const value = state[trigger];
-                const topic = new Topic(device, trigger, 'state');
-                const msg = new Message(topic, value);
-                this.mqttClient.publish(msg);
-
-                Log.debug(topic + ': ' + value);
-            }
-        }
+       const value = state;
+       const topic = new Topic(device, capability, 'state');
+       const msg = new Message(topic, value);
+       this.mqttClient.publish(msg);
+       Log.debug(topic + ': ' + value);
     }
 }
 

@@ -44,8 +44,8 @@ class SystemStateDispatcher {
             // TODO: Create state value messages for each value of interest
             const info = {
                 system: await this.api.system.getInfo(),
-                storage: await this.api.system.getStorageStats(),
-                memory: await this.api.system.getMemoryStats(),
+//                storage: await this.api.system.getStorageStats(),
+//                memory: await this.api.system.getMemoryStats(),
                 timestamp: new Date().getTime()
             };
 
