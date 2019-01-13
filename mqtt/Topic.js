@@ -1,6 +1,5 @@
 "use strict";
 
-const DEFAULT_ROOT = 'homey';
 const DEFAULT_CLASS = 'unknown';
 const DEFAULT_ZONE = 'home';
 const DEFAULT_DEVICE = 'homey';
@@ -17,9 +16,8 @@ class Topic {
         return name ? name.trim().toLowerCase().normalize("NFD").replace(/[ -]+/g, "_").replace(/[^a-z0-9_]/g, "") : undefined;
     }
 
-    constructor(device, trigger, command, deviceClass, zone, root) {
+    constructor(device, trigger, command, deviceClass, zone) {
         this.topic = undefined;
-        this.root = root === undefined ? DEFAULT_ROOT : root;
         this.device = this.parseDevice(device, deviceClass, zone);
         this.trigger = trigger;
         this.command = command;
@@ -57,8 +55,6 @@ class Topic {
         return name ? name.trim() : undefined;
     }
 
-    getRoot() { return this.root; }
-
     getClass() {
         return this.getDevice().class;
     }
@@ -78,19 +74,17 @@ class Topic {
         this.topic = topic;
         if (topic) {
             if (typeof topic === 'object') {
-                this.root = topic.root === undefined ? DEFAULT_ROOT : topic.root;
                 this.device = this.parseDevice(topic.device, topic.class, topic.zone);
                 this.trigger = topic.trigger;
                 this.command = topic.command;
             } else {
                 let path = topic.split('/');
 
-                if (path.length > 5) this.command = path[5];
-                if (path.length > 4) this.trigger = path[4];
-                if (path.length > 3) this.device = this.parseDevice(path[3], path[2], path[1]);
-                else if (path.length > 2) this.device = this.parseDevice(undefined, path[2], path[1]);
-                else if (path.length > 1) this.zone = this.parseDevice(undefined, undefined, path[1]);
-                if (path.length > 0) this.root = path[0];
+                if (path.length > 4) this.command = path[4];
+                if (path.length > 3) this.trigger = path[3];
+                if (path.length > 2) this.device = this.parseDevice(path[2], path[1], path[0]);
+                else if (path.length > 1) this.device = this.parseDevice(undefined, path[1], path[0]);
+                else if (path.length > 0) this.zone = this.parseDevice(undefined, undefined, path[0]);
             }
         }
         return this;
@@ -99,7 +93,6 @@ class Topic {
     toString() {
         // homey/{device.class}/{zone}/{device.name}/{capability}/{command}
         return this.topic || [
-            this.root || DEFAULT_ROOT,
             this.getClass() || DEFAULT_CLASS,
             this.getZoneTopicName() || DEFAULT_ZONE,
             this.getDeviceTopicName() || DEFAULT_DEVICE,
@@ -109,7 +102,6 @@ class Topic {
     }
 }
 
-Topic.DEFAULT_ROOT = DEFAULT_ROOT;
 Topic.DEFAULT_CLASS = DEFAULT_CLASS;
 Topic.DEFAULT_ZONE = DEFAULT_ZONE;
 Topic.DEFAULT_DEVICE = DEFAULT_DEVICE;

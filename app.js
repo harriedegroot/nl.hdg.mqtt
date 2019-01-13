@@ -1,7 +1,5 @@
 'use strict';
 
-const TOPIC = 'homey/#';
-
 const Homey = require('homey');
 const { HomeyAPI } = require('athom-api');
 const MQTTClient = require('./mqtt/MQTTClient.js');
@@ -26,14 +24,24 @@ class MQTTGateway extends Homey.App {
 	async onInit() {
         Log.info('MQTT Gateway is running...');
 
-        this.mqttClient = new MQTTClient();
         this.api = await HomeyAPI.forCurrentHomey();
+        this.systemName = await this._getSystemName();
+        this.mqttClient = new MQTTClient(this.systemName);
         this.deviceManager = new DeviceManager(this.api);
         this.messageHandler = new MessageHandler(this.api, this.deviceManager);
 
         this._initDispatchers();
         this._initCommands();
         this._initMQTTClient();
+    }
+
+    async _getSystemName() {
+        try {
+             return await this.api.system.getSystemName();
+        } catch (e) {
+            Log.error(e, false);
+            return 'homey';
+        }
     }
 
     _initDispatchers() {
@@ -61,7 +69,7 @@ class MQTTGateway extends Homey.App {
     async _register() {
         Log.debug("app.register");
 
-        this.mqttClient.subscribe(TOPIC); // TOOD: Remove root wildcard subscription!
+        this.mqttClient.subscribe(this.systemName + '/#'); // TOOD: Remove root wildcard subscription!
 
         await this.deviceManager.register();
         await this.messageHandler.register();

@@ -3,12 +3,14 @@
 const Homey = require('homey');
 const Log = require("../Log.js");
 const EventHandler = require('../EventHandler.js');
+const Topic = require('./Topic.js');
 
 class MQTTClient  {
 
     isRegistered() { return this.registered; }
 
-    constructor() {
+    constructor(topic) {
+        this.topicRoot = topic || 'homey';
         this.clientApp = new Homey.ApiApp('nl.scanno.mqtt');
 
         this.onRegistered = new EventHandler('MQTTClient.registered');
@@ -32,8 +34,26 @@ class MQTTClient  {
             .catch(error => Log.error(error));
     }
 
+    _injectRoot(topic) {
+        if (this.topicRoot) {
+            if ((topic || '').substr(0, this.topicRoot.length) !== this.topicRoot) {
+                topic = topic ? this.topicRoot + '/' + topic : this.topicRoot;
+            }
+        }
+        return topic;
+    }
+
+    _removeRoot(topic) {
+        if (topic && this.topicRoot && topic.substr(0, this.topicRoot.length) === this.topicRoot) {
+            topic = topic.substr(this.topicRoot.length + 1);
+        }
+        return topic;
+    }
+
     subscribe(topic) {
         if (topic) {
+            topic = this._injectRoot(topic);
+
             Log.info('subscribing to topic: ' + topic);
             this.clientApp.post('subscribe', { topic: topic }, error => {
                 if (error) {
@@ -56,6 +76,7 @@ class MQTTClient  {
 
         try {
             if (this.registered) {
+                msg.mqttTopic = this._injectRoot(msg.mqttTopic);
                 this.clientApp.post('send', msg);
             }
         } catch (error) {
@@ -80,6 +101,7 @@ class MQTTClient  {
     async _handleMessage(topic, message) {
         if (!this.registered) return;
 
+        topic = this._removeRoot(topic);
         await this.onMessage.emit(topic, message);
     }
 }
