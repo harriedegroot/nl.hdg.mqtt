@@ -1,21 +1,23 @@
 {
   "id": "nl.hdg.mqtt",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "compatibility": ">=1.5.0",
   "sdk": 2,
   "name": {
-    "en": "MQTT Gateway"
+    "en": "MQTT Gateway",
+    "nl": "MQTT Gateway"
   },
   "description": {
-    "en": "MQTT Gateway for Athom Homey"
+    "en": "Communicate with Homey using MQTT messages",
+    "nl": "Communiceer met Homey via MQTT messages"
   },
   "category": [
     "tools"
   ],
   "permissions": [ "homey:manager:api", "homey:app:nl.scanno.mqtt" ],
   "images": {
-    "large": "/assets/images/large.png",
-    "small": "/assets/images/small.png"
+    "large": "/assets/images/large.jpg",
+    "small": "/assets/images/small.jpg"
   },
   "author": {
     "name": "Harrie de Groot",
@@ -35,5 +37,8 @@
         "username": "harriedegroot"
       }
     }
+  },
+  "bugs": {
+    "url": "https://github.com/harriedegroot/nl.hdg.mqtt/issues"
   }
 }
