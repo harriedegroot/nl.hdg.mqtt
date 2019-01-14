@@ -1,6 +1,3 @@
- - Use homey device name as root topic name
- - Do not subscribe to homey/#
- - Let command handlers extend MessageHandler & subscribe to topic themselves
  - Trigger flow command
  - Implement Flow trigger dispatcher
  - Settings page
@@ -8,3 +5,4 @@
    * Configure root topic
    * Include/Exclude devices & capabilities for dispatchers
    * ...
+   - Uninstall app => unsubscribe from topics

@@ -4,17 +4,20 @@ const Log = require('../Log.js');
 const Topic = require('../mqtt/Topic.js');
 const Message = require('../mqtt/Message.js');
 
+const COMMAND = 'state';
+
 class DeviceStateChangeDispatcher {
 
-    constructor(api, mqttClient, deviceManager) {
+    constructor({ api, mqttClient, deviceManager }) {
         this.api = api;
         this.mqttClient = mqttClient;
         this.deviceManager = deviceManager;
+
+        this._init();
     }
 
     // Get all devices and add them
-    async register() {
-        this.registered = true;
+    async _init() {
 
         // listeners
         this.deviceManager.onAdd.subscribe(this.registerDevice.bind(this));
@@ -25,10 +28,6 @@ class DeviceStateChangeDispatcher {
         this.registerDevices();
 
         Log.debug('Devices registered');
-    }
-
-    async unregister() {
-        this.registered = false;
     }
 
     registerDevices() {
@@ -50,7 +49,7 @@ class DeviceStateChangeDispatcher {
     }
 
     _handleStateChange(device, state, capability) {
-        if (!this.registered) return;
+        if (!this.mqttClient.isRegistered()) return;
 
         if (!state) {
             Log.debug(state);
@@ -60,7 +59,7 @@ class DeviceStateChangeDispatcher {
         for (let trigger in state) {
             if (state.hasOwnProperty(trigger)) {
                 const value = state[trigger];
-                const topic = new Topic(device, trigger, 'state');
+                const topic = new Topic(device, trigger, COMMAND);
                 const msg = new Message(topic, value);
                 this.mqttClient.publish(msg);
 

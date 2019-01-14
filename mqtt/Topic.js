@@ -6,6 +6,10 @@ const DEFAULT_DEVICE = 'homey';
 const DEFAULT_TRIGGER = 'default';
 const DEFAULT_COMMAND = 'state';
 
+/**
+ * Topic descriptor
+ * Format: <homey>/class/zone/device/trigger/command
+ * */
 class Topic {
 
     static parse(topic) {
@@ -39,12 +43,20 @@ class Topic {
         return device;
     }
 
+
+    getClass() {
+        return this.getDevice().class;
+    }
+
     getZone() {
         return this.getDevice().zone || {};
     }
     getZoneName() {
         const name = this.getZone().name;
         return name ? name.trim() : undefined;
+    }
+    getZoneTopicName() {
+        return Topic.normalize(this.getZoneName());
     }
 
     getDevice() {
@@ -53,14 +65,6 @@ class Topic {
     getDeviceName() {
         const name = this.getDevice().name;
         return name ? name.trim() : undefined;
-    }
-
-    getClass() {
-        return this.getDevice().class;
-    }
-
-    getZoneTopicName() {
-        return Topic.normalize(this.getZoneName());
     }
     getDeviceTopicName() {
         return Topic.normalize(this.getDeviceName());

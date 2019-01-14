@@ -2,21 +2,23 @@
 
 const Log = require('../Log.js');
 
+const COMMAND = 'trigger';
+
 class FlowTriggerDispatcher {
 
-    constructor(api, mqttClient) {
+    constructor({ api, mqttClient }) {
         this.api = api;
         this.mqttClient = mqttClient;
+
+        this._init();
     }
 
-    async register() {
-        this.registered = true;
-
-        await this._registerFlowTriggers();
-    }
-
-    async unregister() {
-        this.registered = false;
+    _init() {
+        //this.mqttClient.onRegistered.subscribe(this.register.bind(this));
+        //this.mqttClient.onUnRegistered.subscribe(this.unregister.bind(this));
+        if (this.mqttClient.isRegistered()) {
+            this._registerFlowTriggers();
+        }
     }
 
     async _registerFlowTriggers() {

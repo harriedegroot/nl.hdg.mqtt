@@ -29,7 +29,7 @@ The gateway provides the following commands to interact with Homey:
 The gateway allows two ways of communication, by topic & by message.  
 E.g. These two messages will both dim the tv light to 30%:
 1. publish to topic 'homey/light/living/tv/dim/update', with message payload: 0.3
-2. publish to topic 'homey/#', with message payload:
+2. publish to topic 'homey/command', with message payload:
 ```javascript
 {
   "command": "update",

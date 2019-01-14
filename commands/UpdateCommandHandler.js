@@ -1,16 +1,19 @@
 "use strict";
 
 const Log = require('../Log.js');
+const CommandHandler = require('./CommandHandler.js');
 
-class UpdateCommandHandler {
+const COMMAND = 'update';
 
-    constructor(api, mqttClient, commands) {
+class UpdateCommandHandler extends CommandHandler {
+
+    constructor({ api, mqttClient }) {
+        super(mqttClient, COMMAND);
+
         this.api = api;
-        this.mqttClient = mqttClient;
-        this.commands = commands || ['update'];
     }
 
-    async process({ topic, message, deviceId }) {
+    async execute({ topic, message, deviceId }) {
 
         Log.debug('UpdateCommandHandler.process');
 
