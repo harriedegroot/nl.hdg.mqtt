@@ -34,8 +34,8 @@ class UpdateCommandHandler extends CommandHandler {
         try {
             const value = this.parseValue(message, capabilityId);
             const state = {
-                id: deviceId,
-                capability: capabilityId,
+                deviceId: deviceId,
+                capabilityId: capabilityId,
                 value: value
             };
             Log.debug("state: " + JSON.stringify(state));
