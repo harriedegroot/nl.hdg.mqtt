@@ -4,19 +4,22 @@ const Log = require('../Log.js');
 const Topic = require('../mqtt/Topic.js');
 const Message = require('../mqtt/Message.js');
 const DeviceInfo = require('../models/DeviceInfo.js');
+const CommandHandler = require('./CommandHandler.js');
 
-class DescribeCommandHandler {
+const COMMAND = 'describe';
 
-    constructor(api, mqttClient, commands) {
+class DescribeCommandHandler extends CommandHandler {
+
+    constructor({ api, mqttClient }) {
+        super(mqttClient, COMMAND);
+
         this.api = api;
         this.mqttClient = mqttClient;
-        this.commands = commands || ['describe'];
     }
 
-    async process({ topic, message, deviceId }) {
+    async execute({ topic, message, command, deviceId }) {
 
         Log.debug('DescribeCommandHandler.process');
-        Log.debug(arguments);
 
         // TODO: check which info is requested :)
 

@@ -3,19 +3,22 @@
 const Log = require('../Log.js');
 const Topic = require('../mqtt/Topic.js');
 const Message = require('../mqtt/Message.js');
+const CommandHandler = require('./CommandHandler.js');
 
-class StateRequestCommandHandler {
+const COMMAND = 'request';
 
-    constructor(api, mqttClient, commands) {
+class StateRequestCommandHandler extends CommandHandler {
+
+    constructor({ api, mqttClient }) {
+        super(mqttClient, COMMAND);
+
         this.api = api;
         this.mqttClient = mqttClient;
-        this.commands = commands || ['request'];
     }
 
-    async process({ topic, message, deviceId }) {
+    async execute({ topic, message, deviceId }) {
 
         Log.debug('StateRequestCommandHandler.process');
-        Log.debug(arguments);
 
         const capabilityId = this.getCapabilityIdFromMessage(message) || this.getCapabilityIdFromTopic(topic);
         if (!capabilityId) {
@@ -25,7 +28,6 @@ class StateRequestCommandHandler {
         }
 
         await this._sendDeviceCapabilityValue(deviceId, capabilityId);
-        
     }
 
     getCapabilityIdFromMessage(message) {

@@ -27,76 +27,25 @@ class MQTTGateway extends Homey.App {
         this.api = await HomeyAPI.forCurrentHomey();
         this.systemName = await this._getSystemName();
         this.mqttClient = new MQTTClient(this.systemName);
-        this.deviceManager = new DeviceManager(this.api);
-        this.messageHandler = new MessageHandler(this.api, this.deviceManager);
 
-        this._initDispatchers();
-        this._initCommands();
-        this._initMQTTClient();
+        // services
+        this.deviceManager = new DeviceManager(this);
+        await this.deviceManager.register();
+        this.messageHandler = new MessageHandler(this);
+
+        // dispatchers
+        this.deviceStateChangeDispatcher = new DeviceStateChangeDispatcher(this);
+        this.systemStateDispatcher = new SystemStateDispatcher(this);
+        this.flowTriggerDispatcher = new FlowTriggerDispatcher(this);
+
+        // commands
+        this.messageHandler.addMessageHandler(new DescribeCommandHandler(this));
+        this.messageHandler.addMessageHandler(new StateRequestCommandHandler(this));
+        this.messageHandler.addMessageHandler(new UpdateCommandHandler(this));
     }
 
     async _getSystemName() {
-        try {
-             return await this.api.system.getSystemName();
-        } catch (e) {
-            Log.error(e, false);
-            return 'homey';
-        }
-    }
-
-    _initDispatchers() {
-        this.deviceStateChangeDispatcher = new DeviceStateChangeDispatcher(this.api, this.mqttClient, this.deviceManager);
-        this.systemStateDispatcher = new SystemStateDispatcher(this.api, this.mqttClient);
-        this.flowTriggerDispatcher = new FlowTriggerDispatcher(this.api, this.mqttClient);
-    }
-
-    _initCommands() {
-        this.messageHandler.addCommandHandler(new DescribeCommandHandler(this.api, this.mqttClient));
-        this.messageHandler.addCommandHandler(new StateRequestCommandHandler(this.api, this.mqttClient));
-        this.messageHandler.addCommandHandler(new UpdateCommandHandler(this.api, this.mqttClient));
-    }
-
-    async _initMQTTClient() {
-        this.mqttClient.onRegistered.subscribe(this._register.bind(this));
-        this.mqttClient.onUnRegistered.subscribe(this._unregister.bind(this));
-        this.mqttClient.onMessage.subscribe(this._onMessage.bind(this));
-
-        if (this.mqttClient.isRegistered) {
-            await this._register();
-        }
-    }
-    
-    async _register() {
-        Log.debug("app.register");
-
-        this.mqttClient.subscribe(this.systemName + '/#'); // TOOD: Remove root wildcard subscription!
-
-        await this.deviceManager.register();
-        await this.messageHandler.register();
-        await this.deviceStateChangeDispatcher.register();
-        await this.systemStateDispatcher.register();
-    }
-
-    async _unregister() {
-        Log.debug("app.unregister");
-        await this.messageHandler.unregister();
-        await this.deviceManager.unregister();
-        await this.deviceStateChangeDispatcher.unregister();
-        await this.systemStateDispatcher.unregister();
-    }
-
-    async _onMessage(topic, message) {
-        //Log.debug("app.onMessage: " + topic);
-        //Log.debug(message);
-
-        try {
-            await this.messageHandler.onMessage(topic, message);
-        } catch (e) {
-            Log.info('Error handling message');
-            Log.debug(topic);
-            Log.debug(message);
-            Log.error(e, false); // prevent notification spamming
-        }
+        return this.api.system.getSystemName ? await this.api.system.getSystemName() : 'homey';
     }
 }
 

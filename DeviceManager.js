@@ -6,7 +6,7 @@ const EventHandler = require('./EventHandler.js');
 
 class DeviceManager {
 
-    constructor(api) {
+    constructor({ api }) {
         this.api = api;
 
         this.onAdd = new EventHandler('Device.add');

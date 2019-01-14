@@ -4,21 +4,23 @@ const Log = require('../Log.js');
 const Topic = require('../mqtt/Topic.js');
 const Message = require('../mqtt/Message.js');
 
+const COMMAND = 'state';
+
 class DeviceStateChangeDispatcher {
 
-    constructor(api, mqttClient, deviceManager) {
+    constructor({ api, mqttClient, deviceManager }) {
         this.api = api;
         this.mqttClient = mqttClient;
         this.deviceManager = deviceManager;
+
+        this._init();
     }
 
     // Get all devices and add them
-    async register() {
-        this.registered = true;
+    async _init() {
 
         // listeners
         this.deviceManager.onAdd.subscribe(this.registerDevice.bind(this));
-
         //this.deviceManager.onRemove.subscribe(id => Log.debug('device remove: ' + id));
         //this.deviceManager.onUpdate.subscribe(id => Log.debug('device update: ' + id));
 
@@ -26,10 +28,6 @@ class DeviceStateChangeDispatcher {
         this.registerDevices();
 
         Log.debug('Devices registered');
-    }
-
-    async unregister() {
-        this.registered = false;
     }
 
     registerDevices() {
@@ -47,26 +45,19 @@ class DeviceStateChangeDispatcher {
         if (!device) return;
 
         for (let i in device.capabilities) {
-          let listener = async (value) => {
-            this._handleStateChange(device, value, device.capabilities[i])
-          };
-          device.makeCapabilityInstance(device.capabilities[i], listener);
+            device.makeCapabilityInstance(device.capabilities[i], value => 
+                this._handleStateChange(device, value, device.capabilities[i])
+            );
         }
     }
 
-    _handleStateChange(device, state, capability) {
+    _handleStateChange(device, value, capability) {
         if (!this.registered) return;
-        Log.debug("_handleStateChange called");
-        if (!state) {
-            Log.debug(state);
-            Log.debug(capability);
-        }
-
-       const value = state;
-       const topic = new Topic(device, capability, 'state');
-       const msg = new Message(topic, value);
-       this.mqttClient.publish(msg);
-       Log.debug(topic + ': ' + value);
+        
+        const topic = new Topic(device, capability, COMMAND);
+        const msg = new Message(topic, value);
+        this.mqttClient.publish(msg);
+        Log.debug(topic + ': ' + value);
     }
 }
 
