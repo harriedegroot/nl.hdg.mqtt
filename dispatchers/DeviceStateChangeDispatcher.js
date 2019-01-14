@@ -45,15 +45,13 @@ class DeviceStateChangeDispatcher {
         if (!device) return;
 
         for (let i in device.capabilities) {
-            device.makeCapabilityInstance(device.capabilities[i], value => 
+            device.makeCapabilityInstance(device.capabilities[i], value =>
                 this._handleStateChange(device, value, device.capabilities[i])
             );
         }
     }
 
     _handleStateChange(device, value, capability) {
-        if (!this.registered) return;
-        
         const topic = new Topic(device, capability, COMMAND);
         const msg = new Message(topic, value);
         this.mqttClient.publish(msg);
