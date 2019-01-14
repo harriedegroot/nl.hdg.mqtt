@@ -1,3 +1,4 @@
+- MQTT discovery (see OpenHAB / Domiticz)
 - Info requests:
   * System
   * Zone
@@ -5,6 +6,7 @@
   * Capabilities
   * Capability
 - Update value parsing (based on capability description)
+- Updating state for multiple devices (e.g. all devices in a room)
 - Publish system info on seperate topics (i.s.o. json)
 - Trigger flow command
 - Implement Flow trigger dispatcher
