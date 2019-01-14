@@ -34,12 +34,13 @@ class UpdateCommandHandler extends CommandHandler {
         try {
             const value = this.parseValue(message, capabilityId);
             const state = {
-                id: deviceId,
-                capability: capabilityId,
+                deviceId: deviceId,
+                capabilityId: capabilityId,
                 value: value
             };
             Log.debug("state: " + JSON.stringify(state));
-            await this.api.devices.setDeviceCapabilityState(state);
+            //await this.api.devices.setDeviceCapabilityState(state);
+            await this.api.devices.setCapabilityValue(state);
         } catch (e) {
             Log.info("Failed to update capability value");
             Log.error(e);
