@@ -1,8 +1,16 @@
- - Trigger flow command
- - Implement Flow trigger dispatcher
- - Settings page
+- Info requests:
+  * System
+  * Zone
+  * Devices
+  * Capabilities
+  * Capability
+- Update value parsing (based on capability description)
+- Publish system info on seperate topics (i.s.o. json)
+- Trigger flow command
+- Implement Flow trigger dispatcher
+- Settings page
    * Enable/Disable triggers & commands
    * Configure root topic
    * Include/Exclude devices & capabilities for dispatchers
    * ...
-   - Uninstall app => unsubscribe from topics
+- Uninstall app => unsubscribe from topics
