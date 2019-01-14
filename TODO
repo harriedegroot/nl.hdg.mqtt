@@ -1,3 +1,5 @@
+- BUG: update command doesn't handle booleans
+- Update value parsing (based on capability description)
 - MQTT discovery (see OpenHAB / Domiticz)
 - Info requests:
   * System
@@ -5,7 +7,6 @@
   * Devices
   * Capabilities
   * Capability
-- Update value parsing (based on capability description)
 - Updating state for multiple devices (e.g. all devices in a room)
 - Publish system info on seperate topics (i.s.o. json)
 - Trigger flow command
