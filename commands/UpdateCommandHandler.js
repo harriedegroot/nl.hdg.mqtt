@@ -65,6 +65,9 @@ class UpdateCommandHandler extends CommandHandler {
         // TODO: parse value to correct type
         if (capabilityId) {
 
+            if (value === 'true') return true;
+            if (value === 'false') return false;
+
             let numeric = Number(value);
             value = isNaN(numeric) ? value : numeric;
 
