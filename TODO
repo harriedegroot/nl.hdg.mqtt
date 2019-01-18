@@ -1,4 +1,6 @@
+=== TODO ===
 - MQTT discovery (see OpenHAB / Domiticz)
+- Implement Homie convention?
 - Info requests:
   * System
   * Zone
@@ -16,3 +18,21 @@
    * Include/Exclude devices & capabilities for dispatchers
    * ...
 - Uninstall app => unsubscribe from topics
+- Handle Socket hang up exceptions:
+{ Error: socket hang up
+    at Object.<anonymous> (/opt/homey-client/system/manager/ManagerApps/jsonfns.js:1:1103)
+    at JSON.parse (<anonymous>)
+    at Object.jsonToObject (/opt/homey-client/system/manager/ManagerApps/jsonfns.js:1:1001)
+    at function.e.apply.s.args.map.s (/opt/homey-client/system/manager/ManagerApps/bootstrap/sdk/v2/lib/HomeyClient.js:1:1401)
+    at Array.map (<anonymous>)
+    at HomeyClient._onMessage (/opt/homey-client/system/manager/ManagerApps/bootstrap/sdk/v2/lib/HomeyClient.js:1:1386)
+    at emitTwo (events.js:126:13)
+    at process.emit (events.js:214:7)
+    at emit (internal/child_process.js:762:12)
+    at _combinedTickCallback (internal/process/next_tick.js:142:11) message: 'socket hang up', code: 'ECONNRESET' }
+
+
+
+=== DONE ===
+- Normalize device name
+- Fix getDeviceName for homey 1.5.13
