@@ -53,9 +53,16 @@ class DeviceStateChangeDispatcher {
 
     _handleStateChange(device, value, capability) {
         if (!this.mqttClient.isRegistered()) return;
-
+        var msg = null;
         const topic = new Topic(device, capability, COMMAND);
-        const msg = new Message(topic, value);
+
+        if (typeof value === 'boolean') {
+          var onoff = value ? 'true' : 'false';
+          msg = new Message(topic, onoff);
+        } else {
+          msg = new Message(topic, value);
+        }
+
         this.mqttClient.publish(msg);
         Log.debug(topic + ': ' + value);
     }
