@@ -45,7 +45,7 @@ class MQTTGateway extends Homey.App {
     }
 
     async _getSystemName() {
-        return this.api.system.getSystemName ? await this.api.system.getSystemName() : 'homey';
+        return this.api.system.getSystemName ? await this.api.system.getSystemName() : (await this.api.system.getInfo()).hostname;
     }
 }
 

@@ -10,7 +10,7 @@ class MQTTClient  {
     isRegistered() { return this.registered; }
 
     constructor(topic) {
-        this.topicRoot = topic || 'homey';
+        this.topicRoot = Topic.normalize(topic) || 'homey';
         this.clientApp = new Homey.ApiApp('nl.scanno.mqtt');
 
         this.onRegistered = new EventHandler('MQTTClient.registered');
