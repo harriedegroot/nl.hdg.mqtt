@@ -62,8 +62,8 @@ Homey 2.0 users should use the beta version of this app.
 
 ## Change Log
 
-#### 2.0.0
-- Initial release for Homey firmware v2 (beta)
+#### 1.0.1
+- Fixed messages for boolean capabilities
 
 #### 1.0.0
 - Initial release for Homey firmware v1.5
