@@ -60,7 +60,11 @@ class DeviceStateChangeDispatcher {
             if (state.hasOwnProperty(trigger)) {
                 const value = state[trigger];
                 const topic = new Topic(device, trigger, COMMAND);
-                const msg = new Message(topic, value);
+                var strValue = value;
+                if (typeof value === 'boolean') {
+                  strValue = value ? 'true' : 'false';
+                }
+                const msg = new Message(topic, strValue);
                 this.mqttClient.publish(msg);
 
                 Log.debug(topic + ': ' + value);
