@@ -56,7 +56,7 @@ class MessageHandler {
 
             const command = this.getCommand(topic, message);
             if (command) {
-                //Log.debug('Command: ' + command);
+                Log.debug('Command: ' + command);
                 await this._processCommandHandlers(command, topic, message);
             }
         } catch (e) {
@@ -77,7 +77,7 @@ class MessageHandler {
 
     getCommand(topic, message) {
         const command = typeof message === 'object' ? message.command : undefined;
-        Log.debug("Message command: " + command);
+        //Log.debug("Message command: " + command);
         return command || topic.getCommand();
     }
 

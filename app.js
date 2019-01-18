@@ -13,6 +13,7 @@ const MessageHandler = require("./MessageHandler.js");
 const DeviceStateChangeDispatcher = require("./dispatchers/DeviceStateChangeDispatcher.js");
 const SystemStateDispatcher = require("./dispatchers/SystemStateDispatcher.js");
 const FlowTriggerDispatcher = require("./dispatchers/FlowTriggerDispatcher.js");
+const HomieDispatcher = require("./dispatchers/HomieDispatcher.js");
 
 // Commands
 const DescribeCommandHandler = require("./commands/DescribeCommandHandler.js");
@@ -37,6 +38,7 @@ class MQTTGateway extends Homey.App {
         this.deviceStateChangeDispatcher = new DeviceStateChangeDispatcher(this);
         this.systemStateDispatcher = new SystemStateDispatcher(this);
         this.flowTriggerDispatcher = new FlowTriggerDispatcher(this);
+        this.homieDispatcher = new HomieDispatcher(this);
 
         // commands
         this.messageHandler.addMessageHandler(new DescribeCommandHandler(this));

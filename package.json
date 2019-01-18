@@ -6,7 +6,9 @@
     "name": "Harrie de Groot"
   },
   "license": "ISC",
-  "devDependencies": {},
+  "devDependencies": {
+    "lodash": "^4.17.11"
+  },
   "dependencies": {
     "athom-api": "^2.0.148"
   }

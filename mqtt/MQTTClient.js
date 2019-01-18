@@ -50,9 +50,10 @@ class MQTTClient  {
         return topic;
     }
 
-    subscribe(topic) {
+    subscribe(topic, opt) {
+        opt = opt || {};
         if (topic) {
-            topic = this._injectRoot(topic);
+            topic = opt.injectRoot === false ? topic : this._injectRoot(topic);
 
             Log.info('subscribing to topic: ' + topic);
             this.clientApp.post('subscribe', { topic: topic }, error => {
@@ -71,12 +72,12 @@ class MQTTClient  {
      * Publish MQTT Message
      * @param {any} msg Message model
      */
-    publish(msg) {
+    publish(msg, opt) {
         //Log.debug(msg);
-
+        opt = opt || {};
         try {
             if (this.registered) {
-                msg.mqttTopic = this._injectRoot(msg.mqttTopic);
+                msg.mqttTopic = opt.injectRoot === false ? msg.mqttTopic : this._injectRoot(msg.mqttTopic);
                 this.clientApp.post('send', msg);
             }
         } catch (error) {
