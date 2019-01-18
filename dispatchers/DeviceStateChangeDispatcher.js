@@ -56,7 +56,7 @@ class DeviceStateChangeDispatcher {
         var msg = null;
         const topic = new Topic(device, capability, COMMAND);
 
-        if (capability === 'onoff') {
+        if (typeof value === 'boolean') {
           var onoff = value ? 'true' : 'false';
           msg = new Message(topic, onoff);
         } else {
