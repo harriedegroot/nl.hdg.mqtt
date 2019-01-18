@@ -1,6 +1,6 @@
 "use strict";
 
-const DEFAULT_CLASS = 'unknown';
+const DEFAULT_CLASS = 'other';
 const DEFAULT_ZONE = 'home';
 const DEFAULT_DEVICE = 'homey';
 const DEFAULT_TRIGGER = 'default';
