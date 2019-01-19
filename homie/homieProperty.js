@@ -88,7 +88,7 @@ proto.send = function (val) {
   }
 
   mqttClient.publish(topic, val, {retain: t.retained});
-  t.retained = false;
-  t.rangeIndex = null;
+  //t.retained = false;
+  //t.rangeIndex = null;
   return t;
 }
