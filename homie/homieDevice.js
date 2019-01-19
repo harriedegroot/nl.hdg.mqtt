@@ -132,9 +132,9 @@ proto.setup = function(quiet) {
   t.mqttClient.subscribe(t.mqttTopic + '/#');
   t.mqttClient.subscribe(t.config.mqtt.base_topic + '$broadcast/#');
 
-  //if (!quiet) {
-  //  console.log('Connected Homie ' + t.mqttTopic + ' to ' + mqttServer);
-  //}
+  if (!quiet) {
+    console.log('Connected Homie ' + t.mqttTopic + ' to ' + mqttServer);
+  }
 }
 
 // Stop the device

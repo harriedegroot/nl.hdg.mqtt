@@ -34,12 +34,16 @@ class HomieDispatcher {
         });
 
         this._registerDevices();
-        this.homieDevice.setup();
+        this.homieDevice.setup(true);
+
+        // launch
+        if (mqttClient.isRegistered()) {
+            this.homieDevice.onConnect();
+        }
     }
 
     get config() {
         if (!this._config) {
-            //const topic = normalize(this.system.name) || 'homie';
             this._config = {
                 name: this.system.name || "Homey",
                 device_id: normalize(this.system.name) || 'unknown',
@@ -116,10 +120,6 @@ class HomieDispatcher {
                             await this._handleStateChange(node, device.id, id, value);
                         });
                     }
-                    
-                    //this.homieDevice.on('message:my/topic', function (value) {
-                    //    Log.debug('A message arrived on the my/topic topic with value: ' + value);
-                    //});
                 }
             }
         }
