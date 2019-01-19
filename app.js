@@ -26,8 +26,8 @@ class MQTTGateway extends Homey.App {
         Log.info('MQTT Gateway is running...');
 
         this.api = await HomeyAPI.forCurrentHomey();
-        this.systemName = await this._getSystemName();
-        this.mqttClient = new MQTTClient(this.systemName);
+        this.system = await this._getSystemInfo();
+        this.mqttClient = new MQTTClient(this.system.name);
 
         // services
         this.deviceManager = new DeviceManager(this);
@@ -46,8 +46,15 @@ class MQTTGateway extends Homey.App {
         this.messageHandler.addMessageHandler(new UpdateCommandHandler(this));
     }
 
-    async _getSystemName() {
-        return this.api.system.getSystemName ? await this.api.system.getSystemName() : (await this.api.system.getInfo()).hostname;
+    //async _getSystemName() {
+    //    return this.api.system.getSystemName ? await this.api.system.getSystemName() : (await this.api.system.getInfo()).hostname;
+    //}
+    async _getSystemInfo() {
+        const info = await this.api.system.getInfo();
+        return {
+            name: info.hostname,
+            version: info.homey_version
+        };
     }
 }
 
