@@ -81,7 +81,7 @@ class HomieDispatcher {
         if (!device) return;
 
         // homieDevice.node(name, friendlyName, type, startRange, endRange)
-        let node = this.homieDevice.node(normalize(device.name), device.name, this._convertType(device.class));
+        let node = this.homieDevice.node(normalize(device.name), device.name, this._convertClass(device.class));
         
         const capabilities = device.capabilitiesObj || device.capabilities;
         if (capabilities) {
@@ -95,10 +95,16 @@ class HomieDispatcher {
                     }
 
                     const value = device.state ? device.state[id] : undefined;
+                    const capabilityTitle = typeof capability.title === 'object' ? capability.title['en'] : capability.title;
+                    const capabilityName = capabilityTitle || capability.name || id;
+                    const name = _.replace([device.name, capabilityName].filter(x => x).join(' - '), "_", " ");
+                    const dataType = this._convertType(capability.type);
+
                     const property = node.advertise(normalize(id))
-                        .setName(capability.title || capability.name || id)
+                        .setName(name + ` (#${id})`)
                         .setUnit(this._convertUnit(capability.units)) 
-                        .setDatatype(this._convertType(capability.type)) 
+                        .setDatatype(dataType) 
+                        .setRetained(true) // for now
                         .send(this._formatValue(value)); 
 
                     //node.advertiseRange('my-property-2', 0, 10);
@@ -116,7 +122,7 @@ class HomieDispatcher {
 
                     if (capability.setable) {
                         property.settable(async (range, value) => {
-                            await this.setValue(device.id, id, value);
+                            await this.setValue(device.id, id, value, dataType);
                             await this._handleStateChange(node, device.id, id, value);
                         });
                     }
@@ -127,12 +133,15 @@ class HomieDispatcher {
         device.on('$state', (state, capability) => this._handleStateChange(node, device.id, capability, state[capability]));
     }
 
-    _convertType(deviceClass) {
+    _convertClass(deviceClass) {
         // TODO: Convert Homey device class to Homie convention based types
         return deviceClass;
     }
 
     _convertUnit(units) {
+
+        let unit = typeof units === 'object' ? units['en'] : units;
+
         // TODO: Convert Homey units to Homie convention based units
 
         /* Recommended units:
@@ -153,7 +162,7 @@ class HomieDispatcher {
         # Count or Amount
         */
 
-        return units;
+        return unit;
     }
 
     _convertType(type) {
@@ -161,7 +170,12 @@ class HomieDispatcher {
 
         // accepted: integer, float, boolean, string, enum, color
 
-        return type || 'integer';
+        switch (type) {
+            case 'number':
+                return 'float';
+            default:
+                return type || 'integer';
+        }
     }
 
     _format(capability) {
@@ -188,7 +202,7 @@ class HomieDispatcher {
         }
     }
 
-    async setValue(deviceId, capabilityId, value) {
+    async setValue(deviceId, capabilityId, value, dataType) {
 
         Log.debug('HomieDispatcher.setValue');
 
@@ -196,7 +210,7 @@ class HomieDispatcher {
             const state = {
                 id: deviceId,
                 capability: capabilityId,
-                value: this._parseValue(value, capabilityId)
+                value: this._parseValue(value, dataType)
             };
             Log.debug("state: " + JSON.stringify(state));
             await this.api.devices.setDeviceCapabilityState(state);
@@ -213,14 +227,23 @@ class HomieDispatcher {
         return value;
     }
 
-    _parseValue(value, capabilityId) {
-        if (value === 'true') return true;
-        if (value === 'false') return false;
-
-        let numeric = Number(value);
-        value = isNaN(numeric) ? value : numeric;
-
-        return value;
+    _parseValue(value, dataType) {
+        switch (dataType) {
+            case 'boolean':
+                return value === true || value === 'true' || value === 1 || value === '1';
+            case 'number':
+            case 'float':
+                return typeof value === 'number' ? value : typeof value === 'string' ? Number(value) || 0 : 0;
+            case 'integer':
+                return typeof value === 'number' ? value : typeof value === 'string' ? parseInt(value) || 0 : 0;
+            case 'string':
+                return value ? value.toString() : undefined;
+            case 'enum':    // TODO: parse colors
+            case 'color':   // TODO: parse colors
+            default:
+                let numeric = Number(value);
+                return isNaN(numeric) ? value : numeric;
+        }
     }
 }
 
