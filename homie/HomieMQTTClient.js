@@ -1,6 +1,7 @@
 'use strict';
 
 const Log = require("../Log.js");
+const Message = require("../mqtt/Message.js");
 
 const CLIENT_OPTIONS = {
     injectRoot: false
@@ -13,14 +14,10 @@ class HomieMQTTClient  {
     }
 
     publish(topic, msg, opt) {
-        opt = opt || {};
         if (msg) {
-            this.mqttClient.publish({
-                qos: opt.qos || 0,
-                retain: !!opt.retain,
-                mqttTopic: topic,
-                mqttMessage: msg
-            }, CLIENT_OPTIONS);
+            opt = opt || {};
+            const message = new Message(topic, msg, opt.qos, opt.retain);
+            this.mqttClient.publish(message, CLIENT_OPTIONS);
         }
     }
 
