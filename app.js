@@ -20,6 +20,9 @@ const DescribeCommandHandler = require("./commands/DescribeCommandHandler.js");
 const StateRequestCommandHandler = require("./commands/StateRequestCommandHandler.js");
 const UpdateCommandHandler = require("./commands/UpdateCommandHandler.js");
 
+const HOMIE_CONVENTION = true;  // TODO: Read from app settings
+const SYSTEM_INFO = false;      // TODO: Read from app settings
+
 class MQTTGateway extends Homey.App {
 
 	async onInit() {
@@ -29,21 +32,30 @@ class MQTTGateway extends Homey.App {
         this.system = await this._getSystemInfo();
         this.mqttClient = new MQTTClient(this.system.name);
 
-        // services
+        // devices
         this.deviceManager = new DeviceManager(this);
         await this.deviceManager.register();
-        this.messageHandler = new MessageHandler(this);
 
-        // dispatchers
-        this.deviceStateChangeDispatcher = new DeviceStateChangeDispatcher(this);
-        this.systemStateDispatcher = new SystemStateDispatcher(this);
-        this.flowTriggerDispatcher = new FlowTriggerDispatcher(this);
-        this.homieDispatcher = new HomieDispatcher(this);
+        // TODO: Read from app settings
+        if (HOMIE_CONVENTION) {
+            this.homieDispatcher = new HomieDispatcher(this);
+        } else {
+            this.messageHandler = new MessageHandler(this);
 
-        // commands
-        this.messageHandler.addMessageHandler(new DescribeCommandHandler(this));
-        this.messageHandler.addMessageHandler(new StateRequestCommandHandler(this));
-        this.messageHandler.addMessageHandler(new UpdateCommandHandler(this));
+            // dispatchers
+            this.deviceStateChangeDispatcher = new DeviceStateChangeDispatcher(this);
+            this.flowTriggerDispatcher = new FlowTriggerDispatcher(this);
+
+            // commands
+            this.messageHandler.addMessageHandler(new DescribeCommandHandler(this));
+            this.messageHandler.addMessageHandler(new StateRequestCommandHandler(this));
+            this.messageHandler.addMessageHandler(new UpdateCommandHandler(this));
+        }
+
+        // TODO: Read from app settings
+        if (SYSTEM_INFO) {
+            this.systemStateDispatcher = new SystemStateDispatcher(this);
+        }
     }
 
     //async _getSystemName() {
