@@ -198,7 +198,6 @@ class HomieDispatcher {
 
         // Catch colors
         if (capabilityId === 'light_hue') {
-            Log.debug(state);
             capabilityId = 'color';
             value = this._formatColor(state);
             Log.debug("Homie set color: " + value);
@@ -242,13 +241,13 @@ class HomieDispatcher {
         if (split.length === 3) {
             try {
                 let color = COLOR_FORMAT === 'rgb' ? Color.RGBtoHSV(...split) : { h: split[0], s: split[1], v: split[2] };
+                Log.debug("color: " + JSON.stringify(color));
 
                 // Note: Homey values are rang 0...1
                 color.h /= 360;
                 color.s /= 100;
                 color.v /= 100;
 
-                Log.debug("color: " + JSON.stringify(color));
                 await this.api.devices.setDeviceCapabilityState({ id: deviceId, capability: 'light_hue', value: color.h });
                 await this.api.devices.setDeviceCapabilityState({ id: deviceId, capability: 'light_saturation', value: color.s });
                 await this.api.devices.setDeviceCapabilityState({ id: deviceId, capability: 'light_temperature', value: color.v });
@@ -294,8 +293,8 @@ class HomieDispatcher {
                 return typeof value === 'number' ? value : typeof value === 'string' ? parseInt(value) || 0 : 0;
             case 'string':
                 return value ? value.toString() : undefined;
-            case 'enum':    // TODO: parse enum
-            case 'color':   // TODO: parse colors
+            case 'enum':
+            case 'color':
             default:
                 let numeric = Number(value);
                 return isNaN(numeric) ? value : numeric;
