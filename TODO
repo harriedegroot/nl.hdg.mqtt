@@ -1,9 +1,14 @@
 === TODO ===
+- Try to combine the old topic format with the Homie Convention (&Ditch the old topic format?)
 - Settings page
-   * Enable/Disable triggers & commands
-   * Configure root topic
-   * Include/Exclude devices & capabilities for dispatchers
-   * ...
+	* Select communication protocol (Homie | Homey)
+	* Homie color format (HSV | RGB)
+	* Configure root topic
+	* Configure Homie topic
+	* Enable/disable system state dispatcher
+	* Enable/Disable triggers & commands
+	* Include/Exclude devices & capabilities for dispatchers
+	* ...
 - Homie Convention for Homey v2.0
 - Info requests:
   * System
