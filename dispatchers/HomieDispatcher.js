@@ -136,24 +136,28 @@ class HomieDispatcher {
 
     _convertUnit(capability) {
 
-        if (capability.id === 'light_hue' || capability.id === 'light_saturation' || capability.id === 'light_temperature') {
-            return COLOR_FORMAT;
+        switch (capability.id) {
+            case 'light_hue':
+            case 'light_saturation':
+            case 'light_temperature':
+                return COLOR_FORMAT;
+            case 'dim':
+                //return '%';
+            default:
+                const units = capability.units;
+                return typeof units === 'object' ? units['en'] : units;
         }
-
-        const units = capability.units;
-        return typeof units === 'object' ? units['en'] : units;
     }
 
     _convertDataType(capability) {
-
-        // Catch 'color' type
-        if (capability.id === 'light_hue') {
-            return 'color';
+        switch (capability.id) {
+            case 'light_hue':
+                return 'color';         // Catch 'color' type
+            case 'light_saturation':
+            case 'light_temperature':
+                return undefined;       // NOTE: Skip additional color value. The color dataType is already created from 'light_hue'
         }
-        if (capability.id === 'light_saturation' || capability.id === 'light_temperature') {
-            return undefined; // NOTE: Skip additional color value. The color dataType is already created from 'light_hue'
-        }
-
+        
         let dataType = capability.type;
         switch (dataType) {
             case 'number':
@@ -172,8 +176,11 @@ class HomieDispatcher {
         */
 
         // Catch 'color' format
-        if (capability.id === 'light_hue' || capability.id === 'light_saturation' || capability.id === 'light_temperature') {
-            return COLOR_FORMAT;
+        switch (capability.id) {
+            case 'light_hue':
+            case 'light_saturation':
+            case 'light_temperature':
+                return COLOR_FORMAT;
         }
 
         if (capability.min !== undefined && capability.max !== undefined) {
@@ -188,6 +195,11 @@ class HomieDispatcher {
     }
 
     async _handleStateChange(node, deviceId, capabilityId, state) {
+        if (!node) {
+            Log.debug("[SKIP] No valid node provided");
+            return;
+        }
+
         let value = state[capabilityId];
         Log.debug("Homie set value: " + value);
 
@@ -207,7 +219,12 @@ class HomieDispatcher {
         }
 
         try {
-            node.setProperty(normalize(capabilityId)).setRetained(true).send(this._formatValue(value));
+            const property = node.setProperty(normalize(capabilityId));
+            if (property) {
+                property.setRetained(true).send(this._formatValue(value));
+            } else {
+                Log.debug("No property found for capability: " + capabilityId);
+            }
         } catch (e) {
             Log.error(e);
         }
