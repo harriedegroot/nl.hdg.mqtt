@@ -1,6 +1,10 @@
 === TODO ===
-- MQTT discovery (see OpenHAB / Domiticz)
-- Implement Homie convention?
+- Settings page
+   * Enable/Disable triggers & commands
+   * Configure root topic
+   * Include/Exclude devices & capabilities for dispatchers
+   * ...
+- Homie Convention for Homey v2.0
 - Info requests:
   * System
   * Zone
@@ -12,11 +16,6 @@
 - Publish system info on seperate topics (i.s.o. json)
 - Trigger flow command
 - Implement Flow trigger dispatcher
-- Settings page
-   * Enable/Disable triggers & commands
-   * Configure root topic
-   * Include/Exclude devices & capabilities for dispatchers
-   * ...
 - Uninstall app => unsubscribe from topics
 - Handle Socket hang up exceptions:
 { Error: socket hang up
@@ -32,7 +31,8 @@
     at _combinedTickCallback (internal/process/next_tick.js:142:11) message: 'socket hang up', code: 'ECONNRESET' }
 
 
-
 === DONE ===
 - Normalize device name
 - Fix getDeviceName for homey 1.5.13
+- MQTT discovery (see OpenHAB / Domiticz)
+- Implement Homie convention (Homey v1.5.13)
