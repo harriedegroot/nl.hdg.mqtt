@@ -151,7 +151,7 @@ proto.onConnect = function() {
 
   // Advertise device properties
   t.mqttClient.publish(t.mqttTopic + '/$state', 'init', {retain:true});
-  t.mqttClient.publish(t.mqttTopic + '/$homie', homieVersion, {retain:true});
+  t.mqttClient.publish(t.mqttTopic + '/$homie', homieVersion, {retain:true, qos: 1 });
   t.mqttClient.publish(t.mqttTopic + '/$implementation', homieImplName, {retain:true});
   t.mqttClient.publish(t.mqttTopic + '/$implementation/version', homieImplVersion, {retain:true});
   if (t.firmwareName) {
