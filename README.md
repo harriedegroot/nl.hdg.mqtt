@@ -26,7 +26,6 @@ E.g. These two messages will both dim the tv light to 30%:
   "value": 0.3
 }
 ```
-
 #### MQTT Client
 This app uses the [MQTT Client](https://apps.athom.com/app/nl.scanno.mqtt) (beta) to communicate with a MQTT broker.
 
@@ -37,12 +36,10 @@ The following message format is used for communication:
 Note: `system name`, `zone` & `device name` will be normalized.  
 E.g. Homey/light/Living room/Light tv/... -> homey/light/living_room/light_tv/...
 
-
 #### Messages
 Messages with the following commands are dispatched by the Gateway:
 - `state`: Current state value. Dispatched on device state changes or on `request` command.
 - `info`: JSON Object describing the element(s) in the request (Zone, Device, Capability, etc.).
-
 
 #### Commands
 The gateway provides the following commands to interact with Homey:
@@ -50,15 +47,12 @@ The gateway provides the following commands to interact with Homey:
 - `update`: Update a device state (capability).
 - `describe`: Request a description of a Zone/Device/Capability/etc. Results will be published in a `info` message.
 
-
 #### Device mapping
 - Device id's will automatically be resolved from the device id, name or topic (in this order).
 - The device name may contain either de original name or the normalized version.
 
-
 ## Homey firmware v1.5 and v2
 Homey 2.0 users should use the beta version of this app.
-
 
 ## Future
 - Create the abillity to listen to app flow triggers.
@@ -66,15 +60,10 @@ Homey 2.0 users should use the beta version of this app.
 - Settings page for managing the Gateway (on/off, select devices/capabilities, etc.).
 - etc.
 
-
 ## Change Log
 
-#### 1.0.2
-- Fixed getting device name
-- Normalize device name
-
-#### 1.0.1
+#### 2.0.1
 - Fixed messages for boolean capabilities
 
-#### 1.0.0
-- Initial release for Homey firmware v1.5
+#### 2.0.0
+- Initial release for Homey firmware v2 (beta)

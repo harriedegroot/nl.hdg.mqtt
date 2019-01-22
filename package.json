@@ -10,6 +10,6 @@
     "lodash": "^4.17.11"
   },
   "dependencies": {
-    "athom-api": "^2.0.148"
+    "athom-api": "^2.1.151"
   }
 }

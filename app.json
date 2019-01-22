@@ -1,7 +1,7 @@
 {
   "id": "nl.hdg.mqtt",
-  "version": "1.0.2",
-  "compatibility": ">=1.5.0",
+  "version": "2.0.1",
+  "compatibility": ">=2.0.0",
   "sdk": 2,
   "name": {
     "en": "MQTT Gateway",
@@ -28,6 +28,10 @@
       {
         "name": "Harrie de Groot",
         "email": "harriedegroot@gmail.com"
+      },
+      {
+        "name": "Menno van Grinsven",
+        "email": "mgrinsven@gmail.com"
       }
     ]
   },

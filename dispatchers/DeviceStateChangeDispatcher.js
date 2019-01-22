@@ -44,32 +44,27 @@ class DeviceStateChangeDispatcher {
     registerDevice(device) {
         if (!device) return;
 
-        device.on('$state', (state, capability) => this._handleStateChange(device, state, capability));
-        //device.on('$update', (device) => { console.log("Device updated: " + device.id) });
+        for (let i in device.capabilities) {
+            device.makeCapabilityInstance(device.capabilities[i], value =>
+                this._handleStateChange(device, value, device.capabilities[i])
+            );
+        }
     }
 
-    _handleStateChange(device, state, capability) {
+    _handleStateChange(device, value, capability) {
         if (!this.mqttClient.isRegistered()) return;
+        var msg = null;
+        const topic = new Topic(device, capability, COMMAND);
 
-        if (!state) {
-            Log.debug(state);
-            Log.debug(capability);
+        if (typeof value === 'boolean') {
+          var onoff = value ? 'true' : 'false';
+          msg = new Message(topic, onoff);
+        } else {
+          msg = new Message(topic, value);
         }
 
-        for (let trigger in state) {
-            if (state.hasOwnProperty(trigger)) {
-                const value = state[trigger];
-                const topic = new Topic(device, trigger, COMMAND);
-                var strValue = value;
-                if (typeof value === 'boolean') {
-                  strValue = value ? 'true' : 'false';
-                }
-                const msg = new Message(topic, strValue);
-                this.mqttClient.publish(msg);
-
-                Log.debug(topic + ': ' + value);
-            }
-        }
+        this.mqttClient.publish(msg);
+        Log.debug(topic + ': ' + value);
     }
 }
 
