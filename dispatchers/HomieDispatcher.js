@@ -116,16 +116,16 @@ class HomieDispatcher {
                         }
 
                         // NOTE: Ranges not implemented
+                    }
 
-                        // Listen to state changes
-                        try {
-                            device.makeCapabilityInstance(key, value =>
-                                this._handleStateChange(node, device.id, key, value)
-                            );
-                        } catch (e) {
-                            Log.debug("Error capability: " + key);
-                            Log.debug(e);
-                        }
+                    // Listen to state changes
+                    try {
+                        device.makeCapabilityInstance(key, value =>
+                            this._handleStateChange(node, device.id, key, value)
+                        );
+                    } catch (e) {
+                        Log.debug("Error capability: " + key);
+                        Log.debug(e);
                     }
                 }
             }
@@ -205,7 +205,7 @@ class HomieDispatcher {
         }
 
         //let value = state[capabilityId];
-        Log.debug("Homie set value: " + value);
+        Log.debug("Homie set value [" + capabilityId + "]: " + value);
 
         if (value === undefined) {
             Log.debug("Homie: No value provided");
@@ -289,12 +289,12 @@ class HomieDispatcher {
         switch (COLOR_FORMAT) {
             case 'hsv':
                 return [
-                    capabilities['light_hue'] * 360,
-                    capabilities['light_saturation'] * 100,
-                    capabilities['light_temperature'] * 100
+                    capabilities['light_hue'].value * 360,
+                    capabilities['light_saturation'].value * 100,
+                    capabilities['light_temperature'].value * 100
                 ].join(',');
             case 'rgb':
-                const rgb = Color.HSVtoRGB(capabilities['light_hue'] * 360, capabilities['light_saturation'] * 100, capabilities['light_temperature'] * 100);
+                const rgb = Color.HSVtoRGB(capabilities['light_hue'].value * 360, capabilities['light_saturation'].value * 100, capabilities['light_temperature'].value * 100);
                 return [rgb.r, rgb.g, rgb.b].join(',');
         }
     }
