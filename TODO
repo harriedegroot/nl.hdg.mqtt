@@ -9,7 +9,7 @@
 	* Enable/Disable triggers & commands
 	* Include/Exclude devices & capabilities for dispatchers
 	* ...
-- Homie Convention for Homey v2.0
+- HASS Discovery
 - Info requests:
   * System
   * Zone
@@ -41,3 +41,4 @@
 - Fix getDeviceName for homey 1.5.13
 - MQTT discovery (see OpenHAB / Domiticz)
 - Implement Homie convention (Homey v1.5.13)
+- Homie Convention for Homey v2.0
