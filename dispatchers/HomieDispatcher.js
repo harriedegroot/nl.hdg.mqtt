@@ -272,9 +272,9 @@ class HomieDispatcher {
                 color.s /= 100;
                 color.v /= 100;
 
-                await this.api.devices.setDeviceCapabilityState({ id: deviceId, capability: 'light_hue', value: color.h });
-                await this.api.devices.setDeviceCapabilityState({ id: deviceId, capability: 'light_saturation', value: color.s });
-                await this.api.devices.setDeviceCapabilityState({ id: deviceId, capability: 'light_temperature', value: color.v });
+                await this.api.devices.setCapabilityValue({ deviceId: deviceId, capabilityId: 'light_hue', value: color.h });
+                await this.api.devices.setCapabilityValue({ deviceId: deviceId, capabilityId: 'light_saturation', value: color.s });
+                await this.api.devices.setCapabilityValue({ deviceId: deviceId, capabilityId: 'light_temperature', value: color.v });
             } catch (e) {
                 Log.info("Homie: Failed to update color value");
                 Log.error(e);
