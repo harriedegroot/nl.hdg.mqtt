@@ -32,6 +32,9 @@ class MQTTGateway extends Homey.App {
         this.system = await this._getSystemInfo();
         this.mqttClient = new MQTTClient(this.system.name);
 
+        // Suppress memory leak warning
+        this.api.devices.setMaxListeners(9999); 
+
         // devices
         this.deviceManager = new DeviceManager(this);
         await this.deviceManager.register();

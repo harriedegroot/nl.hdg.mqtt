@@ -78,28 +78,23 @@ class HomieDispatcher {
             }
         }
     }
-
+    
     _registerDevice(device) {
         if (!device) return;
 
         // homieDevice.node(name, friendlyName, type, startRange, endRange)
         let node = this.homieDevice.node(normalize(device.name), device.name, this._convertClass(device.class));
 
-        const capabilities = device.capabilitiesObj || device.capabilities;
+        const capabilities = device.capabilitiesObj;
         if (capabilities) {
             for (let key in capabilities) {
-                const capability = capabilities[key];
-                const id = capability.id;
-                if (capabilities.hasOwnProperty(id)) {
-                    if (!device.state || !device.state.hasOwnProperty(id)) {
-                        Log.debug("Homie: No state value found for trigger: " + id);
-                        continue;
-                    }
-
+                if (capabilities.hasOwnProperty(key)) {
+                    const capability = capabilities[key];
+                    const id = capability.id;
                     const color = (id === 'light_hue') ? 'color' : null;
-                    const value = device.state ? device.state[id] : undefined;
-                    const capabilityTitle = color ? 'Color' : typeof capability.title === 'object' ? capability.title['en'] : capability.title;
-                    const capabilityName = capabilityTitle || capability.name || id;
+                    const value = capability.value;
+                    const capabilityTitle = color ? 'Color' : (capability.title && typeof capability.title === 'object') ? capability.title['en'] : capability.title;
+                    const capabilityName = capabilityTitle || capability.desc || id;
                     const name = _.replace([device.name, capabilityName].filter(x => x).join(' - '), "_", " ");
                     const dataType = this._convertDataType(capability);
 
@@ -109,7 +104,7 @@ class HomieDispatcher {
                             .setUnit(this._convertUnit(capability))
                             .setDatatype(dataType)
                             .setRetained(true)
-                            .send(color ? this._formatColor(device.state) : this._formatValue(value)); 
+                            .send(color ? this._formatColor(capabilities) : this._formatValue(value)); 
 
                         const format = this._format(capability);
                         if (format) {
@@ -121,13 +116,22 @@ class HomieDispatcher {
                         }
 
                         // NOTE: Ranges not implemented
+
+                        // Listen to state changes
+                        try {
+                            device.makeCapabilityInstance(key, value =>
+                                this._handleStateChange(node, device.id, key, value)
+                            );
+                        } catch (e) {
+                            Log.debug("Error capability: " + key);
+                            Log.debug(e);
+                        }
                     }
                 }
             }
         }
 
-        // Listen to state changes
-        device.on('$state', (state, capability) => this._handleStateChange(node, device.id, capability, state));
+        //device.on('$state', (state, capability) => this._handleStateChange(node, device.id, capability, state));
     }
 
     _convertClass(deviceClass) {
@@ -145,7 +149,7 @@ class HomieDispatcher {
                 //return '%';
             default:
                 const units = capability.units;
-                return typeof units === 'object' ? units['en'] : units;
+                return units && typeof units === 'object' ? units['en'] : units;
         }
     }
 
@@ -194,13 +198,13 @@ class HomieDispatcher {
         return null;
     }
 
-    async _handleStateChange(node, deviceId, capabilityId, state) {
+    async _handleStateChange(node, deviceId, capabilityId, /*state*/value) {
         if (!node) {
             Log.debug("[SKIP] No valid node provided");
             return;
         }
 
-        let value = state[capabilityId];
+        //let value = state[capabilityId];
         Log.debug("Homie set value: " + value);
 
         if (value === undefined) {
@@ -211,8 +215,11 @@ class HomieDispatcher {
         // Catch colors
         if (capabilityId === 'light_hue') {
             capabilityId = 'color';
-            value = this._formatColor(state);
-            Log.debug("Homie set color: " + value);
+            let device = await this.api.devices.getDevice({ id: deviceId });
+            if (device) {
+                value = this._formatColor(device.capabilitiesObj);
+                Log.debug("Homie set color: " + value);
+            }
         }
         if (capabilityId === 'light_saturation' || capabilityId === 'light_temperature') {
             return; // NOTE: Skip additional color value. The color dataType is already handled by 'light_hue'
@@ -240,14 +247,14 @@ class HomieDispatcher {
         } else { // all other datatypes
             try {
                 const state = {
-                    id: deviceId,
-                    capability: capabilityId,
+                    deviceId: deviceId,
+                    capabilityId: capabilityId,
                     value: this._parseValue(value, dataType)
                 };
                 Log.debug("state: " + JSON.stringify(state));
-                await this.api.devices.setDeviceCapabilityState(state);
+                await this.api.devices.setCapabilityValue(state);
             } catch (e) {
-                Log.info("Homie: Failed to update capability value");
+                Log.info("Failed to update capability value");
                 Log.error(e);
             }
         }
@@ -277,17 +284,17 @@ class HomieDispatcher {
         }
     }
 
-    _formatColor(state) {
+    _formatColor(capabilities) {
         // Note: Homey values are rang 0...1
         switch (COLOR_FORMAT) {
             case 'hsv':
                 return [
-                    state['light_hue'] * 360,
-                    state['light_saturation'] * 100,
-                    state['light_temperature'] * 100
+                    capabilities['light_hue'] * 360,
+                    capabilities['light_saturation'] * 100,
+                    capabilities['light_temperature'] * 100
                 ].join(',');
             case 'rgb':
-                const rgb = Color.HSVtoRGB(state['light_hue'] * 360, state['light_saturation'] * 100, state['light_temperature'] * 100);
+                const rgb = Color.HSVtoRGB(capabilities['light_hue'] * 360, capabilities['light_saturation'] * 100, capabilities['light_temperature'] * 100);
                 return [rgb.r, rgb.g, rgb.b].join(',');
         }
     }
