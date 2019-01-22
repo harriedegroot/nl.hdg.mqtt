@@ -130,8 +130,6 @@ class HomieDispatcher {
                 }
             }
         }
-
-        //device.on('$state', (state, capability) => this._handleStateChange(node, device.id, capability, state));
     }
 
     _convertClass(deviceClass) {
@@ -198,13 +196,12 @@ class HomieDispatcher {
         return null;
     }
 
-    async _handleStateChange(node, deviceId, capabilityId, /*state*/value) {
+    async _handleStateChange(node, deviceId, capabilityId, value) {
         if (!node) {
             Log.debug("[SKIP] No valid node provided");
             return;
         }
 
-        //let value = state[capabilityId];
         Log.debug("Homie set value [" + capabilityId + "]: " + value);
 
         if (value === undefined) {
