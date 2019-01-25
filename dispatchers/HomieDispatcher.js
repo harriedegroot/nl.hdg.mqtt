@@ -13,6 +13,10 @@ const normalize = function (name) {
     return _.replace(Topic.normalize(name), '_', '-');
 };
 
+const TOPIC_ROOT = "homie"; // TODO: From settings
+const INCLUDE_DEVICE_ZONE = false; // TODO: From settings
+const INCLUDE_DEVICE_CLASS = false; // TODO: From settings
+
 /**
  * Homey Convention 3.0.1
  * Based on modified version of: https://github.com/marcus-garvey/homie-device
@@ -52,7 +56,7 @@ class HomieDispatcher {
                 mqtt: {
                     host: "localhost",
                     port: 1883,
-                    base_topic: "homie/",
+                    base_topic: TOPIC_ROOT ? TOPIC_ROOT + '/' : '',
                     auth: false,
                     username: null,
                     password: null
@@ -83,7 +87,17 @@ class HomieDispatcher {
         if (!device) return;
 
         // homieDevice.node(name, friendlyName, type, startRange, endRange)
-        let node = this.homieDevice.node(normalize(device.name), device.name, this._convertClass(device.class));
+        let path = [normalize(device.name)];
+        if (INCLUDE_DEVICE_ZONE) {
+            // Log.debug(device);
+            path.unshift(device.zone);
+        }
+        if (INCLUDE_DEVICE_CLASS) {
+            path.unshift(device.class);
+        }
+        const name = path.join('/');
+
+        let node = this.homieDevice.node(name, device.name, this._convertClass(device.class));
 
         const capabilities = device.capabilitiesObj;
         if (capabilities) {

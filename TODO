@@ -1,4 +1,5 @@
 === TODO ===
+- Normalization BUG
 - Try to combine the old topic format with the Homie Convention (&Ditch the old topic format?)
 - Settings page
 	* Select communication protocol (Homie | Homey)
