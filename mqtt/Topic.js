@@ -17,7 +17,7 @@ class Topic {
     }
 
     static normalize(name) {
-        return name ? name.trim().toLowerCase().normalize("NFD").replace(/[ -]+/g, "_").replace(/[^a-z0-9_]/g, "") : undefined;
+        return name ? name.trim().toLowerCase().normalize("NFD").replace(/[ _]/g, "-").replace(/[^a-z0-9-]/g, "") : undefined;
     }
 
     constructor(device, trigger, command, deviceClass, zone) {
