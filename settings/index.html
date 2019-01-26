@@ -1,0 +1,148 @@
+<!doctype html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="styles.css" />
+    
+    <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
+    <script type="text/javascript" src="/manager/webserver/assets/js/jquery.js"></script>
+    <!--<script src="https://code.jquery.com/jquery-3.3.1.min.js"
+            integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+            crossorigin="anonymous"></script>-->
+
+    <script type="text/javascript" src="vue.min.js" data-origin="settings"></script>
+    <script type="text/javascript" src="settings.js" data-origin="settings"></script>
+</head>
+<body>
+    <div id="app">
+        <p data-i18n="settings.benefit"></p>
+
+        <div class="rTable">
+            <div class="rTableRow">
+                <div id="tabb1" class="tab tab-active" onclick="showTab(1)" data-i18n="tab1.title">-Settings-</div>
+                <div id="tabb2" class="tab tab-inactive" onclick="showTab(2)" data-i18n="tab2.title">-Devices-</div>
+                <div id="tabb3" class="tab tab-inactive" onclick="showTab(3)" data-i18n="tab3.title">-Instructions-</div>
+                <div class="tab-unused">&nbsp;</div>
+            </div>
+        </div>
+        <div style="height:8px" class="panel"></div>
+        <div id="tab1" class="panel">
+            <div class="settings-spacer"></div>
+            <div data-i18n="tab1.topic" class="text-header">-Topic-</div>
+            <div class="settings-itemgroup">
+                <div class="sTableCell inputs">
+                    <label data-i18n="tab1.topicRoot">-Root topic:-</label><br />
+                    <input id="rootTopic" type="text" value="homie" onblur="saveSettings()">
+                    <label data-i18n="tab1.mainTopic">-Main topic-</label>
+                    <br />
+                    <label data-i18n="tab1.deviceId">-DeviceId:-</label><br />
+                    <input id="deviceId" type="text" value="homey" onblur="saveSettings()">
+                    <label data-i18n="tab1.deviceName">-e.i. device name-</label>
+                    <br />
+                </div>
+                <div class="settings-item">
+                    <div class="settings-item-divider"></div>
+                    <div class="settings-item-divider"></div>
+                </div>
+                <div class="settings-item">
+                    <div class="settings-item-text">
+                        <span data-i18n="tab1.topicIncludeClass">-Include device class in topic-</span>
+                    </div>
+                    <div class="settings-item-last">
+                        <label class="form-switch">
+                            <!-- https://www.cssscript.com/demo/realistic-ios-switch-pure-css/ -->
+                            <input id="topicIncludeClass" type="checkbox" onclick="saveSettings()">
+                            <i></i>
+                        </label>
+                    </div>
+                </div>
+                <div class="settings-item">
+                    <div class="settings-item-divider"></div>
+                    <div class="settings-item-divider"></div>
+                </div>
+
+                <div class="settings-item">
+                    <div class="settings-item-text">
+                        <span data-i18n="tab1.topicIncludeZone">-Include zone in topic-</span>
+                    </div>
+                    <div class="settings-item-last">
+                        <label class="form-switch">
+                            <input id="topicIncludeZone" type="checkbox" onclick="saveSettings()">
+                            <i></i>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="settings-spacer"></div>
+        </div>
+        <div id="tab2" class="panel" style="display: none;">
+            <div style="height:8px"></div>
+            <div class="Overflow devicesheight">
+                <div class="rTable">
+                    <div class="rTableRow" v-for="device in devices">
+                        <div class="rTableCell line">
+                            <label class="form-switch">
+                                <!-- https://www.cssscript.com/demo/realistic-ios-switch-pure-css/ -->
+                                <input type="checkbox" :checked="deviceEnabled(device)" @click="saveDevice(device, $event.target.checked)">
+                                <i></i>
+                            </label>
+                        </div>
+                        <div class="rTableCell line">
+                            <span v-html="getIcon(device)"></span><br />
+                        </div>
+                        <div class="rTableCell line">
+                            {{ getZone(device) }}<br />
+                            <b>{{device.name}}</b>
+                        </div>
+
+                        <div class="rTableCell line"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab4" class="panel" style="display: none;">
+            <fieldset class="listContainer">
+                <legend data-i18n="tab4.instructions.title">-Instructions-</legend>
+                <div id="instructionsen" style="display:none">
+                    To configure the MQTT Gateway you have to do the following:<br />
+                    <br />
+                    <ul>
+                        <li><b>Configure a MQTT broker</b></li>
+                        <ul>
+                            <li>
+                                E.g. Install the MQTT broker app from the app store
+                            </li>
+                        </ul>
+                        <li><b>Install & configure the Homey MQTT Client app</b></li>
+                        <ul>
+                            <li>
+                                Install the app from the app store...
+                            </li>
+                        </ul>
+                        etc...
+                    </ul>
+                </div>
+                <div id="instructionsnl" style="display:none">
+                    Stel de MQTT app op de volgende manier in:<br />
+                    <br />
+                    <ul>
+                        <li><b>Configure a MQTT broker</b></li>
+                        <ul>
+                            <li>
+                                E.g. Install the <i>MQTT broker app</i> from the app store.
+                            </li>
+                        </ul>
+                        <li><b>Install & configure the Homey MQTT Client app</b></li>
+                        <ul>
+                            <li>
+                                Install the app from the app store...
+                            </li>
+                        </ul>
+                        etc...
+                    </ul>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</body>
+</html>

@@ -71,6 +71,22 @@ class MQTTGateway extends Homey.App {
             version: info.homey_version
         };
     }
+
+    async getDevices() {
+        if (this.deviceManager && this.deviceManager.devices)
+            return this.deviceManager.devices;
+
+        const api = await HomeyAPI.forCurrentHomey();
+        return await api.devices.getDevices();
+    }
+
+    async getZones() {
+        if (this.deviceManager && this.deviceManager.zones)
+            return this.deviceManager.zones;
+
+        const api = await HomeyAPI.forCurrentHomey();
+        return await api.zones.getZones();
+    }
 }
 
 module.exports = MQTTGateway;

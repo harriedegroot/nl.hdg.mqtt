@@ -1,5 +1,4 @@
 === TODO ===
-- Normalization BUG
 - Try to combine the old topic format with the Homie Convention (&Ditch the old topic format?)
 - Settings page
 	* Select communication protocol (Homie | Homey)
@@ -9,8 +8,12 @@
 	* Enable/disable system state dispatcher
 	* Enable/Disable triggers & commands
 	* Include/Exclude devices & capabilities for dispatchers
+	* refresh/resend state
 	* ...
 - HASS Discovery
+- Flow card for MQTT Device
+- scalable property 0-1 (float) | 0-100 (int)
+- Create virtual devices from MQTT discovery
 - Info requests:
   * System
   * Zone
@@ -43,3 +46,4 @@
 - MQTT discovery (see OpenHAB / Domiticz)
 - Implement Homie convention (Homey v1.5.13)
 - Homie Convention for Homey v2.0
+- Normalization BUG

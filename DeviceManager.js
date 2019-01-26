@@ -104,10 +104,21 @@ class DeviceManager {
         this.api.devices.on('device.update', this._updateDevice.bind(this));
 
         this.devices = await this.api.devices.getDevices();
+        this.zones = await this.api.zones.getZones();
+
         if (this.devices) {
             for (let key in this.devices) {
                 if (Array.isArray(this.devices) || this.devices.hasOwnProperty(key)) {
-                    await this.registerDevice(this.devices[key]);
+
+                    const device = this.devices[key];
+
+                    // inject zone
+                    if (this.zones && device.zone) {
+                        device.zone = this.zones[device.zone];
+                    }
+
+                    // register
+                    await this.registerDevice(device);
                 }
             }
         }

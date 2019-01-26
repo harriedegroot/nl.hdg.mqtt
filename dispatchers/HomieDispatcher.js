@@ -13,6 +13,9 @@ const normalize = function (name) {
     return _.replace(Topic.normalize(name), '_', '-');
 };
 
+const DEFAULT_ZONE = "home";
+const DEFAULT_CLASS = "other";
+
 const TOPIC_ROOT = "homie"; // TODO: From settings
 const INCLUDE_DEVICE_ZONE = false; // TODO: From settings
 const INCLUDE_DEVICE_CLASS = false; // TODO: From settings
@@ -90,10 +93,10 @@ class HomieDispatcher {
         let path = [normalize(device.name)];
         if (INCLUDE_DEVICE_ZONE) {
             // Log.debug(device);
-            path.unshift(device.zone);
+            path.unshift(device.zone && device.zone.name ? device.zone.name : DEFAULT_ZONE);
         }
         if (INCLUDE_DEVICE_CLASS) {
-            path.unshift(device.class);
+            path.unshift(device.class || DEFAULT_CLASS);
         }
         const name = path.join('/');
 
