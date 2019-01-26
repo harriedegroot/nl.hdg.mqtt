@@ -1,5 +1,6 @@
 var language = 'en';
 var gatewaySettings = {};
+var loading = true;
 const defaultSettings = {
     "topicRoot": "homie",
     "deviceId": "homey",
@@ -7,6 +8,20 @@ const defaultSettings = {
     "topicIncludeZone": false
 };
 
+//const testDevices = {
+//    test: {
+//        id: 'test', name: "test some long named device lkfjdh sdlkfjhgsldkfhg lksdjfhslkdh ", zone: "zone", iconObj: { url: "../assets/icon.svg" }},
+//    test1: { id: 'test', name: "device 1", zone: "zone" },
+//    test2: { id: 'test', name: "device 2", zone: "zone" },
+//    test3: { id: 'test', name: "device 3", zone: "zone" },
+//    test4: { id: 'test', name: "device 4", zone: "zone" },
+//    test5: { id: 'test', name: "device 5", zone: "zone" },
+//    test6: { id: 'test', name: "device 6", zone: "zone" },
+//    test7: { id: 'test', name: "device 7", zone: "zone" },
+//    test8: { id: 'test', name: "device 8", zone: "zone" },
+//    test9: { id: 'test', name: "device 9", zone: "zone" },
+//    test10: { id: 'test', name: "device 10", zone: "zone" }
+//};
 //$(document).ready(function () {
 //    onHomeyReady({
 //        ready: () => { },
@@ -14,7 +29,7 @@ const defaultSettings = {
 //        api: (method, url, _, callback) => {
 //            switch (url) {
 //                case '/devices':
-//                    return callback(null, { test: { id: 'test', name: "test", zone: "zone" } });
+//                    return setTimeout(() => callback(null, testDevices), 2000);
 //                case '/zones':
 //                    return callback(null, { zone: { name: 'zone' } });
 //                default:
@@ -70,6 +85,7 @@ function onHomeyReady(homeyReady){
             },
             getDevices() {
                 return Homey.api('GET', '/devices', null, (err, result) => {
+                    loading = false;
                     if (err) return Homey.alert('getDevices ' + err);
                     this.devices = Object.keys(result).map(key => result[key]);
                 });
@@ -81,7 +97,7 @@ function onHomeyReady(homeyReady){
             },
             getIcon: function (device) {
                 try {
-                    return "<img src=\"" + device.iconObj.url + "\" style=\"height:30px;width:auto;\"/>";
+                    return "<img src=\"" + device.iconObj.url + "\" style=\"width:auto;height:auto;max-width:50px;max-height:30px;\"/>";
                 } catch (e) {
                     return "<!-- no device.iconObj.url -->";
                 }

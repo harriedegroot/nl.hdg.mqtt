@@ -3,19 +3,79 @@ html {
     -webkit-text-size-adjust: 100%;
 }
 
-body {
+html,
+body, 
+app {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.benefit {
+    margin: 0;
+    padding-left: 10px;
+    line-height: 40px;
+    vertical-align: middle;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.devices {
+    background: white;
+}
+
+.loader {
+    width: 100%;
+}
+.loader > svg {
+    display: block;
+    margin: 30px auto;
+    width: 50px;
+}
+
+.icon-cell {
+    width: 60px;
+    display: table-cell-block !important;
+    vertical-align: middle;
+}
+.icon-cell > * {
+    margin: auto;
+    display: block;
+}
+
+.tabs {
+    height: 50px !important;
+    border-bottom: 1px solid rgb(220,220,220);
+}
+
+.tab-content {
+    position: absolute;
+    top: 91px;
+    bottom: 0px;
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0;
     margin: 0;
 }
 
-.panel {
-    background-color: rgb(239,239,243)
+select,
+input[type=text] {
+    border: none !important;
+    width: 100% !important;
+    padding: 10px !important;
+    font-size: large !important;
+    vertical-align: middle !important;
+    background: white !important;
 }
 
 .text-header {
-    color: rgb(109,109,113);
-    margin-top: 7px;
-    padding-left: 10px;
+    padding: 10px;
     text-transform: uppercase;
+    background-color: rgba(245, 245, 245, 1);
+    font-weight: bold;
+    width: 100%;
+    text-align: center;
 }
 
 .text-description {
@@ -25,27 +85,37 @@ body {
     -webkit-text-size-adjust: 90%;
 }
 
+.background {
+    background-color: rgb(239,239,243)
+}
+.setting {
+    padding-bottom: 10px;
+    margin: 0;
+}
+
 .settings-spacer {
     height: 10 px;
     display: inline-block;
 }
 .settings-itemgroup {
-    display: table;
-    width: 100%;
+    display: block;
     background-color: rgb(255,255,255);
-    margin-top: 8px;
-    margin-bottom: 8px;
-    border-style: solid;
-    border-top-width: 1px;
-    border-left-style: none;
-    border-right-style: none;
-    border-bottom-width: 1px;
-    border-color: rgb(199,199,203);
+    border: 1px solid rgb(230,230,230);
+    border-radius: 2px;
+    margin: 1px;
+    overflow: hidden;
 }
 
 .settings-item {
     display: table-row;
     background-color: rgb(255,255,255);
+}
+
+.settings-item-description {
+    display: block;
+    margin-top: 6px;
+    padding: 4px 10px;
+    font-size: smaller;
 }
 
 .settings-item-image {
@@ -62,8 +132,8 @@ body {
     padding-bottom: 13px;
     vertical-align: middle;
     white-space: nowrap;
-    font-family: -apple-system;
-    font-size: 14px;
+    font-family: -apple-system sans-serif;
+    font-size: large;
 }
 
 .settings-item-last {
@@ -203,41 +273,32 @@ a:active {
     border-color: rgb(255, 0, 0);
 }
 
-.historySetting {
-    display: table-cell;   	
-    width: 200px;
-    height: 30px;
-    vertical-align: bottom;
-}
 .tab {
-    display: table-cell;   	
-    width: 130px;
-    margin-bottom: 0px;
-    margin-right: 3px;
-    font-size: 12px;
-    font-weight: 400;
-    line-height: 1.42857;
+    display: table-cell;
+    font-size: large;
+    font-weight: bold;
+    padding: 10px;
     text-align: center;
     white-space: nowrap;
     vertical-align: middle;
     touch-action: manipulation;
     cursor: pointer;
-    width: 130px;
-    border-left: 1px solid rgb(200,200,200);
-    border-top: 1px solid rgb(200,200,200);
-    border-right: 1px solid rgb(200,200,200);
+    width: 33%;
+    height: 100%;
+    border-bottom: 2px solid #4BD763;
 }
 
 .tab-active {
     color: rgb(0, 0, 0);
-    background-color: rgb(239, 239 , 243);
-    border-bottom: 4px solid rgb(239,239,243);
+    /*background-color: rgb(239, 239 , 243);*/
+    border-bottom: 2px solid #4BD763;
 }
 
 .tab-inactive {
     color: rgb(0, 0, 0);
-    background-color: rgb(255, 255 , 255);
-    border-bottom: 1px solid rgb(255,255,255); 
+    /*background-color: rgb(255, 255, 255);*/
+    border-bottom: 2px solid white;
+    font-weight: normal;
 }
 
 .tab-unused {
@@ -275,16 +336,17 @@ a:active {
     border-top: 1px solid rgb(220,220,220);
     border-left: 1px solid rgb(220,220,220);
     border-right: 1px solid rgb(220,220,220);            
-} 
-.rTable {   	
-    display: table;   	
-    width: calc(100% - 2px); 
+}
+.rTable {
+    display: table;
+    width: calc(100% - 2px);
+    height: 100%;
 } 
 
 .rTableRow {   	
     display: table-row; 
     margin: 0;
-    border-top: 1px solid rgb(220,220,220);
+    border-bottom: 1px solid rgb(220,220,220);
     border-left: 1px solid rgb(220,220,220);
     border-right: 1px solid rgb(220,220,220);      
 } 
@@ -293,12 +355,12 @@ a:active {
 .rTableCell {   	
     display: table-cell;   	
     padding: 6px;
-    vertical-align: top;
+    vertical-align: middle;
     white-space: nowrap;
 }
 
 .line{
-    border-top: 1px solid rgb(220,220,220);
+    border-bottom: 1px solid rgb(220,220,220);
 }
 
 .inputs label {
@@ -337,19 +399,17 @@ a:active {
     display: table-row-group; 
 }
 
+.scrollable-text {
+    overflow-y: auto;
+    max-width: calc(100vw - 160px);
+    white-space: nowrap;
+}
+
 .Overflow {
-    margin-bottom: 1em;
+    /*margin-bottom: 1em;*/
     overflow: auto;
     position: relative;
     overflow-x: auto;
-}
-
-.historyheight {
-    max-height: 439px;
-}
-
-.devicesheight {
-    max-height: 511px;
 }
 
 .mal {

@@ -6,8 +6,14 @@
         "flowcard": "Flowcard"
     },
     "tab1": {
-      "title": "Settings"
-
+      "title": "Settings",
+      "topic": "Topic",
+      "rootTopic": "Root topic (leave blank to discard)",
+      "deviceId": "DeviceID",
+      "topicIncludeClass": "Include device class in topic?",
+      "includeClass": "Include class",
+      "topicIncludeZone":  "Include zone in topic?",
+      "includeZone":  "Include zone"
     },
     "tab2": {
         "title": "Devices",
