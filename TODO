@@ -10,6 +10,10 @@
 	* Enable/Disable triggers & commands
 	* Include/Exclude devices & capabilities for dispatchers
 	* refresh/resend state
+	* Log
+	* Inject device id
+	* Update settings on save
+	* Display current status
 	* ...
 - HASS Discovery
 - Flow card for MQTT Device

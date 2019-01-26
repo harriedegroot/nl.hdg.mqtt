@@ -20,6 +20,22 @@ app {
     text-overflow: ellipsis;
 }
 
+.section {
+    margin: 10px 0px !important;
+    padding: 0 !important;
+    display: block !important;
+    border: none !important;
+    border-top: 1px solid rgb(220,220,220) !important;
+    border-radius: 0 !important;
+}
+.section > legend {
+    text-transform: uppercase !important;
+    color: rgb(220,220,220) !important;
+    font-weight: bold !important;
+    text-align: center !important;
+    font-size: medium !important;
+}
+
 .devices {
     background: white;
 }
@@ -69,12 +85,24 @@ input[type=text] {
     background: white !important;
 }
 
+button {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 10px !important;
+    font-size: large !important;
+    vertical-align: middle !important;
+    border: 1px solid rgb(220,220,220) !important;
+}
+
 .text-header {
     padding: 10px;
     text-transform: uppercase;
-    background-color: rgba(245, 245, 245, 1);
+    /*background-color: rgba(245, 245, 245, 1);*/
+    background-color: rgba(160, 160, 160, 1);
+    color: white;
     font-weight: bold;
-    width: 100%;
+    /*width: 100%;*/
     text-align: center;
 }
 
@@ -113,8 +141,8 @@ input[type=text] {
 
 .settings-item-description {
     display: block;
-    margin-top: 6px;
-    padding: 4px 10px;
+    margin-top: 7px;
+    padding: 3px 10px;
     font-size: smaller;
 }
 
@@ -245,8 +273,8 @@ a:active {
 
 .btn-active {
     color: rgb(0, 0, 0);
-    background-color: rgb(92, 184, 92);
-    border-color: rgb(76, 174, 76);
+    background-color: rgb(92, 184, 92) !important;
+    border-color: rgb(76, 174, 76) !important;
 }
 
 .btn-semiactive {
@@ -283,7 +311,7 @@ a:active {
     vertical-align: middle;
     touch-action: manipulation;
     cursor: pointer;
-    width: 33%;
+    width: 25%;
     height: 100%;
     border-bottom: 2px solid #4BD763;
 }

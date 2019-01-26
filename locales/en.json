@@ -1,32 +1,48 @@
 {
-    "settings": {
-        "benefit": "Turn your Homey into a device HUB"
-    },
+  "settings": {
+    "benefit": "Turn your Homey into a device HUB"
+  },
+  "devices": {
+    "flowcard": "Flowcard"
+  },
+  "tab1": {
+    "title": "Settings",
+    "general": "GENERAL",
+    "active": "MQTT Gateway on/off",
+    "running": "Running",
+    "refresh": "Publish the state of all devices",
+    "protocol": "Communication protocol",
+    "topic": "TOPIC",
+    "topicRoot": "Root topic (leave blank to discard)",
+    "deviceId": "DeviceID",
+    "topicIncludeClass": "Include device class in topic?",
+    "includeClass": "Include class",
+    "topicIncludeZone": "Include zone in topic?",
+    "includeZone": "Include zone",
+    "messages": "MESSAGES",
+    "propertyScaling": "Percentage formatting",
+    "colorFormat": "Color format",
+    "publish": "PUBLISH",
+    "publishDevicesChanges": "Publish messages for all devices state changes",
+    "publishDevices": "Device state changes",
+    "publishSystemState": "Publish messages containing the current system state in a regular interval (30 sec.)",
+    "publishSystem":  "System state"
+  },
+  "tab2": {
+    "title": "Devices",
     "devices": {
-        "flowcard": "Flowcard"
-    },
-    "tab1": {
-      "title": "Settings",
-      "topic": "Topic",
-      "rootTopic": "Root topic (leave blank to discard)",
-      "deviceId": "DeviceID",
-      "topicIncludeClass": "Include device class in topic?",
-      "includeClass": "Include class",
-      "topicIncludeZone":  "Include zone in topic?",
-      "includeZone":  "Include zone"
-    },
-    "tab2": {
-        "title": "Devices",
-        "devices": {
-            "devices": "Devices",
-            "zone": "Zone",
-            "device": "Device"
-        }
-    },
-    "tab3": {
-        "title": "Instructions",
-        "instructions": {
-            "title": "Instructions"
-        }
+      "devices": "Devices",
+      "zone": "Zone",
+      "device": "Device"
     }
+  },
+  "tab3": {
+    "title": "Instructions",
+    "instructions": {
+      "title": "Instructions"
+    }
+  },
+  "tab4": {
+    "title": "Log"
+  }
 }

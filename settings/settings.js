@@ -1,16 +1,22 @@
 var language = 'en';
-var gatewaySettings = {};
 var loading = true;
+var running = false;
+var gatewaySettings = {};
+
 const defaultSettings = {
+    "protocol": "homie3",
     "topicRoot": "homie",
     "deviceId": "homey",
     "topicIncludeClass": false,
-    "topicIncludeZone": false
+    "topicIncludeZone": false,
+    "propertyScaling": "default",
+    "colorFormat": "hsv",
+    "publishDevices": true,
+    "publishSystemState": true,
 };
 
 //const testDevices = {
-//    test: {
-//        id: 'test', name: "test some long named device lkfjdh sdlkfjhgsldkfhg lksdjfhslkdh ", zone: "zone", iconObj: { url: "../assets/icon.svg" }},
+//    test: { id: 'test', name: "test some long named device lkfjdh sdlkfjhgsldkfhg lksdjfhslkdh ", zone: "zone", iconObj: { url: "../assets/icon.svg" }},
 //    test1: { id: 'test', name: "device 1", zone: "zone" },
 //    test2: { id: 'test', name: "device 2", zone: "zone" },
 //    test3: { id: 'test', name: "device 3", zone: "zone" },
@@ -57,10 +63,14 @@ function onHomeyReady(homeyReady){
             
         for (let key in defaultSettings) {
             if (defaultSettings.hasOwnProperty(key)) {
-                if (typeof defaultSettings[key] === 'boolean') {
-                    const el = document.getElementById(key);
-                    if (el) {
-                        el.checked = gatewaySettings[key];
+                const el = document.getElementById(key);
+                if (el) {
+                    switch (typeof defaultSettings[key]) {
+                        case 'boolean':
+                            el.checked = gatewaySettings[key];
+                            break;
+                        default:
+                            el.value = gatewaySettings[key];
                     }
                 }
             }
@@ -101,6 +111,19 @@ function onHomeyReady(homeyReady){
                 } catch (e) {
                     return "<!-- no device.iconObj.url -->";
                 }
+            },
+            setRunning: function (value) {
+                running = !!value;
+                const el = document.getElementById("running");
+                if(el) {
+                    el.checked = running;
+                }
+
+                // TODO: Call app
+            },
+            refresh: function() {
+                Homey.alert('refresh');
+                // TODO: Refresh
             }
         },
         async mounted() {
@@ -181,3 +204,4 @@ function deviceEnabled(device) {
     
     return !gatewaySettings.devices || gatewaySettings.devices[device.id] !== false;
 }
+

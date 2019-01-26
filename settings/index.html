@@ -21,28 +21,46 @@
                 <div id="tabb1" class="tab tab-active" onclick="showTab(1)" data-i18n="tab1.title">-Settings-</div>
                 <div id="tabb2" class="tab tab-inactive" onclick="showTab(2)" data-i18n="tab2.title">-Devices-</div>
                 <div id="tabb3" class="tab tab-inactive" onclick="showTab(3)" data-i18n="tab3.title">-Instructions-</div>
+                <div id="tabb4" class="tab tab-inactive" onclick="showTab(4)" data-i18n="tab4.title">-Log-</div>
             </div>
         </div>
         <div class="tab-content">
             <div style="height:8px" class="panel"></div>
             <div id="tab1" class="panel">
-                <div data-i18n="tab1.general" class="text-header">-GENERAL-</div>
+                <!--<div data-i18n="tab1.general" class="text-header">-GENERAL-</div>-->
+                <div class="setting">
+                    <label class="settings-item-description" data-i18n="tab1.active">-MQTT Gateway on/off-</label>
+                    <div class="settings-itemgroup">
+                        <div class="settings-item-text">
+                            <span data-i18n="tab1.running">-Running-</span>
+                        </div>
+                        <div class="settings-item-last">
+                            <label class="form-switch">
+                                <input id="running" v-model="running" type="checkbox" @click="setRunning($event.target.checked)">
+                                <i></i>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="setting">
+                    <label class="settings-item-description" data-i18n="tab1.refresh">-Publish the state of all devices-</label>
+                    <button id="refreshButton" class="btn" @click="refresh()">Refresh</button>
+                </div>
                 <div class="setting">
                     <label class="settings-item-description" data-i18n="tab1.protocol">-Communication protocol-</label>
                     <div class="settings-itemgroup">
-                        <!--<input id="rootTopic" type="text" value="homie" onblur="saveSettings()">-->
-                        <select id="protocol" value="homie3">
-                            <option value="homie3">Homie Convention v3.0.1</option>
-                            <option value="ha" disabled="disabled">Home Assistant Discovery (coming soon...)</option>
+                        <select id="protocol" @change="saveSettings()">
+                            <option value="homie3" selected="selected">Homie Convention v3.0.1</option>
+                            <option value="ha">Home Assistant Discovery (coming soon...)</option>
                         </select>
                     </div>
                 </div>
-
+                
                 <div data-i18n="tab1.topic" class="text-header">-TOPIC-</div>
                 <div class="setting">
-                    <label class="settings-item-description" data-i18n="tab1.rootTopic">-Root topic (leave blank to discard)-</label>
+                    <label class="settings-item-description" data-i18n="tab1.topicRoot">-Root topic (leave blank to discard)-</label>
                     <div class="settings-itemgroup">
-                        <input id="rootTopic" type="text" value="homie" onblur="saveSettings()">
+                        <input id="topicRoot" type="text" value="homie" onblur="saveSettings()">
                     </div>
                 </div>
                 <div class="setting">
@@ -81,14 +99,70 @@
                         </div>
                     </div>
                 </div>
+            
+                <div data-i18n="tab1.messages" class="text-header">-MESSAGES-</div>
+                <div class="setting">
+                    <label class="settings-item-description" data-i18n="tab1.propertyScaling">-Percentage formatting-</label>
+                    <div class="settings-itemgroup">
+                        <select id="propertyScaling" value="default" @change="saveSettings()">
+                            <option value="default" selected="selected">default (original value)</option>
+                            <option value="float">float (0...1)</option>
+                            <option value="int">int (0...100)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="setting">
+                    <label class="settings-item-description" data-i18n="tab1.colorFormat">-Color format-</label>
+                    <div class="settings-itemgroup">
+                        <select id="colorFormat" value="default" @change="saveSettings()">
+                            <option value="hsv" selected="selected">HSV (&quot;h,s,v&quot;)</option>
+                            <option value="rgb">RGB (&quot;r,g,b&quot;)</option>
+                            <option value="values">Single topic per HSV value (Device capabilities)</option>
+                        </select>
+                    </div>
+                </div>
+           
+                <div data-i18n="tab1.publish" class="text-header">-PUBLISH-</div>
+                <div class="setting">
+                    <label class="settings-item-description" data-i18n="tab1.publishDevicesChanges">-Devices state changes-</label>
+                    <div class="settings-itemgroup">
+                        <div class="settings-item-text">
+                            <span data-i18n="tab1.publishDevices">-Devices-</span>
+                        </div>
+                        <div class="settings-item-last">
+                            <label class="form-switch">
+                                <!-- https://www.cssscript.com/demo/realistic-ios-switch-pure-css/ -->
+                                <input id="publishDevices" type="checkbox" onclick="saveSettings()">
+                                <i></i>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="setting">
+                    <label class="settings-item-description" data-i18n="tab1.publishSystemState">-System state-</label>
+                    <div class="settings-itemgroup">
+                        <div class="settings-item-text">
+                            <span data-i18n="tab1.publishSystem">-System-</span>
+                        </div>
+                        <div class="settings-item-last">
+                            <label class="form-switch">
+                                <!-- https://www.cssscript.com/demo/realistic-ios-switch-pure-css/ -->
+                                <input id="publishSystemState" type="checkbox" onclick="saveSettings()">
+                                <i></i>
+                            </label>
+                        </div>
+                    </div>
+                </div>
 
             </div>
             <div id="tab2" class="panel" style="display: none;">
                 <div class="loader" v-if="loading">
                     <svg version="1.1" id="loader-1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="40px" height="40px" viewBox="0 0 40 40" enable-background="new 0 0 40 40" xml:space="preserve">
                     <path opacity="0.2" fill="#000" d="M20.201,5.169c-8.254,0-14.946,6.692-14.946,14.946c0,8.255,6.692,14.946,14.946,14.946 s14.946-6.691,14.946-14.946C35.146,11.861,28.455,5.169,20.201,5.169z M20.201,31.749c-6.425,0-11.634-5.208-11.634-11.634 c0-6.425,5.209-11.634,11.634-11.634c6.425,0,11.633,5.209,11.633,11.634C31.834,26.541,26.626,31.749,20.201,31.749z" />
+
                     <path fill="#000" d="M26.013,10.047l1.654-2.866c-2.198-1.272-4.743-2.012-7.466-2.012h0v3.312h0 C22.32,8.481,24.301,9.057,26.013,10.047z">
-                        <animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 20 20" to="360 20 20" dur="0.5s" repeatCount="indefinite" />
+                    <animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 20 20" to="360 20 20" dur="0.5s" repeatCount="indefinite" />
+
                     </path>
                 </div>
                 <div class="rTable">
@@ -112,6 +186,7 @@
                     </div>
                 </div>
             </div>
+
 
             <div id="tab3" class="panel" style="display: none;">
                 <fieldset class="listContainer">
@@ -156,6 +231,13 @@
                     </div>
                 </fieldset>
             </div>
+
+
+            <div id="tab4" class="panel" style="display: none;">
+                Log...
+            </div>
+
+
         </div>
         
     </div>
