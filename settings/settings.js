@@ -52,7 +52,11 @@ function onHomeyReady(homeyReady){
     Homey = homeyReady;
     Homey.ready();
     gatewaySettings = defaultSettings;
-    
+
+    Homey.api('GET', '/running', null, (err, result) => {
+        running = !err && result;
+    });
+
     Homey.get('settings', function (err, savedSettings) {
             
         if (err) {
@@ -115,15 +119,22 @@ function onHomeyReady(homeyReady){
             setRunning: function (value) {
                 running = !!value;
                 const el = document.getElementById("running");
-                if(el) {
+                if (el) {
                     el.checked = running;
+                    Homey.api('post', '/running', { running }, (err, result) => {
+                        // TODO: Fetch state again
+                    });
                 }
 
                 // TODO: Call app
             },
-            refresh: function() {
-                Homey.alert('refresh');
-                // TODO: Refresh
+            refresh: function () {
+                Homey.api('GET', '/refresh', null, (err, result) => {
+                    if (err) {
+                        Log.error(err);
+                    }
+                    Homey.alert(err ? 'failed to refresh device states' : 'refreshed sucessfully');
+                });
             }
         },
         async mounted() {
@@ -176,9 +187,13 @@ function saveSettings() {
             gatewaySettings[key] = typeof defaultSettings[key] === 'boolean' ? el.checked : el.value;
         }
     }
+    _writeSettings();
+}
 
+function _writeSettings(settings) {
     try {
         Homey.set('settings', gatewaySettings);
+        Homey.api('GET', '/settings_changed', null, (err, result) => { });
     } catch (e) {
         Homey.alert('Failed to save settings: ' + e);
     }
@@ -191,11 +206,7 @@ function saveDevice(device, checked) {
     gatewaySettings.devices = gatewaySettings.devices || {};
     gatewaySettings.devices[device.id] = checked;
 
-    try {
-        Homey.set('settings', gatewaySettings);
-    } catch (e) {
-        Homey.alert('Failed to save settings: ' + e);
-    }
+    _writeSettings();
 }
 
 function deviceEnabled(device) {

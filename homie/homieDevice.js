@@ -186,6 +186,10 @@ proto.onConnect = function() {
 
   // Call the stats interval now, and at regular intervals
   t.onStatsInterval();
+  if (t.interval) {
+      clearInterval(t.interval);
+      t.interval = 0;
+  }
   t.interval = setInterval(function() {
     t.onStatsInterval();
   }, t.statsInterval * 1000);
@@ -197,7 +201,10 @@ proto.onConnect = function() {
 proto.onDisconnect = function() {
   var t = this;
   t.isConnected = false;
-  t.interval = clearInterval(t.interval);
+  if (t.interval) {
+      t.interval = clearInterval(t.interval);
+      t.interval = 0;
+  }
   _.each(t.nodes, function(node){
     node.onDisconnect();
   })

@@ -6,12 +6,14 @@ const EventHandler = require('./EventHandler.js');
 
 class DeviceManager {
 
-    constructor({ api }) {
+    constructor({ api, settings }) {
         this.api = api;
 
         this.onAdd = new EventHandler('Device.add');
         this.onRemove = new EventHandler('Device.remove');
         this.onUpdate = new EventHandler('Device.update');
+
+        this.setEnabledDevices((settings || {}).devices);
     }
 
     getDeviceId(device) {
@@ -208,6 +210,18 @@ class DeviceManager {
     async getCapability(device, capabilityId) {
         const capabillities = this.getCapabillities(device);
         return capabillities ? capabillities[capabilityId] : undefined;
+    }
+
+    setEnabledDevices(devices) {
+        this._enabledDevices = devices;
+    }
+
+    isDeviceEnabled(device) {
+        const enabledDevices = this._enabledDevices;
+        if (!enabledDevices) return true;
+        const deviceId = typeof device === 'object' ? device.id : device;
+        if (!deviceId) return false;
+        return enabledDevices.hasOwnProperty(deviceId) ? enabledDevices[deviceId] : true;
     }
 }
 

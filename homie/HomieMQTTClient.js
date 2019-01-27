@@ -9,6 +9,10 @@ const CLIENT_OPTIONS = {
 
 class HomieMQTTClient  {
 
+    isRegistered() {
+        return this.mqttClient.isRegistered();
+    }
+
     constructor(mqttClient) {
         this.mqttClient = mqttClient;
     }

@@ -17,10 +17,13 @@ class MQTTClient  {
         this.onUnRegistered = new EventHandler('MQTTClient.unregistered');
         this.onMessage = new EventHandler('MQTTClient.message');
 
-        this._init();
+        this.connect();
     }
 
-    _init() {
+    connect() {
+        if (this._connected) return;
+        this._connected = true;
+
         // Register to app events
         this.clientApp
             .register()
@@ -32,6 +35,18 @@ class MQTTClient  {
         this.clientApp.getInstalled()
             .then(this._onClientAppInstalled.bind(this))
             .catch(error => Log.error(error));
+    }
+
+    disconnect() {
+        if (!this._connected) return;
+        this._connected = false;
+
+        try {
+            this.clientApp.unregister();
+            this._onClientAppUninstalled();
+        } catch (e) {
+            Log.error(e);
+        }
     }
 
     _injectRoot(topic) {
@@ -105,6 +120,8 @@ class MQTTClient  {
         topic = this._removeRoot(topic);
         await this.onMessage.emit(topic, message);
     }
+
+    
 }
 
 module.exports = MQTTClient;

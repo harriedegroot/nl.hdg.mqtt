@@ -33,6 +33,7 @@ class HomieDispatcher {
         this.deviceManager = deviceManager;
         this.system = system;
 
+        this._registeredDevices = new Set();
         this.homieDevice = new HomieDevice(this.config);
         this.homieDevice.setFirmware("Homey", system.version);
         this.homieDevice.on('message', function (topic, value) {
@@ -42,13 +43,11 @@ class HomieDispatcher {
             Log.debug('Homie: A broadcast message arrived on topic: ' + topic + ' with value: ' + value);
         });
 
-        this._registerDevices();
+        this.registerDevices();
         this.homieDevice.setup(true);
 
         // launch
-        if (mqttClient.isRegistered()) {
-            this.homieDevice.onConnect();
-        }
+        this.dispatchState();
     }
 
     get config() {
@@ -75,7 +74,7 @@ class HomieDispatcher {
     }
 
     // Get all devices and add them
-    _registerDevices() {
+    registerDevices() {
         const devices = this.deviceManager.devices;
         if (devices) {
             for (let key in devices) {
@@ -85,9 +84,29 @@ class HomieDispatcher {
             }
         }
     }
+
+    _disconnectDevice(deviceId) {
+        Log.debug("Disconnect device: " + deviceId);
+    }
+    _connectDevice(deviceId) {
+        Log.debug("Connect device: " + deviceId);
+    }
     
     _registerDevice(device) {
-        if (!device) return;
+        if (!device || !(device || {}).id) return;
+
+        if (!this.deviceManager.isDeviceEnabled(device.id)) {
+            Log.debug('[SKIP] Device disabled');
+            this._disconnectDevice(device.id);
+            return;
+        }
+
+        if (this._registeredDevices.has(device.id)) {
+            Log.debug('[SKIP] Device already registered');
+            this._connectDevice(device.id);
+            return;
+        }
+        this._registeredDevices.add(device.id);
 
         // homieDevice.node(name, friendlyName, type, startRange, endRange)
         let path = [normalize(device.name)];
@@ -129,7 +148,13 @@ class HomieDispatcher {
                         }
 
                         if (capability.setable) {
-                            property.settable(async (format, value) => await this.setValue(device.id, id, value, dataType));
+                            property.settable(async (format, value) => {
+                                if (!this.deviceManager.isDeviceEnabled(device.id)) {
+                                    Log.debug('[SKIP] Device disabled');
+                                    return;
+                                }
+                                await this.setValue(device.id, id, value, dataType);
+                            });
                         }
 
                         // NOTE: Ranges not implemented
@@ -219,7 +244,12 @@ class HomieDispatcher {
             return;
         }
 
-        Log.debug("Homie set value [" + capabilityId + "]: " + value);
+        if (!this.deviceManager.isDeviceEnabled(deviceId)) {
+            Log.debug('[SKIP] Device disabled');
+            return;
+        }
+
+        Log.info("Homie set value [" + capabilityId + "]: " + value);
 
         if (value === undefined) {
             Log.debug("Homie: No value provided");
@@ -336,6 +366,12 @@ class HomieDispatcher {
             default:
                 let numeric = Number(value);
                 return isNaN(numeric) ? value : numeric;
+        }
+    }
+
+    dispatchState() {
+        if (this.homieDevice && this.mqttClient.isRegistered()) {
+            this.homieDevice.onConnect();
         }
     }
 }
