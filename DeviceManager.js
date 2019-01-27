@@ -105,6 +105,10 @@ class DeviceManager {
         this.api.devices.on('device.delete', this._removeDevice.bind(this));
         this.api.devices.on('device.update', this._updateDevice.bind(this));
 
+        this.api.zones.on('zones.create', this._addZone.bind(this));
+        this.api.zones.on('zones.delete', this._removeZone.bind(this));
+        this.api.zones.on('zones.update', this._updateZone.bind(this));
+
         this.devices = await this.api.devices.getDevices();
         this.zones = await this.api.zones.getZones();
 
@@ -200,6 +204,27 @@ class DeviceManager {
 
     async _updateDevice(id) {
         await this.onUpdate.emit(id);
+    }
+
+    async _addZone(id) {
+        Log.info('New zone found!');
+        if (id) {
+            this.zones = this.zones || {};
+            const zone = await this.api.zones.getZone({ id });
+            if (zone) {
+                this.zones[id] = zone;
+            }
+        }
+    }
+
+    async _removeZone(id) {
+        if (id && this.zones && this.zones.hasOwnProperty(id)) {
+            delete this.zones[id];
+        }
+    }
+
+    async _updateZone(id) {
+        await this._addZone(id);
     }
 
     async getCapabillities(device) {
