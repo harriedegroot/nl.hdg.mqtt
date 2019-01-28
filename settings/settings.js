@@ -130,7 +130,9 @@ function onHomeyReady(homeyReady){
                 // TODO: Call app
             },
             refresh: function () {
+                $("#refreshButton").prop("disabled", true);
                 Homey.api('GET', '/refresh', null, (err, result) => {
+                    $("#refreshButton").prop("disabled", false);
                     if (err) {
                         Log.error(err);
                     }
