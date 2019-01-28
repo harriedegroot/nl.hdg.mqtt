@@ -54,6 +54,7 @@ function onHomeyReady(homeyReady){
     gatewaySettings = defaultSettings;
 
     Homey.api('GET', '/running', null, (err, result) => {
+        $("#running").prop("disabled", false);
         running = !err && result;
     });
 
@@ -179,7 +180,8 @@ function getLanguage() {
     }
 }
 
-function saveSettings() {
+function saveSettings(warning) {
+    if (warning) Homey.alert("Changes are being saved. Press 'Broadcast' to publish them to the broker");
 
     for (let key in defaultSettings) {
         let el = document.getElementById(key);
@@ -187,13 +189,15 @@ function saveSettings() {
             gatewaySettings[key] = typeof defaultSettings[key] === 'boolean' ? el.checked : el.value;
         }
     }
-    _writeSettings();
+    _writeSettings(warning);
 }
 
-function _writeSettings(settings) {
+function _writeSettings(warning) {
     try {
         Homey.set('settings', gatewaySettings);
-        Homey.api('GET', '/settings_changed', null, (err, result) => { });
+        Homey.api('GET', '/settings_changed', null, (err, result) => {
+            if (err) Homey.alert("Failed to save changes");
+        });
     } catch (e) {
         Homey.alert('Failed to save settings: ' + e);
     }

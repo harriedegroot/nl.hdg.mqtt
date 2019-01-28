@@ -1,6 +1,5 @@
 'use strict';
 
-const Log = require("../Log.js");
 const Message = require("../mqtt/Message.js");
 
 const CLIENT_OPTIONS = {
@@ -10,7 +9,7 @@ const CLIENT_OPTIONS = {
 class HomieMQTTClient  {
 
     isRegistered() {
-        return !this._destroyed && this.mqttClient.isRegistered();
+        return this.mqttClient.isRegistered();
     }
 
     constructor(mqttClient) {
@@ -18,8 +17,6 @@ class HomieMQTTClient  {
     }
 
     publish(topic, msg, opt) {
-        if (this._destroyed) return;
-
         if (msg) {
             opt = opt || {};
             const message = new Message(topic, msg, opt.qos, opt.retain);
@@ -28,8 +25,6 @@ class HomieMQTTClient  {
     }
 
     subscribe(topic) {
-        if (this._destroyed) return;
-
         this.topics = this.topics || [];
         this.topics.push(topic);
         this.mqttClient.subscribe(topic, CLIENT_OPTIONS);
@@ -78,7 +73,6 @@ class HomieMQTTClient  {
         if (this.topics) {
             this.topics.forEach(t => this.mqttClient.unsubscribe(t, CLIENT_OPTIONS));
         }
-        this._destroyed = true;
     }
 }
 

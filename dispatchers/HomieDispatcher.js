@@ -40,19 +40,22 @@ class HomieDispatcher {
         this.dispatchState();
     }
 
-    _initHomieDevice(){
+    _initHomieDevice() {
+        if (this.homieDevice) {
+            this._destroyHomieDevice();
+        }
+
+        Log.debug("Create HomieDevice");
+        Log.debug(this.deviceConfig);
         this.homieDevice = new HomieDevice(this.deviceConfig);
         this.homieDevice.setFirmware("Homey", this.system.version);
 
-        this._messageCallback = function (topic, value) {
+        this.homieDevice.on('message', function (topic, value) {
             Log.debug('Homie: A message arrived on topic: ' + topic + ' with value: ' + value);
-        };
-        this._broadcastCallback = function (topic, value) {
+        });
+        this.homieDevice.on('broadcast', function (topic, value) {
             Log.debug('Homie: A broadcast message arrived on topic: ' + topic + ' with value: ' + value);
-        };
-
-        this.homieDevice.on('message', this._messageCallback);
-        this.homieDevice.on('broadcast', this._broadcastCallback);
+        });
 
         this.registerDevices();
         this.homieDevice.setup(true);
@@ -61,10 +64,7 @@ class HomieDispatcher {
     _destroyHomieDevice() {
         this.unregisterDevices();
         if (this.homieDevice) {
-            // TODO: Remove these listeners from homie device
-            //this.homieDevice.off('message', this._messageCallback);
-            //this.homieDevice.off('broadcast', this._broadcastCallback);
-            //this.homieDevice.onDisconnect(); // CHECK: Duplicate call? Also called from end()?
+            this.homieDevice.onDisconnect();
             this.homieDevice.end();
             delete this.homieDevice;
         }
@@ -104,10 +104,10 @@ class HomieDispatcher {
 
         // Breaking changes? => Start a new HomieDevice (& destroy current)
         if (current && current !== JSON.stringify(this.settings)) {
-            this._destroyHomieDevice();
-            this._initHomieDevice();
-            //this.registerDevices(); // NOTE: Already called when initializing a new HomieDevice
+            Log.debug("Recreate HomieDevice with new settings");
+            this._initHomieDevice(); // reboot HomieDevice with new settings
         } else if (deviceChanges) { // update changed devices only
+            Log.debug("Update settings for changed devices only");
             for (let deviceId of deviceChanges.enabled) {
                 if (typeof deviceId === 'string') {
                     this.enableDevice(deviceId);
@@ -123,6 +123,7 @@ class HomieDispatcher {
 
     // Get all devices and add them
     registerDevices() {
+        Log.debug("register devices");
         const devices = this.deviceManager.devices;
         if (devices) {
             for (let key in devices) {
@@ -157,7 +158,10 @@ class HomieDispatcher {
     }
     
     _registerDevice(device) {
-        if (!device || !(device || {}).id) return;
+        if (!device || !(device || {}).id) {
+            Log.debug("invalid device");
+            return;
+        } 
 
         if (!this.deviceManager.isDeviceEnabled(device.id)) {
             Log.debug('[SKIP] Device disabled');
@@ -169,6 +173,8 @@ class HomieDispatcher {
             Log.debug('[SKIP] Device already registered');
             return;
         }
+
+        Log.debug("register device: " + device.name);
 
         const name = this.getNodeName(device);
         let node = this.homieDevice.node(name, device.name, this._convertClass(device.class));
@@ -251,8 +257,7 @@ class HomieDispatcher {
             Log.debug("[Skip] Device Node not found");
             return;
         }
-        // CHECK: Clear retained node property values? Already cleared by node.onDisconnect call?
-        // CHECK: Fully destroy the node & all event listeners. Does a node have its own listeners?
+        
         if (this.homieDevice) {
             this.homieDevice.remove(node);
         }
@@ -496,7 +501,12 @@ class HomieDispatcher {
 
     dispatchState() {
         if (/*this.broadcast && */this.homieDevice && this.mqttClient.isRegistered()) {
+            Log.debug("Dispatch device state");
             this.homieDevice.onConnect();
+        } else {
+            Log.debug("[Skip] Invalid broadcast");
+            Log.debug("HomieDevice initialized: " + !!this.homieDevice);
+            Log.debug("MQTT Client registered: " + this.mqttClient.isRegistered());
         }
     }
 

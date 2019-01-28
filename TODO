@@ -1,26 +1,10 @@
 === TODO ===
-- Fix on/off button
-- Disable settings running button (show loader) untill state active state is received
-- implement destroy methods
+
 - enable setting for deprecated protocol / clean-up old code
-- Settings page
-	* Select communication protocol (Homie | Homey)
-	* Homie color format (HSV | RGB)
-	* scalable property 0-1 (float) | 0-100 (int)
-	* Configure root topic
-	* Configure Homie topic
-	* Enable/disable system state dispatcher
-	* Enable/Disable triggers & commands
-	* Include/Exclude devices & capabilities for dispatchers
-	* refresh/resend state
-	* Log
-	* Inject device id
-	* Update settings on save
-	* Display current status
-	* ...
+
 - HASS Discovery
 - Flow card for MQTT Device
-- 
+- Log (settings tab)
 - Create virtual devices from MQTT discovery
 - Info requests:
   * System
@@ -34,6 +18,7 @@
 - Trigger flow command
 - Implement Flow trigger dispatcher
 - Uninstall app => unsubscribe from topics
+- implement remaining destroy methods
 - Handle Socket hang up exceptions:
 { Error: socket hang up
     at Object.<anonymous> (/opt/homey-client/system/manager/ManagerApps/jsonfns.js:1:1103)
@@ -57,3 +42,18 @@
 - Normalization BUG
 - Handle device & zone name changes in HomieDispatcher
 - Try to combine the old topic format with the Homie Convention (&Ditch the old topic format?)
+- Fix on/off button
+- Disable settings running button (show loader) untill state active state is received
+- Settings page
+	* Select communication protocol (Homie | Homey)
+	* Homie color format (HSV | RGB)
+	* scalable property 0-1 (float) | 0-100 (int)
+	* Configure root topic
+	* Configure Homie topic
+	* Enable/disable system state dispatcher
+	* Enable/Disable triggers & commands
+	* Include/Exclude devices & capabilities for dispatchers
+	* refresh/resend state
+	* Inject device id
+	* Update settings on save
+	* Display current status

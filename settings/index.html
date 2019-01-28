@@ -36,7 +36,7 @@
                         </div>
                         <div class="settings-item-last">
                             <label class="form-switch">
-                                <input id="running" v-model="running" type="checkbox" @click="setRunning($event.target.checked)">
+                                <input id="running" disabled="disabled" v-model="running" type="checkbox" @click="setRunning($event.target.checked)">
                                 <i></i>
                             </label>
                         </div>
@@ -51,7 +51,7 @@
                     <div class="settings-itemgroup">
                         <select id="protocol" @change="saveSettings()">
                             <option value="homie3" selected="selected">Homie Convention v3.0.1</option>
-                            <option value="ha">Home Assistant Discovery (coming soon...)</option>
+                            <option disabled="disabled" value="ha">Home Assistant Discovery (coming soon...)</option>
                         </select>
                     </div>
                 </div>
@@ -60,13 +60,13 @@
                 <div class="setting">
                     <label class="settings-item-description" data-i18n="tab1.topicRoot">-Root topic (leave blank to discard)-</label>
                     <div class="settings-itemgroup">
-                        <input id="topicRoot" type="text" value="homie" onblur="saveSettings()">
+                        <input id="topicRoot" type="text" value="homie" onblur="saveSettings(true)">
                     </div>
                 </div>
                 <div class="setting">
                     <label class="settings-item-description" data-i18n="tab1.deviceId">-DeviceId-</label>
                     <div class="settings-itemgroup">
-                        <input id="deviceId" type="text" value="homey" onblur="saveSettings()">
+                        <input id="deviceId" type="text" value="homey" onblur="saveSettings(true)">
                     </div>
                 </div>
                 <div class="setting">
@@ -78,7 +78,7 @@
                         <div class="settings-item-last">
                             <label class="form-switch">
                                 <!-- https://www.cssscript.com/demo/realistic-ios-switch-pure-css/ -->
-                                <input id="topicIncludeClass" type="checkbox" onclick="saveSettings()">
+                                <input id="topicIncludeClass" type="checkbox" onclick="saveSettings(true)">
                                 <i></i>
                             </label>
                         </div>
@@ -93,7 +93,7 @@
                         <div class="settings-item-last">
                             <label class="form-switch">
                                 <!-- https://www.cssscript.com/demo/realistic-ios-switch-pure-css/ -->
-                                <input id="topicIncludeZone" type="checkbox" onclick="saveSettings()">
+                                <input id="topicIncludeZone" type="checkbox" onclick="saveSettings(true)">
                                 <i></i>
                             </label>
                         </div>
@@ -104,7 +104,7 @@
                 <div class="setting">
                     <label class="settings-item-description" data-i18n="tab1.propertyScaling">-Percentage formatting-</label>
                     <div class="settings-itemgroup">
-                        <select id="propertyScaling" value="default" @change="saveSettings()">
+                        <select disabled="disabled" id="propertyScaling" value="default" @change="saveSettings()">
                             <option value="default" selected="selected">default (original value)</option>
                             <option value="float">float (0...1)</option>
                             <option value="int">int (0...100)</option>
