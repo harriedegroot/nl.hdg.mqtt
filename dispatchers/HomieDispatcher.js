@@ -134,7 +134,14 @@ class HomieDispatcher {
     }
     // Remove all device registrations
     unregisterDevices() {
-        this._nodes.forEach(kv => this.disableDevice(kv[0]));
+        Log.debug("HomieDispatcher.unregisterDevices");
+        for (var [id, node] of this._nodes.entries()) {
+            try {
+                this.disableDevice(id);
+            } catch (e) {
+                Log.error(e);
+            }
+        }
         this._nodes.clear();
     }
 
@@ -494,6 +501,7 @@ class HomieDispatcher {
     }
 
     destroy() {
+        Log.debug('Destroy HomieDispatcher');
         this._destroyHomieDevice();
     }
 }

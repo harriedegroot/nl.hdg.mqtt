@@ -73,6 +73,7 @@ class MQTTGateway extends Homey.App {
         }
 
         this._startBroadcasters();
+        Log.debug('app running: true');
     }
 
     stop() {
@@ -80,6 +81,8 @@ class MQTTGateway extends Homey.App {
         this.mqttClient.disconnect();
         this._stopCommunicationProtocol();
         this._stopBroadcasters();
+        delete this.protocol;
+        Log.debug('app running: false');
     }
 
     _startCommunicationProtocol(protocol) {
