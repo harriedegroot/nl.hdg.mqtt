@@ -62,11 +62,12 @@ class MQTTGateway extends Homey.App {
     }
 
     start() {
-        Log.debug('start');
+        Log.debug('app start');
         this.mqttClient.connect();
 
         const protocol = this.settings.protocol || 'homie3';
         if (this.protocol !== protocol) {
+            Log.debug("Changing protocol from '" + this.protocol + "' to '" + protocol + "'");
             this._stopCommunicationProtocol(this.protocol);
             this._startCommunicationProtocol(protocol);
         }
@@ -75,7 +76,7 @@ class MQTTGateway extends Homey.App {
     }
 
     stop() {
-        Log.debug('stop');
+        Log.debug('app stop');
         this.mqttClient.disconnect();
         this._stopCommunicationProtocol();
         this._stopBroadcasters();
@@ -153,26 +154,34 @@ class MQTTGateway extends Homey.App {
     }
 
     _startBroadcasters() {
+        Log.debug("start broadcasters");
         if (this.homieDispatcher) {
-            this.homieDispatcher.broadcast = this.settings.broadcastDevices !== false;
+            const broadcast = this.settings.broadcastDevices !== false;
+            Log.debug("homie dispatcher broadcast: " + broadcast);
+            this.homieDispatcher.broadcast = broadcast;
         }
         if (!this.systemStateDispatcher && this.settings.broadcastSystemState) {
+            Log.debug("start system dispatcher");
             this.systemStateDispatcher = new SystemStateDispatcher(this);
         }
     }
 
     _stopBroadcasters() {
+        Log.debug("stop broadcasters");
         if (this.homieDispatcher) {
+            Log.debug("stop homie dispatcher");
             this.homieDispatcher.broadcast = false;
         }
 
         if (this.systemStateDispatcher) {
+            Log.debug("stop system dispatcher");
             this.systemStateDispatcher.destroy();
             delete this.systemStateDispatcher;
         }
     }
 
     async _getSystemInfo() {
+        Log.debug("get system info");
         const info = await this.api.system.getInfo();
         return {
             name: info.hostname,
@@ -181,6 +190,7 @@ class MQTTGateway extends Homey.App {
     }
 
     async getDevices() {
+        Log.debug("get devices");
         if (this.deviceManager && this.deviceManager.devices)
             return this.deviceManager.devices;
 
@@ -189,6 +199,7 @@ class MQTTGateway extends Homey.App {
     }
 
     async getZones() {
+        Log.debug("get zones");
         if (this.deviceManager && this.deviceManager.zones)
             return this.deviceManager.zones;
 
@@ -201,7 +212,7 @@ class MQTTGateway extends Homey.App {
     }
 
     setRunning(running) {
-        Log.info(running ? 'start' : 'stop');
+        Log.info(running ? 'switch on' : 'switch off');
         if (this.mqttClient) {
             if (running)
                 this.start();

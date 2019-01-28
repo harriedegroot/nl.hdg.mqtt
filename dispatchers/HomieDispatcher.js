@@ -32,6 +32,8 @@ class HomieDispatcher {
         this.updateSettings(settings);
         
         this._nodes = new Map();
+        this._capabilityInstances = new Map();
+
         this._initHomieDevice();
 
         // launch
@@ -209,9 +211,11 @@ class HomieDispatcher {
 
                     // Listen to state changes
                     try {
-                        device.makeCapabilityInstance(key, value =>
+                        this._destroyCapabilityInstance(device.id);
+                        const capabilityInstance = device.makeCapabilityInstance(key, value =>
                             this._handleStateChange(node, device.id, key, value)
                         );
+                        this._capabilityInstances.set(device.id, capabilityInstance);
                     } catch (e) {
                         Log.debug("Error capability: " + key);
                         Log.debug(e);
@@ -222,7 +226,19 @@ class HomieDispatcher {
         return node;
     }
 
+    _destroyCapabilityInstance(deviceId) {
+        const capabilityInstance = this._capabilityInstances.get(deviceId);
+        if (capabilityInstance) {
+            capabilityInstance.destroy();
+            this._capabilityInstances.delete(deviceId);
+        }
+    }
+
     _unregisterDevice(device) {
+
+        // stop listening for state changes
+        this._destroyCapabilityInstance();
+
         const node = this._nodes.get((device || {}).id);
         if (!node) {
             Log.debug("[Skip] Device Node not found");
@@ -230,7 +246,6 @@ class HomieDispatcher {
         }
         // CHECK: Clear retained node property values? Already cleared by node.onDisconnect call?
         // CHECK: Fully destroy the node & all event listeners. Does a node have its own listeners?
-        // TODO: Destroy device capabilityInstance (state change listener)
         if (this.homieDevice) {
             this.homieDevice.remove(node);
         }
