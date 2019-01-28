@@ -20,8 +20,19 @@ const DescribeCommandHandler = require("./commands/DescribeCommandHandler.js");
 const StateRequestCommandHandler = require("./commands/StateRequestCommandHandler.js");
 const UpdateCommandHandler = require("./commands/UpdateCommandHandler.js");
 
-const HOMIE_CONVENTION = true;  // TODO: Read from app settings
-const SYSTEM_INFO = false;      // TODO: Read from app settings
+/*
+const defaultSettings = {
+    "protocol": "homie3",
+    "topicRoot": "homie",
+    "deviceId": "homey",
+    "topicIncludeClass": false,
+    "topicIncludeZone": false,
+    "propertyScaling": "default",
+    "colorFormat": "hsv",
+    "broadcastDevices": true,
+    "broadcastSystemState": true,
+};
+*/
 
 class MQTTGateway extends Homey.App {
 
@@ -31,44 +42,136 @@ class MQTTGateway extends Homey.App {
         this.settings = Homey.ManagerSettings.get('settings') || {};
         this.api = await HomeyAPI.forCurrentHomey();
         this.system = await this._getSystemInfo();
+
         if (this.settings.deviceId === undefined) {
             this.settings.deviceId = Topic.normalize(this.system.name || 'homey');
             Homey.set('settings', this.settings);
         }
-        this.mqttClient = new MQTTClient(this.system.name);
+
+        this.mqttClient = new MQTTClient(this.settings.deviceId);
 
         // Suppress memory leak warning
-        this.api.devices.setMaxListeners(9999); 
+        this.api.devices.setMaxListeners(9999); // HACK
 
         // devices
         this.deviceManager = new DeviceManager(this);
         await this.deviceManager.register();
 
-        // TODO: Read from app settings
-        if (HOMIE_CONVENTION) {
-            this.homieDispatcher = new HomieDispatcher(this);
-        } else {
-            this.messageHandler = new MessageHandler(this);
+        // run
+        this.start();
+    }
 
-            // dispatchers
-            this.deviceStateChangeDispatcher = new DeviceStateChangeDispatcher(this);
-            this.flowTriggerDispatcher = new FlowTriggerDispatcher(this);
+    start() {
+        Log.debug('start');
+        this.mqttClient.connect();
 
-            // commands
-            this.messageHandler.addMessageHandler(new DescribeCommandHandler(this));
-            this.messageHandler.addMessageHandler(new StateRequestCommandHandler(this));
-            this.messageHandler.addMessageHandler(new UpdateCommandHandler(this));
+        const protocol = this.settings.protocol || 'homie3';
+        if (this.protocol !== protocol) {
+            this._stopCommunicationProtocol(this.protocol);
+            this._startCommunicationProtocol(protocol);
         }
 
-        // TODO: Read from app settings
-        if (SYSTEM_INFO) {
+        this._startBroadcasters();
+    }
+
+    stop() {
+        Log.debug('stop');
+        this.mqttClient.disconnect();
+        this._stopCommunicationProtocol();
+        this._stopBroadcasters();
+    }
+
+    _startCommunicationProtocol(protocol) {
+        this.protocol = protocol || this.protocol;
+        Log.debug('start communication protocol: ' + this.protocol );
+        if (protocol) {
+            switch (protocol) {
+                case 'deprecated':
+                    this._addDeprecatedDispatchers();
+                    this._listenToDeprecatedCommands();
+                    break;
+                case 'ha':
+                    // TODO: Implement HA Discovery
+                    break;
+                case 'homie3':
+                default:
+                    this.homieDispatcher = new HomieDispatcher(this);
+                    break;
+            }
+        }
+    }
+
+    _stopCommunicationProtocol(protocol) {
+        protocol = protocol || this.protocol;
+        if (protocol) {
+            Log.debug('stop communication protocol: ' + this.protocol);
+            if (protocol) {
+                switch (protocol) {
+                    case 'deprecated':
+                        this._removeDeprecatedDispatchers();
+                        this._stopDeprecatedCommands();
+                        break;
+                    case 'ha':
+                        // TODO: Destroy HA Discovery
+                        break;
+                    case 'homie3':
+                    default:
+                        if (this.homieDispatcher) {
+                            this.homieDispatcher.destroy();
+                            delete this.homieDispatcher;
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    _addDeprecatedDispatchers() {
+        this.deviceStateChangeDispatcher = new DeviceStateChangeDispatcher(this);
+        //this.flowTriggerDispatcher = new FlowTriggerDispatcher(this);
+    }
+
+    _removeDeprecatedDispatchers() {
+        if (this.deviceStateChangeDispatcher) {
+            this.deviceStateChangeDispatcher.destroy();
+            delete this.deviceStateChangeDispatcher;
+            //this.flowTriggerDispatcher
+        }
+    }
+
+    _listenToDeprecatedCommands() {
+        this.messageHandler = new MessageHandler(this);
+        this.messageHandler.addMessageHandler(new DescribeCommandHandler(this));
+        this.messageHandler.addMessageHandler(new StateRequestCommandHandler(this));
+        this.messageHandler.addMessageHandler(new UpdateCommandHandler(this));
+    }
+    _stopDeprecatedCommands() {
+        if (this.messageHandler) {
+            this.messageHandler.destroy();
+            delete this.messageHandler;
+        }
+    }
+
+    _startBroadcasters() {
+        if (this.homieDispatcher) {
+            this.homieDispatcher.broadcast = this.settings.broadcastDevices !== false;
+        }
+        if (!this.systemStateDispatcher && this.settings.broadcastSystemState) {
             this.systemStateDispatcher = new SystemStateDispatcher(this);
         }
     }
 
-    //async _getSystemName() {
-    //    return this.api.system.getSystemName ? await this.api.system.getSystemName() : (await this.api.system.getInfo()).hostname;
-    //}
+    _stopBroadcasters() {
+        if (this.homieDispatcher) {
+            this.homieDispatcher.broadcast = false;
+        }
+
+        if (this.systemStateDispatcher) {
+            this.systemStateDispatcher.destroy();
+            delete this.systemStateDispatcher;
+        }
+    }
+
     async _getSystemInfo() {
         const info = await this.api.system.getInfo();
         return {
@@ -98,12 +201,12 @@ class MQTTGateway extends Homey.App {
     }
 
     setRunning(running) {
-        Log.info(running ? 'connect' : 'disconnect');
+        Log.info(running ? 'start' : 'stop');
         if (this.mqttClient) {
             if (running)
-                this.mqttClient.connect();
+                this.start();
             else
-                this.mqttClient.disconnect();
+                this.stop();
         }
     }
 
@@ -121,13 +224,27 @@ class MQTTGateway extends Homey.App {
         Log.info("Settings changed");
         this.settings = Homey.ManagerSettings.get('settings') || {};
         Log.debug(this.settings);
-        if (this.deviceManager) {
-            this.deviceManager.setEnabledDevices(this.settings.devices);
-            if (this.homieDispatcher) {
-                this.homieDispatcher.registerDevices();
-                this.homieDispatcher.dispatchState();
-            }
+
+        // deviceId
+        if (this.mqttClient) {
+            this.mqttClient.topicRoot = this.settings.deviceId;
         }
+
+        // devices, topicRoot
+        let deviceChanges = null;
+        if (this.deviceManager) {
+            deviceChanges = this.deviceManager.computeChanges(this.settings.devices);
+            this.deviceManager.setEnabledDevices(this.settings.devices);
+        }
+        Log.debug(deviceChanges);
+
+        if (this.homieDispatcher) {
+            this.homieDispatcher.updateSettings(this.settings, deviceChanges);
+            //this.homieDispatcher.dispatchState();
+        }
+
+        // protocol, broadcasts
+        this.start(); // NOTE: Changes are detected in the start method(s)
     }
 }
 

@@ -12,7 +12,6 @@ module.exports = [
         fn: function (args, callback) {
             Homey.app.getDevices()
                 .then(res => {
-                    Log.debug(res);
                     callback(null, res);
                 })
                 .catch(error => {
@@ -30,7 +29,6 @@ module.exports = [
         fn: function (args, callback) {
             Homey.app.getZones()
                 .then(res => {
-                    Log.debug(res);
                     callback(null, res);
                 })
                 .catch(error => {

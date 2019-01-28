@@ -237,6 +237,37 @@ class DeviceManager {
         return capabillities ? capabillities[capabilityId] : undefined;
     }
 
+    computeChanges(devices) {
+        let changes = {
+            enabled: [],
+            disabled: [],
+            untouched: []
+        };
+        if (devices) {
+            for (let id in devices) {
+                if (devices.hasOwnProperty(id)) {
+                    const enabled = devices[id] !== false;
+                    if (enabled !== this.isDeviceEnabled(id)) {
+                        if (enabled) {
+                            if (this.devices) {
+                                Log.debug("Enabled device: " + (this.devices[id] || {}).name);
+                            }
+                            changes.enabled.push(id);
+                        } else {
+                            if (this.devices) {
+                                Log.debug("Disabled device: " + (this.devices[id] || {}).name);
+                            }
+                            changes.disabled.push(id);
+                        }
+                    } else {
+                        changes.untouched.push(id);
+                    }
+                }
+            }
+        }
+        return changes;
+    }
+
     setEnabledDevices(devices) {
         this._enabledDevices = devices;
     }

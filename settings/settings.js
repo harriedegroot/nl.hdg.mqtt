@@ -11,8 +11,8 @@ const defaultSettings = {
     "topicIncludeZone": false,
     "propertyScaling": "default",
     "colorFormat": "hsv",
-    "publishDevices": true,
-    "publishSystemState": true,
+    "broadcastDevices": true,
+    "broadcastSystemState": true,
 };
 
 //const testDevices = {

@@ -22,11 +22,12 @@
     "messages": "MESSAGES",
     "propertyScaling": "Percentage formatting",
     "colorFormat": "Color format",
+    "broadcast": "Broadcast",
     "publish": "PUBLISH",
-    "publishDevicesChanges": "Publish messages for all devices state changes",
-    "publishDevices": "Device state changes",
-    "publishSystemState": "Publish messages containing the current system state in a regular interval (30 sec.)",
-    "publishSystem":  "System state"
+    "broadcastDevicesChanges": "Publish messages for all devices state changes",
+    "broadcastDevices": "Broadcast device state changes",
+    "broadcastSystemState": "Publish messages containing the current system state in a regular interval (30 sec.)",
+    "broadcastSystem": "Broadcast system state"
   },
   "tab2": {
     "title": "Devices",

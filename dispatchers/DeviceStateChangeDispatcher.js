@@ -66,6 +66,10 @@ class DeviceStateChangeDispatcher {
         this.mqttClient.publish(msg);
         Log.debug(topic + ': ' + value);
     }
+
+    destroy() {
+        // TODO: implement
+    }
 }
 
 module.exports = DeviceStateChangeDispatcher;

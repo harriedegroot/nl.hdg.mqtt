@@ -91,6 +91,14 @@ proto.node = function(name, friendlyName, type, startRange, endRange) {
   return t.nodes[name] = new HomieNode(t, name, friendlyName, type, startRange, endRange);
 }
 
+proto.remove = function(node) {
+    var t = this;
+    if (node) {
+        node.onDisconnect();
+        delete t.nodes[node.name];
+    }
+}
+
 // Start the device
 proto.setup = function(quiet) {
   var t = this;
@@ -195,6 +203,22 @@ proto.onConnect = function() {
   }, t.statsInterval * 1000);
 
   t.mqttClient.publish(t.mqttTopic + '/$state', 'ready', {retain:true});
+}
+
+proto.onConnectNode = function (node) {
+    var t = this;
+    var nodes = [];
+    _.each(t.nodes, function (node) {
+        var node = node.name;
+        // TODO Array Handling
+
+        nodes.push(node);
+    })
+    t.mqttClient.publish(t.mqttTopic + '/$nodes', nodes.join(','), { retain: true });
+    
+    node.onConnect();
+    
+    t.emit('connect');
 }
 
 // Called on mqtt client disconnect

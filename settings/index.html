@@ -43,8 +43,8 @@
                     </div>
                 </div>
                 <div class="setting">
-                    <label class="settings-item-description" data-i18n="tab1.refresh">-Publish the state of all devices-</label>
-                    <button id="refreshButton" class="btn" @click="refresh()">Refresh</button>
+                    <label class="settings-item-description" data-i18n="tab1.refresh">-Broadcast the state of all devices-</label>
+                    <button id="refreshButton" class="btn" @click="refresh()" data-i18n="tab1.broadcast">Broadcast</button>
                 </div>
                 <div class="setting">
                     <label class="settings-item-description" data-i18n="tab1.protocol">-Communication protocol-</label>
@@ -124,30 +124,30 @@
            
                 <div data-i18n="tab1.publish" class="text-header">-PUBLISH-</div>
                 <div class="setting">
-                    <label class="settings-item-description" data-i18n="tab1.publishDevicesChanges">-Devices state changes-</label>
+                    <label class="settings-item-description" data-i18n="tab1.broadcastDevicesChanges">-Devices state changes-</label>
                     <div class="settings-itemgroup">
                         <div class="settings-item-text">
-                            <span data-i18n="tab1.publishDevices">-Devices-</span>
+                            <span data-i18n="tab1.broadcastDevices">-Devices-</span>
                         </div>
                         <div class="settings-item-last">
                             <label class="form-switch">
                                 <!-- https://www.cssscript.com/demo/realistic-ios-switch-pure-css/ -->
-                                <input id="publishDevices" type="checkbox" onclick="saveSettings()">
+                                <input id="broadcastDevices" type="checkbox" onclick="saveSettings()">
                                 <i></i>
                             </label>
                         </div>
                     </div>
                 </div>
                 <div class="setting">
-                    <label class="settings-item-description" data-i18n="tab1.publishSystemState">-System state-</label>
+                    <label class="settings-item-description" data-i18n="tab1.broadcastSystemState">-System state-</label>
                     <div class="settings-itemgroup">
                         <div class="settings-item-text">
-                            <span data-i18n="tab1.publishSystem">-System-</span>
+                            <span data-i18n="tab1.broadcastSystem">-System-</span>
                         </div>
                         <div class="settings-item-last">
                             <label class="form-switch">
                                 <!-- https://www.cssscript.com/demo/realistic-ios-switch-pure-css/ -->
-                                <input id="publishSystemState" type="checkbox" onclick="saveSettings()">
+                                <input id="broadcastSystemState" type="checkbox" onclick="saveSettings()">
                                 <i></i>
                             </label>
                         </div>

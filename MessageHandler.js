@@ -101,6 +101,10 @@ class MessageHandler {
             }
         }
     }
+
+    destroy() {
+        // TODO: implement
+    }
 }
 
 module.exports = MessageHandler;

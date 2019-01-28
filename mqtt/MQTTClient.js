@@ -9,7 +9,7 @@ class MQTTClient  {
 
     isRegistered() { return this.registered; }
 
-    constructor(topic) {
+    constructor(topic, autoConnect) {
         this.topicRoot = Topic.normalize(topic) || 'homey';
         this.clientApp = new Homey.ApiApp('nl.scanno.mqtt');
 
@@ -17,7 +17,9 @@ class MQTTClient  {
         this.onUnRegistered = new EventHandler('MQTTClient.unregistered');
         this.onMessage = new EventHandler('MQTTClient.message');
 
-        this.connect();
+        if (autoConnect) {
+            this.connect();
+        }
     }
 
     connect() {
@@ -83,9 +85,14 @@ class MQTTClient  {
         }
     }
 
+    unsubscribe(topic, opt) {
+        // TODO: implement topic unsubscription
+    }
+
     /**
      * Publish MQTT Message
      * @param {any} msg Message model
+     * @param {opt} opt options
      */
     publish(msg, opt) {
         //Log.debug(msg);
@@ -120,8 +127,6 @@ class MQTTClient  {
         topic = this._removeRoot(topic);
         await this.onMessage.emit(topic, message);
     }
-
-    
 }
 
 module.exports = MQTTClient;

@@ -1,5 +1,8 @@
 === TODO ===
-- Try to combine the old topic format with the Homie Convention (&Ditch the old topic format?)
+- Fix on/off button
+- Disable settings running button (show loader) untill state active state is received
+- implement destroy methods
+- enable setting for deprecated protocol / clean-up old code
 - Settings page
 	* Select communication protocol (Homie | Homey)
 	* Homie color format (HSV | RGB)
@@ -52,3 +55,5 @@
 - Implement Homie convention (Homey v1.5.13)
 - Homie Convention for Homey v2.0
 - Normalization BUG
+- Handle device & zone name changes in HomieDispatcher
+- Try to combine the old topic format with the Homie Convention (&Ditch the old topic format?)
