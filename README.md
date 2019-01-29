@@ -20,10 +20,10 @@ Some of the many possibilities:
 This appp is **NOT** a plug & play solution. You need some technical background to get things working.
 If you don't like to tinker with stuff, you don't like to try many different roads before you finally get your ultimate solution or you have no clue what a command-line is: it's probably not for you...
   
-## Why MQTT?
+## MQTT?
 [MQTT](http://mqtt.org/) is a lightweight communication protocol and it's (becoming) the industry standard for IoT messaging (Internet of Things).
-To standardize event further, the [Homie Convention](https://homieiot.github.io/) is implemented (v3.0.1).
-From their website: The Homie convention defines a standardized way of how IoT devices and services announce themselves and their data on the MQTT broker.
+Furthermore, the [Homie Convention](https://homieiot.github.io/) is implemented (v3.0.1).
+From their website: *The Homie convention defines a standardized way of how IoT devices and services announce themselves and their data on the MQTT broker*.
   
 ## Functionality
 - Dispatch device state changes for all connected devices.
@@ -68,11 +68,11 @@ You can connect with any broker (e.g. [Mosquitto](https://mosquitto.org/) or [Hi
   
 #### MQTT Topic
 The following message format is used for communication:  
-`topic root`/`system name`/`device class (optional)`/`zone (optional)`/`device name`/`capability`/`$command`
+`topic root`/`system name`/`device class (optional)`/`zone (optional)`/`device name`/`capability`/`$command`  
 For further details see the [specification](https://homieiot.github.io/specification/) of the Homie Convention.
   
 NOTE: `topic root`, `system name`, `zone` & `device name` will all be normalized.  
-i.e. All spaces, underscores & special characters will be removed, space are replaced by a dash (-) and all remaining text will be converted to lowercase characters in ASCII format.   
+i.e. All spaces, underscores & special characters will be removed, spaces are replaced by a dash (-) and all remaining text will be converted to lowercase characters in ASCII format.   
 E.g. `Homey/light/Living room/Light tv/...` will become `homey/light/living-room/light-tv/...`
   
 #### Device mapping
