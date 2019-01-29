@@ -3,6 +3,7 @@
 const Homey = require('homey');
 const { HomeyAPI } = require('athom-api');
 const MQTTClient = require('./mqtt/MQTTClient.js');
+const Topic = require('./mqtt/Topic.js');
 
 // Services
 const Log = require("./Log.js");
