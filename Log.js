@@ -85,16 +85,16 @@ function writelog(level, line, notification, functions, implementation) {
          var logLine = getDateTime() + "   " + line;
          console.log( logLine );
 
-         if (logArray.length >= 50) {
-            logArray.shift();
+         if (logArray.length >= 100) {
+            logArray.pop();
          }
-         logArray.push(logLine);
+         logArray.unshift(logLine);
          break;
    }
 }
 
 function getLogLines() {
-   writelog('debug', "getLogLines called");
+   //writelog('debug', "getLogLines called");
    return logArray;
 }
 

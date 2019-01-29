@@ -1,7 +1,12 @@
+var $app;
 var language = 'en';
 var loading = true;
 var running = false;
 var gatewaySettings = {};
+var refreshLogEnabled = false;
+var log = '';
+var logTimeout = 0;
+var FETCH_LOG_DELAY = 5000;
 
 const defaultSettings = {
     "protocol": "homie3",
@@ -38,6 +43,8 @@ const defaultSettings = {
 //                    return setTimeout(() => callback(null, testDevices), 2000);
 //                case '/zones':
 //                    return callback(null, { zone: { name: 'zone' } });
+//                case '/log':
+//                    return callback(null, ["test " + Math.random(), "test " + Math.random()]);
 //                default:
 //                    return callback(null, {});
 //            }
@@ -52,7 +59,7 @@ function onHomeyReady(homeyReady){
     Homey = homeyReady;
     Homey.ready();
     gatewaySettings = defaultSettings;
-
+    
     Homey.api('GET', '/running', null, (err, result) => {
         $("#running").prop("disabled", false);
         running = !err && result;
@@ -85,7 +92,7 @@ function onHomeyReady(homeyReady){
     showTab(1);
     getLanguage();
 
-    new Vue({
+    $app = new Vue({
         el: '#app',
         data: {
             devices: {},
@@ -133,9 +140,6 @@ function onHomeyReady(homeyReady){
                 $("#refreshButton").prop("disabled", true);
                 Homey.api('GET', '/refresh', null, (err, result) => {
                     $("#refreshButton").prop("disabled", false);
-                    if (err) {
-                        Log.error(err);
-                    }
                     Homey.alert(err ? 'failed to refresh device states' : 'refreshed sucessfully');
                 });
             }
@@ -155,13 +159,15 @@ function onHomeyReady(homeyReady){
     })
 }
 
-function showTab(tab){
+function showTab(tab, log){
     $('.tab').removeClass('tab-active');
     $('.tab').addClass('tab-inactive');
     $('#tabb' + tab).removeClass('tab-inactive');
     $('#tabb' + tab).addClass('active');
     $('.panel').hide();
     $('#tab' + tab).show();
+    
+    refreshLog(log);
 }
 
 function getLanguage() {
@@ -222,3 +228,57 @@ function deviceEnabled(device) {
     return !gatewaySettings.devices || gatewaySettings.devices[device.id] !== false;
 }
 
+/*** LOG ***/
+
+function refreshLog(refresh) {
+    refreshLogEnabled = refresh;
+
+    if (refresh && !log) {
+        displayLog('loading...');
+    }
+
+    stopLogUpdateTimer();
+    if (refresh) {
+        updateLog();
+    }
+}
+
+function displayLog(lines) {
+    log = lines;
+    $app.$forceUpdate();
+}
+
+function updateLog() {
+    try {
+        stopLogUpdateTimer();
+        Homey.api('GET', '/log', null, (err, result) => {
+            stopLogUpdateTimer();
+            if (!err) {
+                let lines = '';
+                for (var i = 0; i < result.length; i++) {
+                    lines += result[i] + "<br />";
+                }
+                displayLog(lines);
+
+                if (refreshLogEnabled) {
+                    setLogUpdateTimer();
+                }
+            } else {
+                displayLog(err);
+            }
+        });
+    } catch (e) {
+        displayLog(e);
+    }
+}
+
+function setLogUpdateTimer() {
+    logTimeout = setTimeout(updateLog, FETCH_LOG_DELAY);
+}
+
+function stopLogUpdateTimer() {
+    if (logTimeout) {
+        clearTimeout(logTimeout);
+        logTimeout = 0;
+    }
+}

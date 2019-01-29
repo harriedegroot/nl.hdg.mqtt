@@ -12,7 +12,6 @@ const MessageHandler = require("./MessageHandler.js");
 // Dispatchers
 const DeviceStateChangeDispatcher = require("./dispatchers/DeviceStateChangeDispatcher.js");
 const SystemStateDispatcher = require("./dispatchers/SystemStateDispatcher.js");
-const FlowTriggerDispatcher = require("./dispatchers/FlowTriggerDispatcher.js");
 const HomieDispatcher = require("./dispatchers/HomieDispatcher.js");
 
 // Commands
@@ -67,27 +66,27 @@ class MQTTGateway extends Homey.App {
 
         const protocol = this.settings.protocol || 'homie3';
         if (this.protocol !== protocol) {
-            Log.debug("Changing protocol from '" + this.protocol + "' to '" + protocol + "'");
+            Log.info("Changing protocol from '" + this.protocol + "' to '" + protocol + "'");
             this._stopCommunicationProtocol(this.protocol);
             this._startCommunicationProtocol(protocol);
         }
 
         this._startBroadcasters();
-        Log.debug('app running: true');
+        Log.info('app running: true');
     }
 
     stop() {
-        Log.debug('app stop');
+        Log.info('app stop');
         this.mqttClient.disconnect();
         this._stopCommunicationProtocol();
         this._stopBroadcasters();
         delete this.protocol;
-        Log.debug('app running: false');
+        Log.info('app running: false');
     }
 
     _startCommunicationProtocol(protocol) {
         this.protocol = protocol || this.protocol;
-        Log.debug('start communication protocol: ' + this.protocol );
+        Log.info('start communication protocol: ' + this.protocol );
         if (protocol) {
             switch (protocol) {
                 case 'deprecated':
@@ -108,7 +107,7 @@ class MQTTGateway extends Homey.App {
     _stopCommunicationProtocol(protocol) {
         protocol = protocol || this.protocol;
         if (protocol) {
-            Log.debug('stop communication protocol: ' + this.protocol);
+            Log.info('stop communication protocol: ' + this.protocol);
             if (protocol) {
                 switch (protocol) {
                     case 'deprecated':
@@ -157,34 +156,34 @@ class MQTTGateway extends Homey.App {
     }
 
     _startBroadcasters() {
-        Log.debug("start broadcasters");
+        Log.info("start broadcasters");
         if (this.homieDispatcher) {
             const broadcast = this.settings.broadcastDevices !== false;
-            Log.debug("homie dispatcher broadcast: " + broadcast);
+            Log.info("homie dispatcher broadcast: " + broadcast);
             this.homieDispatcher.broadcast = broadcast;
         }
         if (!this.systemStateDispatcher && this.settings.broadcastSystemState) {
-            Log.debug("start system dispatcher");
+            Log.info("start system dispatcher");
             this.systemStateDispatcher = new SystemStateDispatcher(this);
         }
     }
 
     _stopBroadcasters() {
-        Log.debug("stop broadcasters");
+        Log.info("stop broadcasters");
         if (this.homieDispatcher) {
-            Log.debug("stop homie dispatcher");
+            Log.info("stop homie dispatcher");
             this.homieDispatcher.broadcast = false;
         }
 
         if (this.systemStateDispatcher) {
-            Log.debug("stop system dispatcher");
+            Log.info("stop system dispatcher");
             this.systemStateDispatcher.destroy();
             delete this.systemStateDispatcher;
         }
     }
 
     async _getSystemInfo() {
-        Log.debug("get system info");
+        Log.info("get system info");
         const info = await this.api.system.getInfo();
         return {
             name: info.hostname,
@@ -193,7 +192,7 @@ class MQTTGateway extends Homey.App {
     }
 
     async getDevices() {
-        Log.debug("get devices");
+        Log.info("get devices");
         if (this.deviceManager && this.deviceManager.devices)
             return this.deviceManager.devices;
 
@@ -202,7 +201,7 @@ class MQTTGateway extends Homey.App {
     }
 
     async getZones() {
-        Log.debug("get zones");
+        Log.info("get zones");
         if (this.deviceManager && this.deviceManager.zones)
             return this.deviceManager.zones;
 

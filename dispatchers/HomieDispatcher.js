@@ -45,16 +45,16 @@ class HomieDispatcher {
             this._destroyHomieDevice();
         }
 
-        Log.debug("Create HomieDevice");
+        Log.info("Create HomieDevice");
         Log.debug(this.deviceConfig);
         this.homieDevice = new HomieDevice(this.deviceConfig);
         this.homieDevice.setFirmware("Homey", this.system.version);
 
         this.homieDevice.on('message', function (topic, value) {
-            Log.debug('Homie: A message arrived on topic: ' + topic + ' with value: ' + value);
+            Log.info('Homie: A message arrived on topic: ' + topic + ' with value: ' + value);
         });
         this.homieDevice.on('broadcast', function (topic, value) {
-            Log.debug('Homie: A broadcast message arrived on topic: ' + topic + ' with value: ' + value);
+            Log.info('Homie: A broadcast message arrived on topic: ' + topic + ' with value: ' + value);
         });
 
         this.registerDevices();
@@ -104,10 +104,10 @@ class HomieDispatcher {
 
         // Breaking changes? => Start a new HomieDevice (& destroy current)
         if (current && current !== JSON.stringify(this.settings)) {
-            Log.debug("Recreate HomieDevice with new settings");
+            Log.info("Recreate HomieDevice with new settings");
             this._initHomieDevice(); // reboot HomieDevice with new settings
         } else if (deviceChanges) { // update changed devices only
-            Log.debug("Update settings for changed devices only");
+            Log.info("Update settings for changed devices only");
             for (let deviceId of deviceChanges.enabled) {
                 if (typeof deviceId === 'string') {
                     this.enableDevice(deviceId);
@@ -123,7 +123,7 @@ class HomieDispatcher {
 
     // Get all devices and add them
     registerDevices() {
-        Log.debug("register devices");
+        Log.info("register devices");
         const devices = this.deviceManager.devices;
         if (devices) {
             for (let key in devices) {
@@ -135,7 +135,7 @@ class HomieDispatcher {
     }
     // Remove all device registrations
     unregisterDevices() {
-        Log.debug("HomieDispatcher.unregisterDevices");
+        Log.info("HomieDispatcher.unregisterDevices");
         for (var [id, node] of this._nodes.entries()) {
             try {
                 this.disableDevice(id);
@@ -159,22 +159,22 @@ class HomieDispatcher {
     
     _registerDevice(device) {
         if (!device || !(device || {}).id) {
-            Log.debug("invalid device");
+            Log.info("invalid device");
             return;
         } 
 
         if (!this.deviceManager.isDeviceEnabled(device.id)) {
-            Log.debug('[SKIP] Device disabled');
+            Log.info('[SKIP] Device disabled');
             this.disableDevice(device.id);
             return;
         }
 
         if (this._nodes.has(device.id)) {
-            Log.debug('[SKIP] Device already registered');
+            Log.info('[SKIP] Device already registered');
             return;
         }
 
-        Log.debug("register device: " + device.name);
+        Log.info("register device: " + device.name);
 
         const name = this.getNodeName(device);
         let node = this.homieDevice.node(name, device.name, this._convertClass(device.class));
@@ -212,7 +212,7 @@ class HomieDispatcher {
                         if (capability.setable) {
                             property.settable(async (format, value) => {
                                 if (!this.deviceManager.isDeviceEnabled(device.id)) {
-                                    Log.debug('[SKIP] Device disabled');
+                                    Log.info('[SKIP] Device disabled');
                                     return;
                                 }
                                 await this.setValue(device.id, id, value, dataType);
@@ -230,7 +230,7 @@ class HomieDispatcher {
                         );
                         this._capabilityInstances.set(device.id, capabilityInstance);
                     } catch (e) {
-                        Log.debug("Error capability: " + key);
+                        Log.info("Error capability: " + key);
                         Log.debug(e);
                     }
                 }
@@ -254,7 +254,7 @@ class HomieDispatcher {
 
         const node = this._nodes.get((device || {}).id);
         if (!node) {
-            Log.debug("[Skip] Device Node not found");
+            Log.info("[Skip] Device Node not found");
             return;
         }
         
@@ -270,7 +270,7 @@ class HomieDispatcher {
         
         const device = this.deviceManager.devices[deviceId];
         if (device) {
-            Log.debug("Enable device: " + device.name);
+            Log.info("Enable device: " + device.name);
             const node = this._registerDevice(device);
             this.homieDevice.onConnectNode(node); // dispatch node changes
         } else {
@@ -284,7 +284,7 @@ class HomieDispatcher {
 
         const device = this.deviceManager.devices[deviceId];
         if (device) {
-            Log.debug("Disable device: " + device.name);
+            Log.info("Disable device: " + device.name);
             this._unregisterDevice(device);
         } else {
             Log.error("Failed to unregister device: Device not found");
@@ -360,24 +360,24 @@ class HomieDispatcher {
     async _handleStateChange(node, deviceId, capabilityId, value) {
 
         if (!node) {
-            Log.debug("[SKIP] No valid node provided");
+            Log.info("[SKIP] No valid node provided");
             return;
         }
 
         if (!this._nodes.has(deviceId)) {
-            Log.debug('[SKIP] Device not registered');
+            Log.info('[SKIP] Device not registered');
             return;
         }
 
         if (!this.deviceManager.isDeviceEnabled(deviceId)) {
-            Log.debug('[SKIP] Device disabled');
+            Log.info('[SKIP] Device disabled');
             return;
         }
         
         Log.info("Homie set value [" + capabilityId + "]: " + value);
 
         if (value === undefined) {
-            Log.debug("Homie: No value provided");
+            Log.info("Homie: No value provided");
             return;
         }
 
@@ -388,7 +388,7 @@ class HomieDispatcher {
                 let device = await this.api.devices.getDevice({ id: deviceId });
                 if (device) {
                     value = this._formatColor(device.capabilitiesObj);
-                    Log.debug("Homie set color: " + value);
+                    Log.info("Homie set color: " + value);
                 }
             }
             if (capabilityId === 'light_saturation' || capabilityId === 'light_temperature') {
@@ -404,7 +404,7 @@ class HomieDispatcher {
                     property.send(this._formatValue(value));
                 }
             } else {
-                Log.debug("No property found for capability: " + capabilityId);
+                Log.info("No property found for capability: " + capabilityId);
             }
         } catch (e) {
             Log.error(e);
@@ -413,7 +413,7 @@ class HomieDispatcher {
 
     async setValue(deviceId, capabilityId, value, dataType) {
 
-        Log.debug('HomieDispatcher.setValue');
+        Log.info('HomieDispatcher.setValue');
 
         // handle colors
         if (dataType === 'color') {
@@ -454,7 +454,7 @@ class HomieDispatcher {
                 Log.error(e);
             }
         } else {
-            Log.debug('Invalid color value');
+            Log.info('Invalid color value');
         }
     }
 
@@ -501,17 +501,17 @@ class HomieDispatcher {
 
     dispatchState() {
         if (/*this.broadcast && */this.homieDevice && this.mqttClient.isRegistered()) {
-            Log.debug("Dispatch device state");
+            Log.info("Dispatch device state");
             this.homieDevice.onConnect();
         } else {
-            Log.debug("[Skip] Invalid broadcast");
-            Log.debug("HomieDevice initialized: " + !!this.homieDevice);
-            Log.debug("MQTT Client registered: " + this.mqttClient.isRegistered());
+            Log.info("[Skip] Invalid broadcast");
+            Log.info("HomieDevice initialized: " + !!this.homieDevice);
+            Log.info("MQTT Client registered: " + this.mqttClient.isRegistered());
         }
     }
 
     destroy() {
-        Log.debug('Destroy HomieDispatcher');
+        Log.info('Destroy HomieDispatcher');
         this._destroyHomieDevice();
     }
 }
