@@ -42,26 +42,37 @@ class MQTTGateway extends Homey.App {
         this.api = await HomeyAPI.forCurrentHomey();
         this.system = await this._getSystemInfo();
 
+        Log.debug(system);
+
         if (this.settings.deviceId === undefined) {
             this.settings.deviceId = Topic.normalize(this.system.name || 'homey');
+            Log.debug("Settings initial deviceId: " + this.settings.deviceId);
             Homey.set('settings', this.settings);
+            Log.debug("Settings updated");
         }
 
+        Log.debug("Initialize MQTT Client");
         this.mqttClient = new MQTTClient(this.settings.deviceId);
 
+
         // Suppress memory leak warning
+        Log.debug("Suppress memory leak warning");
         this.api.devices.setMaxListeners(9999); // HACK
 
         // devices
+        Log.debug("Initialize DeviceManager");
         this.deviceManager = new DeviceManager(this);
+
+        Log.debug("Register DeviceManager");
         await this.deviceManager.register();
 
         // run
+        Log.debug("Launch!");
         this.start();
     }
 
     start() {
-        Log.debug('app start');
+        Log.info('app start');
         this.mqttClient.connect();
 
         const protocol = this.settings.protocol || 'homie3';
@@ -249,11 +260,10 @@ class MQTTGateway extends Homey.App {
             deviceChanges = this.deviceManager.computeChanges(this.settings.devices);
             this.deviceManager.setEnabledDevices(this.settings.devices);
         }
-        Log.debug(deviceChanges);
+        //Log.debug(deviceChanges);
 
         if (this.homieDispatcher) {
             this.homieDispatcher.updateSettings(this.settings, deviceChanges);
-            //this.homieDispatcher.dispatchState();
         }
 
         // protocol, broadcasts
