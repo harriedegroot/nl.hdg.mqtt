@@ -48,8 +48,8 @@ class MQTTGateway extends Homey.App {
         if (this.settings.deviceId === undefined) {
             this.settings.deviceId = Topic.normalize(this.system.name || 'homey');
             Log.debug("Settings initial deviceId: " + this.settings.deviceId);
-            //Homey.set('settings', this.settings);
-            //Log.debug("Settings updated");
+            Homey.ManagerSettings.set('settings', this.settings);
+            Log.debug("Settings updated");
         }
 
         Log.debug("Initialize MQTT Client");
