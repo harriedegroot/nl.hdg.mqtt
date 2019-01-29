@@ -95,6 +95,7 @@ proto.remove = function(node) {
     var t = this;
     if (node) {
         node.onDisconnect();
+        node.removeAllListeners();
         delete t.nodes[node.name];
     }
 }

@@ -27,11 +27,15 @@ class MQTTClient  {
         this._connected = true;
 
         // Register to app events
+        this._installedCallback = this._onClientAppInstalled.bind(this);
+        this._uninstalledCallback = this._onClientAppUninstalled.bind(this);
+        this._handleMessageCallback = this._handleMessage.bind(this);
+
         this.clientApp
             .register()
-            .on('install', this._onClientAppInstalled.bind(this))
-            .on('uninstall', this._onClientAppUninstalled.bind(this))
-            .on('realtime', this._handleMessage.bind(this));
+            .on('install', this._installedCallback)
+            .on('uninstall', this._uninstalledCallback)
+            .on('realtime', this._handleMessageCallback);
 
         // Fetch installed app
         this.clientApp.getInstalled()
@@ -45,6 +49,9 @@ class MQTTClient  {
 
         try {
             this.clientApp.unregister();
+            this.clientApp.removeListener('install', this._installedCallback);
+            this.clientApp.removeListener('uninstall', this._uninstalledCallback);
+            this.clientApp.removeListener('realtime', this._handleMessageCallback);
             this._onClientAppUninstalled();
         } catch (e) {
             Log.error(e);
@@ -71,6 +78,12 @@ class MQTTClient  {
         opt = opt || {};
         if (topic) {
             topic = opt.injectRoot === false ? topic : this._injectRoot(topic);
+
+            this.topics = this.topics || new Set();
+            if (this.topics.has(topic)) {
+                Log.debug('[SKIP] Already subscribed to topic: ' + topic);
+            }
+            this.topics.add(topic);
 
             Log.info('subscribing to topic: ' + topic);
             this.clientApp.post('subscribe', { topic: topic }, error => {

@@ -25,8 +25,6 @@ class HomieMQTTClient  {
     }
 
     subscribe(topic) {
-        this.topics = this.topics || [];
-        this.topics.push(topic);
         this.mqttClient.subscribe(topic, CLIENT_OPTIONS);
     }
 

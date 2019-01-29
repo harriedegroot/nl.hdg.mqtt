@@ -50,12 +50,14 @@ class HomieDispatcher {
         this.homieDevice = new HomieDevice(this.deviceConfig);
         this.homieDevice.setFirmware("Homey", this.system.version);
 
-        this.homieDevice.on('message', function (topic, value) {
-            Log.info('Homie: A message arrived on topic: ' + topic + ' with value: ' + value);
-        });
-        this.homieDevice.on('broadcast', function (topic, value) {
-            Log.info('Homie: A broadcast message arrived on topic: ' + topic + ' with value: ' + value);
-        });
+        this._messageCallback = function (topic, value) {
+            Log.info('message: ' + topic + ' with value: ' + value);
+        };
+        this._broadcastCallback = function (topic, value) {
+            Log.info('broadcast: ' + topic + ' with value: ' + value);
+        };
+        this.homieDevice.on('message', this._messageCallback);
+        this.homieDevice.on('broadcast', this._broadcastCallback);
 
         this.registerDevices();
         this.homieDevice.setup(true);
@@ -64,6 +66,9 @@ class HomieDispatcher {
     _destroyHomieDevice() {
         this.unregisterDevices();
         if (this.homieDevice) {
+            Log.info("Destroy HomieDevice");
+            this.homieDevice.removeListener('message', this._messageCallback);
+            this.homieDevice.removeListener('broadcast', this._broadcastCallback);
             this.homieDevice.onDisconnect();
             this.homieDevice.end();
             delete this.homieDevice;
@@ -224,11 +229,13 @@ class HomieDispatcher {
 
                     // Listen to state changes
                     try {
-                        this._destroyCapabilityInstance(device.id);
+                        const deviceCapabilityId = device.id + capability.id;
+                        this._destroyCapabilityInstance(deviceCapabilityId);
                         const capabilityInstance = device.makeCapabilityInstance(key, value =>
                             this._handleStateChange(node, device.id, key, value)
                         );
-                        this._capabilityInstances.set(device.id, capabilityInstance);
+                        Log.debug("Register CapabilityInstance: " + deviceCapabilityId);
+                        this._capabilityInstances.set(deviceCapabilityId, capabilityInstance);
                     } catch (e) {
                         Log.info("Error capability: " + key);
                         Log.debug(e);
@@ -239,18 +246,25 @@ class HomieDispatcher {
         return node;
     }
 
-    _destroyCapabilityInstance(deviceId) {
-        const capabilityInstance = this._capabilityInstances.get(deviceId);
+    _destroyCapabilityInstance(deviceCapabilityId) {
+        const capabilityInstance = this._capabilityInstances.get(deviceCapabilityId);
         if (capabilityInstance) {
+            Log.debug("Destroy CapabilityInstance: " + deviceCapabilityId);
             capabilityInstance.destroy();
-            this._capabilityInstances.delete(deviceId);
+            this._capabilityInstances.delete(deviceCapabilityId);
+        } else {
+            Log.debug("CapabilityInstance not found");
         }
     }
 
     _unregisterDevice(device) {
 
         // stop listening for state changes
-        this._destroyCapabilityInstance();
+        if (device && device.capabilities) {
+            for (let capabilityId of device.capabilities) {
+                this._destroyCapabilityInstance(device.id + capabilityId);
+            }
+        }
 
         const node = this._nodes.get((device || {}).id);
         if (!node) {
