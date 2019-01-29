@@ -82,7 +82,7 @@ E.g. `Homey/light/Living room/Light tv/...` will become `homey/light/living-room
 ## Homey firmware v1.5 and v2
 Starting from app version 2.0.2, this app can only run on Homey's v2 firmware. The reason for this is that this firmware has introduced backward incompatible changes that don't work on older versions of the firmware.
   
-Some, but not all, additional features that will be introduced this version will be backported to a separate `v1.5` [branch](https://github.com/harriedegroot/nl.hdg.mqtt/tree/homie). This branch can be manually installed on Homey using [`athom-cli`](https://www.npmjs.com/package/athom-cli).
+Some, features that will be introduced in this version will be backported to a separate `v1.5` [branch](https://github.com/harriedegroot/nl.hdg.mqtt/tree/homie). This branch can be manually installed on Homey using [`athom-cli`](https://www.npmjs.com/package/athom-cli).
     
 ## Future
 - HA Discovery
