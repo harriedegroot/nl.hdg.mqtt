@@ -4,7 +4,7 @@ Turn your Homey into a devices HUB.
   
 ## Introduction
 With this app you can communicate with all your Homey devices using MQTT.  
-The MQTT Hub automatically broadcasts all your devices and their capabilities.  
+The MQTT Hub automatically broadcasts all your devices and their capabilities. 
 It will setup a communication channel for each device, so external apps can control each one of them.
 Furthermore it provides an interface to read the full system state & and allows advanced control of your Homey, without the need to write your own app.
   
@@ -46,7 +46,7 @@ The default communication protocol is based on the Homie Convention standard, as
 Additionally the MQTT Hub allows communication by message (payload).  
 E.g. These two messages will both dim the tv light to 30%:
 1. publish to topic 'homie/homey/tv/dim/set', with message payload: 0.3
-2. publish to topic 'homey/command', with message payload:
+2. publish to topic 'homey/set', with message payload:
   
 ```javascript
 {
@@ -104,11 +104,21 @@ Some, but not all, additional features that will be introduced this version will
 - Dropped support for Homey v1.5
   
 #### 2.0.1  
-- Fixed messages for boolean capabilities
+- Fixed messages for boolean capabilities  
 
 #### 2.0.0  
-- Initial release for Homey firmware v2 (beta)
+- Initial release for Homey firmware v2 (beta)  
+  
+#### 1.0.2  
+- Fixed getting device name
+- Normalize device name  
+  
+#### 1.0.1
+- Fixed messages for boolean capabilities  
 
+#### 1.0.0
+- Initial release for Homey firmware v1.5  
+  
 ## Final note ##
 The repository is available at: https://github.com/harriedegroot/nl.hdg.mqtt  
 If you want to contribute, just create a [pull-request](https://help.github.com/articles/about-pull-requests/) and I will take a look at it!
