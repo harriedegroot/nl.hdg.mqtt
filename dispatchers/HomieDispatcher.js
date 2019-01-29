@@ -46,7 +46,6 @@ class HomieDispatcher {
         }
 
         Log.info("Create HomieDevice");
-        Log.debug(this.deviceConfig);
         this.homieDevice = new HomieDevice(this.deviceConfig);
         this.homieDevice.setFirmware("Homey", this.system.version);
 

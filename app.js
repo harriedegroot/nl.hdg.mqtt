@@ -43,8 +43,6 @@ class MQTTGateway extends Homey.App {
         this.api = await HomeyAPI.forCurrentHomey();
         this.system = await this._getSystemInfo();
 
-        Log.debug(this.system);
-
         if (this.settings.deviceId === undefined) {
             this.settings.deviceId = Topic.normalize(this.system.name || 'homey');
             Log.debug("Settings initial deviceId: " + this.settings.deviceId);
