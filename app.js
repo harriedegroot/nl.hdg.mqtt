@@ -34,10 +34,10 @@ const defaultSettings = {
 };
 */
 
-class MQTTGateway extends Homey.App {
+class MQTTHub extends Homey.App {
 
 	async onInit() {
-        Log.info('MQTT Gateway is running...');
+        Log.info('MQTT Hub is running...');
 
         this.settings = Homey.ManagerSettings.get('settings') || {};
         this.api = await HomeyAPI.forCurrentHomey();
@@ -270,4 +270,4 @@ class MQTTGateway extends Homey.App {
     }
 }
 
-module.exports = MQTTGateway;
+module.exports = MQTTHub;

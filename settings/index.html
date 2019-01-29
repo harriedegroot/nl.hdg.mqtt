@@ -14,14 +14,14 @@
 </head>
 <body>
     <div id="app">
-        <p data-i18n="settings.benefit" class="benefit">-Turn your Homey into a device HUB-</p>
+        <p data-i18n="settings.benefit" class="benefit">Turn your Homey into a device HUB</p>
 
         <div class="rTable tabs">
             <div class="rTableRow">
-                <div id="tabb1" class="tab tab-active" onclick="showTab(1)" data-i18n="tab1.title">-Settings-</div>
-                <div id="tabb2" class="tab tab-inactive" onclick="showTab(2)" data-i18n="tab2.title">-Devices-</div>
-                <div id="tabb3" class="tab tab-inactive" onclick="showTab(3)" data-i18n="tab3.title">-Instructions-</div>
-                <div id="tabb4" class="tab tab-inactive" onclick="showTab(4, true)" data-i18n="tab4.title">-Log-</div>
+                <div id="tabb1" class="tab tab-active" onclick="showTab(1)" data-i18n="tab1.title">Settings</div>
+                <div id="tabb2" class="tab tab-inactive" onclick="showTab(2)" data-i18n="tab2.title">Devices</div>
+                <div id="tabb3" class="tab tab-inactive" onclick="showTab(3)" data-i18n="tab3.title">Instructions</div>
+                <div id="tabb4" class="tab tab-inactive" onclick="showTab(4, true)" data-i18n="tab4.title">Log</div>
             </div>
         </div>
         <div class="tab-content">
@@ -29,10 +29,10 @@
             <div id="tab1" class="panel">
                 <!--<div data-i18n="tab1.general" class="text-header">-GENERAL-</div>-->
                 <div class="setting">
-                    <label class="settings-item-description" data-i18n="tab1.active">-MQTT Gateway on/off-</label>
+                    <label class="settings-item-description" data-i18n="tab1.active">Hub on/off</label>
                     <div class="settings-itemgroup">
                         <div class="settings-item-text">
-                            <span data-i18n="tab1.running">-Running-</span>
+                            <span data-i18n="tab1.running">Running</span>
                         </div>
                         <div class="settings-item-last">
                             <label class="form-switch">
@@ -43,11 +43,11 @@
                     </div>
                 </div>
                 <div class="setting">
-                    <label class="settings-item-description" data-i18n="tab1.refresh">-Broadcast the state of all devices-</label>
+                    <label class="settings-item-description" data-i18n="tab1.refresh">Broadcast the state of all devices</label>
                     <button id="refreshButton" class="btn" @click="refresh()" data-i18n="tab1.broadcast">Broadcast</button>
                 </div>
                 <div class="setting">
-                    <label class="settings-item-description" data-i18n="tab1.protocol">-Communication protocol-</label>
+                    <label class="settings-item-description" data-i18n="tab1.protocol">Communication protocol</label>
                     <div class="settings-itemgroup">
                         <select id="protocol" @change="saveSettings()">
                             <option value="homie3" selected="selected">Homie Convention v3.0.1</option>
@@ -56,24 +56,24 @@
                     </div>
                 </div>
                 
-                <div data-i18n="tab1.topic" class="text-header">-TOPIC-</div>
+                <div data-i18n="tab1.topic" class="text-header">TOPIC</div>
                 <div class="setting">
-                    <label class="settings-item-description" data-i18n="tab1.topicRoot">-Root topic (leave blank to discard)-</label>
+                    <label class="settings-item-description" data-i18n="tab1.topicRoot">Root topic (leave blank to discard)</label>
                     <div class="settings-itemgroup">
                         <input id="topicRoot" type="text" value="homie" onblur="saveSettings(true)">
                     </div>
                 </div>
                 <div class="setting">
-                    <label class="settings-item-description" data-i18n="tab1.deviceId">-DeviceId-</label>
+                    <label class="settings-item-description" data-i18n="tab1.deviceId">DeviceId</label>
                     <div class="settings-itemgroup">
                         <input id="deviceId" type="text" value="homey" onblur="saveSettings(true)">
                     </div>
                 </div>
                 <div class="setting">
-                    <label class="settings-item-description" data-i18n="tab1.topicIncludeClass">-Include device class in topic-</label>
+                    <label class="settings-item-description" data-i18n="tab1.topicIncludeClass">Include device class in topic</label>
                     <div class="settings-itemgroup">
                         <div class="settings-item-text">
-                            <span data-i18n="tab1.includeClass">-Include class-</span>
+                            <span data-i18n="tab1.includeClass">Include class</span>
                         </div>
                         <div class="settings-item-last">
                             <label class="form-switch">
@@ -85,10 +85,10 @@
                     </div>
                 </div>
                 <div class="setting">
-                    <label class="settings-item-description" data-i18n="tab1.topicIncludeZone">-Include zone in topic-</label>
+                    <label class="settings-item-description" data-i18n="tab1.topicIncludeZone">Include zone in topic</label>
                     <div class="settings-itemgroup">
                         <div class="settings-item-text">
-                            <span data-i18n="tab1.includeZone">-Include zone-</span>
+                            <span data-i18n="tab1.includeZone">Include zone</span>
                         </div>
                         <div class="settings-item-last">
                             <label class="form-switch">
@@ -102,7 +102,7 @@
             
                 <div data-i18n="tab1.messages" class="text-header">-MESSAGES-</div>
                 <div class="setting">
-                    <label class="settings-item-description" data-i18n="tab1.propertyScaling">-Percentage formatting-</label>
+                    <label class="settings-item-description" data-i18n="tab1.propertyScaling">Percentage formatting</label>
                     <div class="settings-itemgroup">
                         <select disabled="disabled" id="propertyScaling" value="default" @change="saveSettings()">
                             <option value="default" selected="selected">default (original value)</option>
@@ -112,7 +112,7 @@
                     </div>
                 </div>
                 <div class="setting">
-                    <label class="settings-item-description" data-i18n="tab1.colorFormat">-Color format-</label>
+                    <label class="settings-item-description" data-i18n="tab1.colorFormat">Color format</label>
                     <div class="settings-itemgroup">
                         <select id="colorFormat" value="default" @change="saveSettings()">
                             <option value="hsv" selected="selected">HSV (&quot;h,s,v&quot;)</option>
@@ -124,10 +124,10 @@
            
                 <div data-i18n="tab1.publish" class="text-header">-PUBLISH-</div>
                 <div class="setting">
-                    <label class="settings-item-description" data-i18n="tab1.broadcastDevicesChanges">-Devices state changes-</label>
+                    <label class="settings-item-description" data-i18n="tab1.broadcastDevicesChanges">Devices state changes</label>
                     <div class="settings-itemgroup">
                         <div class="settings-item-text">
-                            <span data-i18n="tab1.broadcastDevices">-Devices-</span>
+                            <span data-i18n="tab1.broadcastDevices">Devices</span>
                         </div>
                         <div class="settings-item-last">
                             <label class="form-switch">
@@ -139,10 +139,10 @@
                     </div>
                 </div>
                 <div class="setting">
-                    <label class="settings-item-description" data-i18n="tab1.broadcastSystemState">-System state-</label>
+                    <label class="settings-item-description" data-i18n="tab1.broadcastSystemState">System state</label>
                     <div class="settings-itemgroup">
                         <div class="settings-item-text">
-                            <span data-i18n="tab1.broadcastSystem">-System-</span>
+                            <span data-i18n="tab1.broadcastSystem">System</span>
                         </div>
                         <div class="settings-item-last">
                             <label class="form-switch">
@@ -190,9 +190,9 @@
 
             <div id="tab3" class="panel" style="display: none;">
                 <fieldset class="listContainer">
-                    <legend data-i18n="tab4.instructions.title">-Instructions-</legend>
+                    <legend data-i18n="tab4.instructions.title">Instructions</legend>
                     <div id="instructionsen" style="display:none">
-                        To configure the MQTT Gateway you have to do the following:<br />
+                        To configure the MQTT Hub you have to do the following:<br />
                         <br />
                         <ul>
                             <li><b>Configure a MQTT broker</b></li>

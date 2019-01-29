@@ -1,10 +1,11 @@
 === TODO ===
-
+- Activate & update command & rename to 'set'
+- Send empty (non-retained) message to clear device
+- Publish device/$state disconnect message
 - enable setting for deprecated protocol / clean-up old code
-
+- Support virtual devices
 - HASS Discovery
 - Flow card for MQTT Device
-- Log (settings tab)
 - Create virtual devices from MQTT discovery
 - Info requests:
   * System
@@ -12,13 +13,11 @@
   * Devices
   * Capabilities
   * Capability
-- Update value parsing (based on capability description)
 - Updating state for multiple devices (e.g. all devices in a room)
 - Publish system info on seperate topics (i.s.o. json)
 - Trigger flow command
-- Implement Flow trigger dispatcher
+- Listen to scene flow triggers
 - Uninstall app => unsubscribe from topics
-- implement remaining destroy methods
 - Handle Socket hang up exceptions:
 { Error: socket hang up
     at Object.<anonymous> (/opt/homey-client/system/manager/ManagerApps/jsonfns.js:1:1103)
@@ -32,8 +31,12 @@
     at emit (internal/child_process.js:762:12)
     at _combinedTickCallback (internal/process/next_tick.js:142:11) message: 'socket hang up', code: 'ECONNRESET' }
 
+[DEPRECATED]
+- Update value parsing (based on capability description)
+- implement remaining destroy methods
 
-=== DONE ===
+
+======= DONE =======
 - Normalize device name
 - Fix getDeviceName for homey 1.5.13
 - MQTT discovery (see OpenHAB / Domiticz)
@@ -57,3 +60,5 @@
 	* Inject device id
 	* Update settings on save
 	* Display current status
+	* Log stream
+- Rename to 'MQTT Hub'

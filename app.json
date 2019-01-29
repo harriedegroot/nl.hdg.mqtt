@@ -1,15 +1,15 @@
 {
   "id": "nl.hdg.mqtt",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "compatibility": ">=2.0.0",
   "sdk": 2,
   "name": {
-    "en": "MQTT Gateway",
-    "nl": "MQTT Gateway"
+    "en": "MQTT Hub",
+    "nl": "MQTT Hub"
   },
   "description": {
-    "en": "Communicate with Homey using MQTT messages",
-    "nl": "Communiceer met Homey via MQTT messages"
+    "en": "Turn your Homey into a device Hub and communicate with all your devices using MQTT messages.",
+    "nl": "Maak van je Homey een hub en communiceer met al je apparaten via MQTT messages."
   },
   "category": [
     "tools"

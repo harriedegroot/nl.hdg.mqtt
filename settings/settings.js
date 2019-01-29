@@ -2,7 +2,7 @@ var $app;
 var language = 'en';
 var loading = true;
 var running = false;
-var gatewaySettings = {};
+var hubSettings = {};
 var refreshLogEnabled = false;
 var log = '';
 var logTimeout = 0;
@@ -58,7 +58,7 @@ const defaultSettings = {
 function onHomeyReady(homeyReady){
     Homey = homeyReady;
     Homey.ready();
-    gatewaySettings = defaultSettings;
+    hubSettings = defaultSettings;
     
     Homey.api('GET', '/running', null, (err, result) => {
         $("#running").prop("disabled", false);
@@ -70,7 +70,7 @@ function onHomeyReady(homeyReady){
         if (err) {
             Homey.alert(err);
         } else if (savedSettings) {
-            gatewaySettings = savedSettings;
+            hubSettings = savedSettings;
         }
             
         for (let key in defaultSettings) {
@@ -79,10 +79,10 @@ function onHomeyReady(homeyReady){
                 if (el) {
                     switch (typeof defaultSettings[key]) {
                         case 'boolean':
-                            el.checked = gatewaySettings[key];
+                            el.checked = hubSettings[key];
                             break;
                         default:
-                            el.value = gatewaySettings[key];
+                            el.value = hubSettings[key];
                     }
                 }
             }
@@ -194,7 +194,7 @@ function saveSettings(warning) {
     for (let key in defaultSettings) {
         let el = document.getElementById(key);
         if (el) {
-            gatewaySettings[key] = typeof defaultSettings[key] === 'boolean' ? el.checked : el.value;
+            hubSettings[key] = typeof defaultSettings[key] === 'boolean' ? el.checked : el.value;
         }
     }
     _writeSettings(warning);
@@ -202,7 +202,7 @@ function saveSettings(warning) {
 
 function _writeSettings(warning) {
     try {
-        Homey.set('settings', gatewaySettings);
+        Homey.set('settings', hubSettings);
         Homey.api('GET', '/settings_changed', null, (err, result) => {
             if (err) Homey.alert("Failed to save changes");
         });
@@ -215,8 +215,8 @@ function saveDevice(device, checked) {
     if (typeof device !== 'object' || !device.id)
         return;
 
-    gatewaySettings.devices = gatewaySettings.devices || {};
-    gatewaySettings.devices[device.id] = checked;
+    hubSettings.devices = hubSettings.devices || {};
+    hubSettings.devices[device.id] = checked;
 
     _writeSettings();
 }
@@ -225,7 +225,7 @@ function deviceEnabled(device) {
     if (typeof device !== 'object' || !device.id)
         return false;
     
-    return !gatewaySettings.devices || gatewaySettings.devices[device.id] !== false;
+    return !hubSettings.devices || hubSettings.devices[device.id] !== false;
 }
 
 /*** LOG ***/

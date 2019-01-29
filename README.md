@@ -1,21 +1,52 @@
-# MQTT Gateway
+# MQTT Hub
 
-With this app you can communicate with Homey using MQTT messages.  
-
+Turn your Homey into a devices HUB.
+  
+## Introduction
+With this app you can communicate with all your Homey devices using MQTT.  
+The MQTT Hub automatically broadcasts all your devices and their capabilities.  
+It will setup a communication channel for each device, so external apps can control each one of them.
+Furthermore it provides an interface to read the full system state & and allows advanced control of your Homey, without the need to write your own app.
+  
+## What can it be used for?
+Some of the many possibilities:
+- Integrate with other home automation systems: [OpenHab](https://www.openhab.org/), [Home Assistant](https://www.home-assistant.io/), [Domiticz](http://www.domoticz.com/), etc.
+- Create custom dashboards: [TileBoard](https://community.home-assistant.io/t/tileboard-new-dashboard-for-homeassistant/57173), [HABPanel](https://www.openhab.org/docs/configuration/habpanel.html), [Node RED Dashboard](https://flows.nodered.org/node/node-red-dashboard), etc.
+- Create advanced flows and logic (using your desktop): [Node RED](https://nodered.org/), etc.
+- Use native mobile apps (3rd party): [MQTT Dash](https://play.google.com/store/apps/details?id=net.routix.mqttdash), etc.
+- etc...
+  
+## Why MQTT?
+[MQTT](http://mqtt.org/) is a lightweight communication protocol and it's (becoming) the industry standard for IoT messaging (Internet of Things).
+To standardize event further, the [Homie Convention](https://homieiot.github.io/) is implemented (v3.0.1).
+From their website: ""The Homie convention defines a standardized way of how IoT devices and services announce themselves and their data on the MQTT broker.""
+  
 ## Functionality
 - Dispatch device state changes for all connected devices.
 - Dispatch system info (memory, cpu, etc.) on a regular basis.
 - Request info (system, zone, device, capability, etc.).
-- Update the state of a device (set capability).
-
+- Update the state of any device (set capability).
+- Configurable via app settings (e.g. topic structure, enable/disable devices, etc.)
+  
+## Installation
+1. Install a MQTT broker of your liking (see below).
+2. Install the MQTT Client (beta) app from the store and connect to your broker.
+3. Install the MQTT Hub and let it discover & broadcast your devices.
+4. Start communicating with homey.
+  
+TIP: [MQTT Explorer](https://thomasnordquist.github.io/MQTT-Explorer/) is a nice tool to check the available communication channels
+  
 ## Communication
-The gateway allows two ways of communication, by topic & by message.  
+The default communication protocol is based on the Homie Convention standard, as explained above. Additional protocols (e.g. [HA Discovery](https://www.home-assistant.io/docs/mqtt/discovery/)) are in the pipeline.  
+  
+Additionally the MQTT Hub allows communication by message (payload).  
 E.g. These two messages will both dim the tv light to 30%:
-1. publish to topic 'homey/light/living/tv/dim/update', with message payload: 0.3
+1. publish to topic 'homie/homey/tv/dim/set', with message payload: 0.3
 2. publish to topic 'homey/command', with message payload:
+  
 ```javascript
 {
-  "command": "update",
+  "command": "set",
   "device":{
     "name": "tv"
     "class": "light", // optional
@@ -26,44 +57,61 @@ E.g. These two messages will both dim the tv light to 30%:
   "value": 0.3
 }
 ```
-#### MQTT Client
-This app uses the [MQTT Client](https://apps.athom.com/app/nl.scanno.mqtt) (beta) to communicate with a MQTT broker.
-
+     
+#### MQTT Client & broker
+This app uses the [MQTT Client](https://apps.athom.com/app/nl.scanno.mqtt) (**beta version** required) to communicate with a MQTT broker.
+You can connect with any broker (e.g. [Mosquitto](https://mosquitto.org/) or [HiveMQ](https://www.hivemq.com/)). There is also a Homey [MQTT broker app](https://apps.athom.com/app/nl.scanno.mqttbroker) available for Homey.
+  
 #### MQTT Topic
 The following message format is used for communication:  
-`system name`/`device class`/`zone`/`device name`/`capability`/`command`
-
-Note: `system name`, `zone` & `device name` will be normalized.  
-E.g. Homey/light/Living room/Light tv/... -> homey/light/living_room/light_tv/...
-
-#### Messages
-Messages with the following commands are dispatched by the Gateway:
-- `state`: Current state value. Dispatched on device state changes or on `request` command.
-- `info`: JSON Object describing the element(s) in the request (Zone, Device, Capability, etc.).
-
-#### Commands
-The gateway provides the following commands to interact with Homey:
-- `request`: Request current state, a `state` message will be published.
-- `update`: Update a device state (capability).
-- `describe`: Request a description of a Zone/Device/Capability/etc. Results will be published in a `info` message.
-
+`topic root`/`system name`/`device class (optional)`/`zone (optional)`/`device name`/`capability`/`$command`
+For further details see the [specification](https://homieiot.github.io/specification/) of the Homie Convention.
+  
+NOTE: `topic root`, `system name`, `zone` & `device name` will all be normalized.  
+i.e. All spaces, underscores & special characters will be removed, space are replaced by a dash (-) and all remaining text will be converted to lowercase characters in ASCII format.   
+E.g. `Homey/light/Living room/Light tv/...` will become `homey/light/living-room/light-tv/...`
+  
 #### Device mapping
 - Device id's will automatically be resolved from the device id, name or topic (in this order).
 - The device name may contain either de original name or the normalized version.
-
+  
 ## Homey firmware v1.5 and v2
-Homey 2.0 users should use the beta version of this app.
-
+Starting from app version 2.0.2, this app can only run on Homey's v2 firmware. The reason for this is that this firmware has introduced backward incompatible changes that don't work on older versions of the firmware.
+  
+Some, but not all, additional features that will be introduced this version will be backported to a separate `v1.5` [branch](https://github.com/harriedegroot/nl.hdg.mqtt/tree/homie). This branch can be manually installed on Homey using [`athom-cli`](https://www.npmjs.com/package/athom-cli).
+    
 ## Future
-- Create the abillity to listen to app flow triggers.
+- HA Discovery
+- Add local MQTT Client (for increased performance)
+- Virtual devices support
 - Trigger flows.
-- Settings page for managing the Gateway (on/off, select devices/capabilities, etc.).
+- Create the abillity to listen to app flow triggers.
 - etc.
-
+  
 ## Change Log
-
-#### 2.0.1
+  
+#### 2.0.2  
+- Renamed the app to 'MQTT Hub'
+- Implemented [Homie Convention v3.0.1](https://homieiot.github.io/)
+- Implemented app settings page
+- Optionally include `device class` & `zone` into the topic
+- Full re-write of the app booting sequence
+- Added Log stream
+- Dropped support for Homey v1.5
+  
+#### 2.0.1  
 - Fixed messages for boolean capabilities
 
-#### 2.0.0
+#### 2.0.0  
 - Initial release for Homey firmware v2 (beta)
+
+## Final note ##
+The repository is available at: https://github.com/harriedegroot/nl.hdg.mqtt  
+If you want to contribute, just create a [pull-request](https://help.github.com/articles/about-pull-requests/) and I will take a look at it!
+
+Do you like this app? Consider a donation to support development.
+ 
+[![Donate][pp-donate-image]][pp-donate-link]
+
+[pp-donate-link]: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=harriedegroot%40gmail%2ecom&lc=NL&item_name=Harrie%20de%20Groot&item_number=Homey%20Novy%20Intouch%20App&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted
+[pp-donate-image]: https://img.shields.io/badge/Donate-PayPal-green.svg

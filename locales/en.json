@@ -8,7 +8,7 @@
   "tab1": {
     "title": "Settings",
     "general": "GENERAL",
-    "active": "MQTT Gateway on/off",
+    "active": "Hub on/off",
     "running": "Running",
     "refresh": "Publish the state of all devices",
     "protocol": "Communication protocol",
