@@ -14,12 +14,16 @@ Some of the many possibilities:
 - Create custom dashboards: [TileBoard](https://community.home-assistant.io/t/tileboard-new-dashboard-for-homeassistant/57173), [HABPanel](https://www.openhab.org/docs/configuration/habpanel.html), [Node RED Dashboard](https://flows.nodered.org/node/node-red-dashboard), etc.
 - Create advanced flows and logic (using your desktop): [Node RED](https://nodered.org/), etc.
 - Use native mobile apps (3rd party): [MQTT Dash](https://play.google.com/store/apps/details?id=net.routix.mqttdash), etc.
-- etc...
+- ...
+  
+## Is this app for me?
+This appp is **NOT** a plug & play solution. You need some technical background to get things working.
+If you don't like to tinker with stuff, you don't like to try many different roads before you finally get your ultimate solution or you have no clue what a command-line is: it's probably not for you...
   
 ## Why MQTT?
 [MQTT](http://mqtt.org/) is a lightweight communication protocol and it's (becoming) the industry standard for IoT messaging (Internet of Things).
 To standardize event further, the [Homie Convention](https://homieiot.github.io/) is implemented (v3.0.1).
-From their website: ""The Homie convention defines a standardized way of how IoT devices and services announce themselves and their data on the MQTT broker.""
+From their website: The Homie convention defines a standardized way of how IoT devices and services announce themselves and their data on the MQTT broker.
   
 ## Functionality
 - Dispatch device state changes for all connected devices.
@@ -86,7 +90,7 @@ Some, but not all, additional features that will be introduced this version will
 - Virtual devices support
 - Trigger flows.
 - Create the abillity to listen to app flow triggers.
-- etc.
+- ...
   
 ## Change Log
   

@@ -1,4 +1,5 @@
 === TODO ===
+- Fix app icon
 - Activate & update command & rename to 'set'
 - Send empty (non-retained) message to clear device
 - Publish device/$state disconnect message
