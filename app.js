@@ -1,5 +1,10 @@
 'use strict';
 
+const DEBUG = process.env.DEBUG === '1';
+if (DEBUG) {
+    require('inspector').open(9229, '0.0.0.0', true);
+}
+
 const Homey = require('homey');
 const { HomeyAPI } = require('athom-api');
 const MQTTClient = require('./mqtt/MQTTClient.js');
@@ -36,7 +41,8 @@ const defaultSettings = {
 
 class MQTTHub extends Homey.App {
 
-	async onInit() {
+    async onInit() {
+        //debugger;
         Log.info('MQTT Hub is running...');
 
         this.settings = Homey.ManagerSettings.get('settings') || {};
