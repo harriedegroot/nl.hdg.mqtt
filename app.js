@@ -2,7 +2,7 @@
 
 const DEBUG = process.env.DEBUG === '1';
 if (DEBUG) {
-    require('inspector').open(9229, '0.0.0.0', true);
+    require('inspector').open(9229, '0.0.0.0', false);
 }
 
 const Homey = require('homey');
@@ -42,7 +42,6 @@ const defaultSettings = {
 class MQTTHub extends Homey.App {
 
     async onInit() {
-        //debugger;
         Log.info('MQTT Hub is running...');
 
         this.settings = Homey.ManagerSettings.get('settings') || {};

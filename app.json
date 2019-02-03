@@ -12,7 +12,8 @@
     "nl": "Maak van je Homey een hub en communiceer met al je apparaten via MQTT messages."
   },
   "category": [
-    "tools"
+    "tools",
+    "internet"
   ],
   "permissions": [ "homey:manager:api", "homey:app:nl.scanno.mqtt" ],
   "images": {
