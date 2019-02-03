@@ -189,14 +189,14 @@ class DeviceManager {
         await this.onUpdate.emit(id);
     }
 
-    async getCapabillities(device) {
+    async getCapabilities(device) {
         device = await this.getDevice(device);
         return device ? device.capabilitiesObj || device.capabilities : undefined; // 1.5.13 vs 2.0
     }
 
     async getCapability(device, capabilityId) {
-        const capabillities = this.getCapabillities(device);
-        return capabillities ? capabillities[capabilityId] : undefined;
+        const capabilities = this.getCapabilities(device);
+        return capabilities ? capabilities[capabilityId] : undefined;
     }
 }
 
