@@ -5,7 +5,7 @@ const _guid = new RegExp('^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-
 class DeviceInfo {
 
     static parseCapabilities(device) {
-        const capabilities = (device.capabilitiesObj || device.capabilities);
+        let capabilities = (device.capabilitiesObj || device.capabilities);
         if (Array.isArray(capabilities)) {
             capabilities = capabilities.map(c => typeof c === 'string' ? { name: c } : c);
         }
