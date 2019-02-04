@@ -145,14 +145,12 @@ class MQTTHub extends Homey.App {
 
     _addDeprecatedDispatchers() {
         this.deviceStateChangeDispatcher = new DeviceStateChangeDispatcher(this);
-        //this.flowTriggerDispatcher = new FlowTriggerDispatcher(this);
     }
 
     _removeDeprecatedDispatchers() {
         if (this.deviceStateChangeDispatcher) {
             this.deviceStateChangeDispatcher.destroy();
             delete this.deviceStateChangeDispatcher;
-            //this.flowTriggerDispatcher
         }
     }
 
