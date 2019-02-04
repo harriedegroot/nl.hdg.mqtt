@@ -57,8 +57,7 @@ class MQTTHub extends Homey.App {
 
         Log.debug("Initialize MQTT Client");
         this.mqttClient = new MQTTClient(this.settings.deviceId);
-
-
+        
         // Suppress memory leak warning
         Log.debug("Suppress memory leak warning");
         this.api.devices.setMaxListeners(9999); // HACK

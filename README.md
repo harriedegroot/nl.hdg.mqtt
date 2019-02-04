@@ -1,9 +1,9 @@
 # MQTT Hub
 
-Turn your Homey into a devices HUB.
+Turn your Homey into a HUB and let external applications discover & control all your connected devices.
   
 ## Introduction
-With this app you can communicate with all your Homey devices using MQTT.  
+With this app you can communicate with your Homey devices using MQTT.  
 The MQTT Hub automatically broadcasts all your devices and their capabilities. 
 It will setup a communication channel for each device, so external apps can control each one of them.
 Furthermore it provides an interface to read the full system state & and allows advanced control of your Homey, without the need to write your own app.
@@ -72,7 +72,7 @@ The following message format is used for communication:
 For further details see the [specification](https://homieiot.github.io/specification/) of the Homie Convention.
   
 NOTE: `topic root`, `system name`, `zone` & `device name` will all be normalized.  
-i.e. All spaces, underscores & special characters will be removed, spaces are replaced by a dash (-) and all remaining text will be converted to lowercase characters in ASCII format.   
+i.e. All special characters will be removed, spaces are replaced by a dash (-) and all remaining text will be converted to lowercase characters.   
 E.g. `Homey/light/Living room/Light tv/...` will become `homey/light/living-room/light-tv/...`
   
 #### Device mapping
@@ -86,8 +86,8 @@ Some, features that will be introduced in this version will be backported to a s
     
 ## Future
 - HA Discovery
-- Add local MQTT Client (for increased performance)
-- Virtual devices support
+- Additional installation info, tutorials & how-to's.
+- Virtual buttons support
 - Trigger flows.
 - Create the abillity to listen to app flow triggers.
 - ...
@@ -127,5 +127,5 @@ Do you like this app? Consider a donation to support development.
  
 [![Donate][pp-donate-image]][pp-donate-link]
 
-[pp-donate-link]: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=harriedegroot%40gmail%2ecom&lc=NL&item_name=Harrie%20de%20Groot&item_number=Homey%20Novy%20Intouch%20App&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted
+[pp-donate-link]: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=harriedegroot%40gmail%2ecom&lc=NL&item_name=Harrie%20de%20Groot&item_number=Homey%20MQTT%20Hub&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted
 [pp-donate-image]: https://img.shields.io/badge/Donate-PayPal-green.svg

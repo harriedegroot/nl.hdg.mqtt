@@ -1,14 +1,14 @@
 === TODO ===
-- Fix app icon
-- Activate & update command & rename to 'set'
-- Send empty (non-retained) message to clear device
+- Activate & update command + rename to 'set'
+- Send empty (non-retained) message to clear device (fixed with restore of homyProperty retain = null after send?)
 - Publish device/$state disconnect message
 - enable setting for deprecated protocol / clean-up old code
-- Support virtual devices
+- Support virtual button?
 - HASS Discovery
 - Flow card for MQTT Device
 - Create virtual devices from MQTT discovery
 - Catch Renaming zones / devices
+- [Check] Refresh devices on device/zone changes + Broadcast
 - Info requests:
   * System
   * Zone
@@ -20,18 +20,6 @@
 - Trigger flow command
 - Listen to scene flow triggers
 - Uninstall app => unsubscribe from topics
-- Handle Socket hang up exceptions:
-{ Error: socket hang up
-    at Object.<anonymous> (/opt/homey-client/system/manager/ManagerApps/jsonfns.js:1:1103)
-    at JSON.parse (<anonymous>)
-    at Object.jsonToObject (/opt/homey-client/system/manager/ManagerApps/jsonfns.js:1:1001)
-    at function.e.apply.s.args.map.s (/opt/homey-client/system/manager/ManagerApps/bootstrap/sdk/v2/lib/HomeyClient.js:1:1401)
-    at Array.map (<anonymous>)
-    at HomeyClient._onMessage (/opt/homey-client/system/manager/ManagerApps/bootstrap/sdk/v2/lib/HomeyClient.js:1:1386)
-    at emitTwo (events.js:126:13)
-    at process.emit (events.js:214:7)
-    at emit (internal/child_process.js:762:12)
-    at _combinedTickCallback (internal/process/next_tick.js:142:11) message: 'socket hang up', code: 'ECONNRESET' }
 
 [DEPRECATED]
 - Update value parsing (based on capability description)
@@ -64,3 +52,22 @@
 	* Display current status
 	* Log stream
 - Rename to 'MQTT Hub'
+- Fix app icon
+- App images
+
+
+
+=== Unhandled exceptions ===
+
+- Handle Socket hang up exceptions:
+{ Error: socket hang up
+    at Object.<anonymous> (/opt/homey-client/system/manager/ManagerApps/jsonfns.js:1:1103)
+    at JSON.parse (<anonymous>)
+    at Object.jsonToObject (/opt/homey-client/system/manager/ManagerApps/jsonfns.js:1:1001)
+    at function.e.apply.s.args.map.s (/opt/homey-client/system/manager/ManagerApps/bootstrap/sdk/v2/lib/HomeyClient.js:1:1401)
+    at Array.map (<anonymous>)
+    at HomeyClient._onMessage (/opt/homey-client/system/manager/ManagerApps/bootstrap/sdk/v2/lib/HomeyClient.js:1:1386)
+    at emitTwo (events.js:126:13)
+    at process.emit (events.js:214:7)
+    at emit (internal/child_process.js:762:12)
+    at _combinedTickCallback (internal/process/next_tick.js:142:11) message: 'socket hang up', code: 'ECONNRESET' }
