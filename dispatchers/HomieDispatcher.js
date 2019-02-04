@@ -153,10 +153,10 @@ class HomieDispatcher {
     getNodeName(device) {
         let path = [normalize(device.name)];
         if (this.settings.topicIncludeZone) {
-            path.unshift(device.zone && device.zone.name ? device.zone.name : DEFAULT_ZONE);
+            path.unshift(device.zone && device.zone.name ? normalize(device.zone.name) : DEFAULT_ZONE);
         }
         if (this.settings.topicIncludeClass) {
-            path.unshift(device.class || DEFAULT_CLASS);
+            path.unshift(normalize(device.class) || DEFAULT_CLASS);
         }
         return path.join('/');
     }
@@ -252,7 +252,7 @@ class HomieDispatcher {
             capabilityInstance.destroy();
             this._capabilityInstances.delete(deviceCapabilityId);
         } else {
-            Log.debug("CapabilityInstance not found");
+            Log.debug("[SKIP] No existing CapabilityInstance found to destroy");
         }
     }
 
