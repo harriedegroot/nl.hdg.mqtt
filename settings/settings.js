@@ -66,11 +66,13 @@ function onHomeyReady(homeyReady){
     });
 
     Homey.get('settings', function (err, savedSettings) {
-            
+
+        Homey.alert(Object.keys(savedSettings || {}).length);
+
         if (err) {
             Homey.alert(err);
         } else if (savedSettings) {
-            hubSettings = savedSettings;
+            Object.assign(hubSettings, savedSettings);
         }
             
         for (let key in defaultSettings) {
