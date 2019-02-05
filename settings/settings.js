@@ -104,7 +104,7 @@ function onHomeyReady(homeyReady){
             }
         }
 
-        lockProtocolSetttings(savedSettings.protocol || 'homie');
+        lockProtocolSetttings(hubSettings.protocol || 'homie');
     });
         
     showTab(1);
