@@ -1,10 +1,15 @@
 === TODO ===
 - Activate & update command + rename to 'set'
-- Send empty (non-retained) message to clear device (fixed with restore of homyProperty retain = null after send?)
+- Settings Instructions tab
+- HASS Discovery
+- BUG: some $set commands don't work
+- fix system info topic
+- optional normalization
+- Send empty (non-retained) message to clear device (fixed with restore of homeyProperty retain = null after send?)
 - Publish device/$state disconnect message
 - enable setting for deprecated protocol / clean-up old code
 - Support virtual button?
-- HASS Discovery
+- implement scalable property 0-1 (float) | 0-100 (int)
 - Flow card for MQTT Device
 - Create virtual devices from MQTT discovery
 - Catch Renaming zones / devices
@@ -40,7 +45,6 @@
 - Settings page
 	* Select communication protocol (Homie | Homey)
 	* Homie color format (HSV | RGB)
-	* scalable property 0-1 (float) | 0-100 (int)
 	* Configure root topic
 	* Configure Homie topic
 	* Enable/disable system state dispatcher
@@ -54,6 +58,9 @@
 - Rename to 'MQTT Hub'
 - Fix app icon
 - App images
+- BUG: Initial settings (root topic undefined)
+- BUG: Normalize injected device class & zone
+- Custom protocal & disable non-protocol options
 
 
 

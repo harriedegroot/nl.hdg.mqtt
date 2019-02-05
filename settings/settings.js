@@ -17,7 +17,22 @@ const defaultSettings = {
     "propertyScaling": "default",
     "colorFormat": "hsv",
     "broadcastDevices": true,
-    "broadcastSystemState": true,
+    "broadcastSystemState": false
+};
+
+const homie3Settings = {
+    "topicIncludeClass": false,
+    "topicIncludeZone": false,
+    "propertyScaling": "default",
+    "colorFormat": "hsv",
+    "broadcastDevices": true
+};
+
+const haSettings = {
+    "propertyScaling": "default" // not implemented yet
+};
+const customSettings = {
+    "propertyScaling": "default" // not implemented yet
 };
 
 //const testDevices = {
@@ -51,7 +66,7 @@ const defaultSettings = {
 //        },
 //        getLanguage: () => 'en',
 //        set: () => 'settings saved',
-//        alert: () => alert(...arguments)
+//        alert: (...args) => alert(...args)
 //    })
 //});
 
@@ -73,7 +88,7 @@ function onHomeyReady(homeyReady){
             Object.assign(hubSettings, savedSettings);
         }
             
-        for (let key in defaultSettings) {
+        for (let key of Object.keys(defaultSettings)) {
             if (defaultSettings.hasOwnProperty(key)) {
                 const el = document.getElementById(key);
                 if (el) {
@@ -83,10 +98,13 @@ function onHomeyReady(homeyReady){
                             break;
                         default:
                             el.value = hubSettings[key];
+                            break;
                     }
                 }
             }
         }
+
+        lockProtocolSetttings(savedSettings.protocol || 'homie');
     });
         
     showTab(1);
@@ -147,6 +165,8 @@ function onHomeyReady(homeyReady){
         async mounted() {
             await this.getZones();
             await this.getDevices();
+
+            lockProtocolSetttings(hubSettings.protocol || 'homie');
         },
         computed: {
             devices() {
@@ -156,7 +176,7 @@ function onHomeyReady(homeyReady){
                 return this.zones;
             }
         }
-    })
+    });
 }
 
 function showTab(tab, log){
@@ -184,6 +204,50 @@ function getLanguage() {
         const el = document.getElementById("instructions" + language) || document.getElementById("instructionsen");
         if (el) {
             el.style.display = "inline";
+        }
+    }
+}
+
+function selectProtocol(protocol) {
+    lockProtocolSetttings(protocol);
+    saveSettings();
+}
+
+function lockProtocolSetttings(protocol) {
+    let settings = {};
+    switch (protocol) {
+        case 'homie3':
+            settings = homie3Settings;
+            break;
+        case 'ha':
+            settings = haSettings;
+            break;
+        case 'custom':
+            settings = customSettings;
+            break;
+    }
+
+    lockSettings(settings);
+}
+
+function lockSettings(settings) {
+    hubSettings = Object.assign(hubSettings, settings);
+    for (let key of Object.keys(defaultSettings)) {
+        if (defaultSettings.hasOwnProperty(key)) {
+            const disabled = settings.hasOwnProperty(key);
+            const el = document.getElementById(key);
+            
+            if (disabled) {
+                switch (typeof settings[key]) {
+                    case 'boolean':
+                        el.checked = settings[key];
+                        break;
+                    default:
+                        el.value = settings[key];
+                }
+            }   
+            el.disabled = disabled;
+            $('#' + key + '-container').toggle(!disabled);
         }
     }
 }

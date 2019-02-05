@@ -49,9 +49,10 @@
                 <div class="setting">
                     <label class="settings-item-description" data-i18n="tab1.protocol">Communication protocol</label>
                     <div class="settings-itemgroup">
-                        <select id="protocol" @change="saveSettings()">
+                        <select id="protocol" @change="selectProtocol($event.target.value)">
                             <option value="homie3" selected="selected">Homie Convention v3.0.1</option>
                             <option disabled="disabled" value="ha">Home Assistant Discovery (coming soon...)</option>
+                            <option value="custom">Custom</option>
                         </select>
                     </div>
                 </div>
@@ -69,7 +70,7 @@
                         <input id="deviceId" type="text" value="homey" onblur="saveSettings(true)">
                     </div>
                 </div>
-                <div class="setting">
+                <div id="topicIncludeClass-container" class="setting">
                     <label class="settings-item-description" data-i18n="tab1.topicIncludeClass">Include device class in topic</label>
                     <div class="settings-itemgroup">
                         <div class="settings-item-text">
@@ -84,7 +85,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="setting">
+                <div id="topicIncludeZone-container" class="setting">
                     <label class="settings-item-description" data-i18n="tab1.topicIncludeZone">Include zone in topic</label>
                     <div class="settings-itemgroup">
                         <div class="settings-item-text">
@@ -101,7 +102,7 @@
                 </div>
             
                 <div data-i18n="tab1.messages" class="text-header">-MESSAGES-</div>
-                <div class="setting">
+                <div id="propertyScaling-container" class="setting">
                     <label class="settings-item-description" data-i18n="tab1.propertyScaling">Percentage formatting</label>
                     <div class="settings-itemgroup">
                         <select disabled="disabled" id="propertyScaling" value="default" @change="saveSettings()">
@@ -123,7 +124,7 @@
                 </div>
            
                 <div data-i18n="tab1.publish" class="text-header">-PUBLISH-</div>
-                <div class="setting">
+                <div  id="broadcastDevices-container" class="setting">
                     <label class="settings-item-description" data-i18n="tab1.broadcastDevicesChanges">Devices state changes</label>
                     <div class="settings-itemgroup">
                         <div class="settings-item-text">
@@ -131,7 +132,6 @@
                         </div>
                         <div class="settings-item-last">
                             <label class="form-switch">
-                                <!-- https://www.cssscript.com/demo/realistic-ios-switch-pure-css/ -->
                                 <input id="broadcastDevices" type="checkbox" onclick="saveSettings()">
                                 <i></i>
                             </label>
