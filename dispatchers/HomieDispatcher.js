@@ -35,7 +35,6 @@ class HomieDispatcher {
         this._capabilityInstances = new Map();
 
         this._initHomieDevice();
-        this._launch();
     }
     
     _initHomieDevice() {
@@ -58,6 +57,12 @@ class HomieDispatcher {
 
         this.registerDevices();
         this.homieDevice.setup(true);
+
+        // NOTE: If the client is already connected, the 'connect' event won't be fired. 
+        // Therefore we mannually dispatch the state if already connected/registered.
+        if (this.mqttClient.isRegistered()) {
+            this.dispatchState();
+        }
     }
 
     _destroyHomieDevice() {
@@ -69,13 +74,6 @@ class HomieDispatcher {
             this.homieDevice.onDisconnect();
             this.homieDevice.end();
             delete this.homieDevice;
-        }
-    }
-
-    _launch() {
-        this.mqttClient.client.on('register', () => this.dispatchState());
-        if (this.mqttClient.isRegistered()) {
-            this.dispatchState();
         }
     }
 
