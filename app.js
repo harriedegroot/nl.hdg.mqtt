@@ -42,6 +42,9 @@ class MQTTHub extends Homey.App {
         Log.info('MQTT Hub is running...');
 
         this.settings = Homey.ManagerSettings.get('settings') || {};
+
+        Log.debug(this.settings, false, false);
+
         this.api = await HomeyAPI.forCurrentHomey();
         this.system = await this._getSystemInfo();
 
