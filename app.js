@@ -16,14 +16,11 @@ const DeviceManager = require("./DeviceManager.js");
 const MessageHandler = require("./MessageHandler.js");
 
 // Dispatchers
-const DeviceStateChangeDispatcher = require("./dispatchers/DeviceStateChangeDispatcher.js");
 const SystemStateDispatcher = require("./dispatchers/SystemStateDispatcher.js");
 const HomieDispatcher = require("./dispatchers/HomieDispatcher.js");
 
 // Commands
-const DescribeCommandHandler = require("./commands/DescribeCommandHandler.js");
-const StateRequestCommandHandler = require("./commands/StateRequestCommandHandler.js");
-const UpdateCommandHandler = require("./commands/UpdateCommandHandler.js");
+const SetCommandHandler = require("./commands/SetCommandHandler.js");
 
 /*
 const defaultSettings = {
@@ -78,6 +75,9 @@ class MQTTHub extends Homey.App {
         Log.info('app start');
         this.mqttClient.connect();
 
+        this._startCommands();
+        this._startBroadcasters();
+
         const protocol = this.settings.protocol || 'homie3';
         if (this.protocol !== protocol) {
             Log.info("Changing protocol from '" + this.protocol + "' to '" + protocol + "'");
@@ -85,15 +85,15 @@ class MQTTHub extends Homey.App {
             this._startCommunicationProtocol(protocol);
         }
 
-        this._startBroadcasters();
         Log.info('app running: true');
     }
 
     stop() {
         Log.info('app stop');
         this.mqttClient.disconnect();
-        this._stopCommunicationProtocol();
+        this._stopCommands();
         this._stopBroadcasters();
+        this._stopCommunicationProtocol();
         delete this.protocol;
         Log.info('app running: false');
     }
@@ -103,14 +103,11 @@ class MQTTHub extends Homey.App {
         Log.info('start communication protocol: ' + this.protocol );
         if (protocol) {
             switch (protocol) {
-                case 'deprecated':
-                    this._addDeprecatedDispatchers();
-                    this._listenToDeprecatedCommands();
-                    break;
                 case 'ha':
                     // TODO: Implement HA Discovery
                     break;
-                case 'homie3':
+                case 'custom': // NOTE: Fallthrough => Custom protocol uses the homie dispacher
+                case 'homie3': // NOTE: Fallthrough => Homie3 is default protocol
                 default:
                     this.homieDispatcher = new HomieDispatcher(this);
                     break;
@@ -124,14 +121,11 @@ class MQTTHub extends Homey.App {
             Log.info('stop communication protocol: ' + this.protocol);
             if (protocol) {
                 switch (protocol) {
-                    case 'deprecated':
-                        this._removeDeprecatedDispatchers();
-                        this._stopDeprecatedCommands();
-                        break;
                     case 'ha':
                         // TODO: Destroy HA Discovery
                         break;
-                    case 'homie3':
+                    case 'custom': // NOTE: Fallthrough => Custom protocol uses the homie dispacher
+                    case 'homie3': // NOTE: Fallthrough => Homie3 is default protocol
                     default:
                         if (this.homieDispatcher) {
                             this.homieDispatcher.destroy();
@@ -143,24 +137,12 @@ class MQTTHub extends Homey.App {
         }
     }
 
-    _addDeprecatedDispatchers() {
-        this.deviceStateChangeDispatcher = new DeviceStateChangeDispatcher(this);
-    }
-
-    _removeDeprecatedDispatchers() {
-        if (this.deviceStateChangeDispatcher) {
-            this.deviceStateChangeDispatcher.destroy();
-            delete this.deviceStateChangeDispatcher;
-        }
-    }
-
-    _listenToDeprecatedCommands() {
+    _startCommands() {
+        this._stopCommands();
         this.messageHandler = new MessageHandler(this);
-        this.messageHandler.addMessageHandler(new DescribeCommandHandler(this));
-        this.messageHandler.addMessageHandler(new StateRequestCommandHandler(this));
-        this.messageHandler.addMessageHandler(new UpdateCommandHandler(this));
+        this.messageHandler.addMessageHandler(new SetCommandHandler(this));
     }
-    _stopDeprecatedCommands() {
+    _stopCommands() {
         if (this.messageHandler) {
             this.messageHandler.destroy();
             delete this.messageHandler;

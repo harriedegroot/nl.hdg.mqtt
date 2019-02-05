@@ -13,6 +13,8 @@
 - Flow card for MQTT Device
 - Create virtual devices from MQTT discovery
 - Catch Renaming zones / devices
+- Check: dispatched firmWare version
+- Setting to enable/disable set command handler
 - [Check] Refresh devices on device/zone changes + Broadcast
 - Info requests:
   * System

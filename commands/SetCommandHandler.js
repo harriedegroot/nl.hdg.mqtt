@@ -3,42 +3,41 @@
 const Log = require('../Log.js');
 const CommandHandler = require('./CommandHandler.js');
 
-const COMMAND = 'update';
+const COMMAND = 'set';
 
-class UpdateCommandHandler extends CommandHandler {
+function getRootTopic(settings) {
+    return typeof settings === 'object'
+        ? [settings.rootTopic, settings.deviceId].filter(x => x).join('/')
+        : undefined;
+}
 
-    constructor({ api, mqttClient }) {
-        super(mqttClient, COMMAND);
+class SetCommandHandler extends CommandHandler {
+
+    constructor({ api, mqttClient, settings }) {
+        super(mqttClient, COMMAND, getRootTopic(settings));
 
         this.api = api;
     }
 
     async execute({ topic, message, deviceId }) {
 
-        Log.debug('UpdateCommandHandler.process');
+        Log.debug('SetCommandHandler.process');
 
-        const capabilityId = this.getCapabilityIdFromMessage(message) || this.getCapabilityIdFromTopic(topic);
+        const capabilityId = this.getCapabilityIdFromMessage(message);
         if (!capabilityId) {
-            Log.error("capability not found for topic: " + topic);
+            Log.error("capability not found");
             Log.debug(message);
             return;
         }
 
-        // TODO: Check if capability exists
-        //let capability = this.deviceManager.getCapability(device, capabilityId);
-        //if (!capability) {
-        //    Log.error("capability '" + capabilityId + "' not found for device: " + device.name);
-        //    return;
-        //}
-
         try {
-            const value = this.parseValue(message, capabilityId);
             const state = {
                 deviceId: deviceId,
                 capabilityId: capabilityId,
-                value: value
+                value: this.parseValue(message, capabilityId)
             };
-            Log.debug("state: " + JSON.stringify(state));
+
+            Log.debug("state: " + JSON.stringify(state, null, 2));
             await this.api.devices.setCapabilityValue(state);
         } catch (e) {
             Log.info("Failed to update capability value");
@@ -53,11 +52,7 @@ class UpdateCommandHandler extends CommandHandler {
         return typeof message.capability === 'object' ? message.capability.id : message.capability;
     }
 
-    getCapabilityIdFromTopic(topic) {
-        // TODO: Return registered capability id from device manager?
-        return topic.trigger;
-    }
-
+    // TODO: Format by capability datatype
     parseValue(message, capabilityId) {
         if (message === undefined || message === null) return undefined;
         let value = typeof message === 'object' ? message.value : message.toString();
@@ -71,14 +66,9 @@ class UpdateCommandHandler extends CommandHandler {
             let numeric = Number(value);
             value = isNaN(numeric) ? value : numeric;
 
-            //switch (capability.???) {
-            //    case 'number':
-            //        return Number(value);
-            // if(invalid): throw 'Invalid value FOO for capability Bar'
-            //}
         }
         return value;
     }
 }
 
-module.exports = UpdateCommandHandler;
+module.exports = SetCommandHandler;

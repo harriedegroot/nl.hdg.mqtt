@@ -2,15 +2,17 @@
 
 const Log = require('../Log.js');
 
-const TOPIC_BASE = '+/+/+/+/'; // [homey]/+/+/+/+/<command>
+const TOPIC_ROOT = '+/+/+/+/'; // [homey]/+/+/+/+/<command>
 
 /**
  * CommandHandler base class
  * */
 class CommandHandler {
 
-    constructor(mqttClient, command) {
-        this.topic = TOPIC_BASE + command;
+    constructor(mqttClient, command, topicRoot) {
+        const topic = (topicRoot || TOPIC_ROOT || '').split('/');
+        topic.push(command);
+        this.topic = topic.filter(x => x).join('/');
         this.command = command;
 
         mqttClient.subscribe(this.topic);
