@@ -35,11 +35,9 @@ class HomieDispatcher {
         this._capabilityInstances = new Map();
 
         this._initHomieDevice();
-
-        // launch
-        this.dispatchState();
+        this._launch();
     }
-
+    
     _initHomieDevice() {
         if (this.homieDevice) {
             this._destroyHomieDevice();
@@ -71,6 +69,13 @@ class HomieDispatcher {
             this.homieDevice.onDisconnect();
             this.homieDevice.end();
             delete this.homieDevice;
+        }
+    }
+
+    _launch() {
+        this.mqttClient.client.on('register', () => this.dispatchState());
+        if (this.mqttClient.isRegistered()) {
+            this.dispatchState();
         }
     }
 
@@ -168,7 +173,7 @@ class HomieDispatcher {
         } 
 
         if (!this.deviceManager.isDeviceEnabled(device.id)) {
-            Log.info('[SKIP] Device disabled');
+            //Log.info('[SKIP] Device disabled');
             this.disableDevice(device.id);
             return;
         }
@@ -216,7 +221,7 @@ class HomieDispatcher {
                         if (capability.setable) {
                             property.settable(async (format, value) => {
                                 if (!this.deviceManager.isDeviceEnabled(device.id)) {
-                                    Log.info('[SKIP] Device disabled');
+                                    //Log.info('[SKIP] Device disabled');
                                     return;
                                 }
                                 await this.setValue(device.id, id, value, dataType);
@@ -233,7 +238,7 @@ class HomieDispatcher {
                         const capabilityInstance = device.makeCapabilityInstance(key, value =>
                             this._handleStateChange(node, device.id, key, value)
                         );
-                        Log.debug("Register CapabilityInstance: " + deviceCapabilityId);
+                        Log.debug("Register CapabilityInstance: " + device.name + " - " + capability.title);
                         this._capabilityInstances.set(deviceCapabilityId, capabilityInstance);
                     } catch (e) {
                         Log.info("Error capability: " + key);
@@ -252,7 +257,7 @@ class HomieDispatcher {
             capabilityInstance.destroy();
             this._capabilityInstances.delete(deviceCapabilityId);
         } else {
-            Log.debug("[SKIP] No existing CapabilityInstance found to destroy");
+            //Log.debug("[SKIP] No existing CapabilityInstance found to destroy");
         }
     }
 
@@ -383,7 +388,7 @@ class HomieDispatcher {
         }
 
         if (!this.deviceManager.isDeviceEnabled(deviceId)) {
-            Log.info('[SKIP] Device disabled');
+            //Log.info('[SKIP] Device disabled');
             return;
         }
         
@@ -513,7 +518,8 @@ class HomieDispatcher {
     }
 
     dispatchState() {
-        if (/*this.broadcast && */this.homieDevice && this.mqttClient.isRegistered()) {
+        
+        if (this.homieDevice) {
             Log.info("Dispatch device state");
             this.homieDevice.onConnect();
         } else {

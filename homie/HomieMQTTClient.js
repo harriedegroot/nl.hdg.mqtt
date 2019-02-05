@@ -4,7 +4,7 @@ const Message = require("../mqtt/Message.js");
 
 const CLIENT_OPTIONS = {
     injectRoot: false
-}
+};
 
 class HomieMQTTClient  {
 
@@ -30,6 +30,13 @@ class HomieMQTTClient  {
 
     on(event, callback) {
         switch (event) {
+            case 'register':
+                if (this._registerCallback) {
+                    this.mqttClient.onRegistered.remove(this._registerCallback);
+                }
+                this._registerCallback = callback;
+                this.mqttClient.onRegistered.subscribe(callback);
+                break;
             case 'connect':
                 if (this._connectCallback) {
                     this.mqttClient.onRegistered.remove(this._connectCallback);
