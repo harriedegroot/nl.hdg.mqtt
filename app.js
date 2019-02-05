@@ -36,7 +36,7 @@ const defaultSettings = {
 };
 */
 
-function getRootTopic(settings) {
+function getTopicRoot(settings) {
     return typeof settings === 'object'
         ? [settings.topicRoot, settings.deviceId].filter(x => x).join('/')
         : undefined;
@@ -62,7 +62,7 @@ class MQTTHub extends Homey.App {
         }
 
         Log.debug("Initialize MQTT Client");
-        this.mqttClient = new MQTTClient(getRootTopic(this.settings));
+        this.mqttClient = new MQTTClient(getTopicRoot(this.settings));
         
         // Suppress memory leak warning
         Log.debug("Suppress memory leak warning");
@@ -249,7 +249,7 @@ class MQTTHub extends Homey.App {
 
         // deviceId
         if (this.mqttClient) {
-            this.mqttClient.topicRoot = this.settings.deviceId;
+            this.mqttClient.topicRoot = getTopicRoot(this.settings);
         }
 
         // devices, topicRoot
