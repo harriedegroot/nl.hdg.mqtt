@@ -1,5 +1,4 @@
 === TODO ===
-- Activate & update command + rename to 'set'
 - MQTT Client topic registration bug: Messages are received after adding flow card to topic #
 - Settings Instructions tab
 - HASS Discovery
@@ -64,7 +63,7 @@
 - BUG: Initial settings (root topic undefined)
 - BUG: Normalize injected device class & zone
 - Custom protocal & disable non-protocol options
-
+- Activate & update command + rename to 'set'
 
 
 === Unhandled exceptions ===

@@ -5,12 +5,18 @@ const Log = require("../Log.js");
 const EventHandler = require('../EventHandler.js');
 const Topic = require('./Topic.js');
 
+const normalize = (topic) => {
+    return topic && typeof topic === 'string'
+        ? topic.split('/').map(t => Topic.normalize(t)).join('/')
+        : undefined;
+};
+
 class MQTTClient  {
 
     isRegistered() { return this.registered; }
 
     constructor(topic, autoConnect) {
-        this.topicRoot = Topic.normalize(topic) || 'homey';
+        this.topicRoot = normalize(topic) || 'homey';
         this.clientApp = new Homey.ApiApp('nl.scanno.mqtt');
 
         this.onRegistered = new EventHandler('MQTTClient.registered');

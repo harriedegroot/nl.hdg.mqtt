@@ -8,6 +8,9 @@ const CommandHandler = require('./CommandHandler.js');
 
 const COMMAND = 'describe';
 
+/**
+ * [DEPRECATED]
+ * */
 class DescribeCommandHandler extends CommandHandler {
 
     constructor({ api, mqttClient }) {

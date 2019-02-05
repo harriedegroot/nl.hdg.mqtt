@@ -7,6 +7,9 @@ const CommandHandler = require('./CommandHandler.js');
 
 const COMMAND = 'request';
 
+/**
+ * [DEPRECATED]
+ * */
 class StateRequestCommandHandler extends CommandHandler {
 
     constructor({ api, mqttClient }) {

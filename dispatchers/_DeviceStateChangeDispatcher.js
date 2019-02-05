@@ -6,6 +6,9 @@ const Message = require('../mqtt/Message.js');
 
 const COMMAND = 'state';
 
+/**
+ * [DEPRECATED]
+ * */
 class DeviceStateChangeDispatcher {
 
     constructor({ api, mqttClient, deviceManager }) {

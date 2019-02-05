@@ -46,7 +46,7 @@ The default communication protocol is based on the Homie Convention standard, as
 Additionally the MQTT Hub allows communication by message (payload).  
 E.g. These two messages will both dim the tv light to 30%:
 1. publish to topic 'homie/homey/tv/dim/set', with message payload: 0.3
-2. publish to topic 'homey/set', with message payload:
+2. publish to topic 'homie/homey/$command', with message payload:
   
 ```javascript
 {

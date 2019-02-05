@@ -13,14 +13,14 @@ const Topic = require('./mqtt/Topic.js');
 // Services
 const Log = require("./Log.js");
 const DeviceManager = require("./DeviceManager.js");
-const MessageHandler = require("./MessageHandler.js");
+//const MessageHandler = require("./MessageHandler.js");
 
 // Dispatchers
 const SystemStateDispatcher = require("./dispatchers/SystemStateDispatcher.js");
 const HomieDispatcher = require("./dispatchers/HomieDispatcher.js");
 
 // Commands
-const SetCommandHandler = require("./commands/SetCommandHandler.js");
+const CommandHandler = require("./commands/CommandHandler.js");
 
 /*
 const defaultSettings = {
@@ -35,6 +35,12 @@ const defaultSettings = {
     "broadcastSystemState": true,
 };
 */
+
+function getRootTopic(settings) {
+    return typeof settings === 'object'
+        ? [settings.topicRoot, settings.deviceId].filter(x => x).join('/')
+        : undefined;
+}
 
 class MQTTHub extends Homey.App {
 
@@ -56,7 +62,7 @@ class MQTTHub extends Homey.App {
         }
 
         Log.debug("Initialize MQTT Client");
-        this.mqttClient = new MQTTClient(this.settings.deviceId);
+        this.mqttClient = new MQTTClient(getRootTopic(this.settings));
         
         // Suppress memory leak warning
         Log.debug("Suppress memory leak warning");
@@ -142,15 +148,15 @@ class MQTTHub extends Homey.App {
 
     _startCommands() {
         this._stopCommands();
-        this.setCommandHandler = new SetCommandHandler(this); // TODO: Refactor
+        this.commandHandler = new CommandHandler(this); // TODO: Refactor
 
         //this.messageHandler = new MessageHandler(this);
         //this.messageHandler.addMessageHandler(new SetCommandHandler(this));
     }
     _stopCommands() {
-        if (this.setCommandHandler) {
-            this.setCommandHandler.destroy();
-            delete this.setCommandHandler();
+        if (this.commandHandler) {
+            this.commandHandler.destroy();
+            delete this.commandHandler();
         }
         //if (this.messageHandler) {
         //    this.messageHandler.destroy();
