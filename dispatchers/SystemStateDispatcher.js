@@ -19,8 +19,10 @@ class SystemStateDispatcher {
     }
 
     _init() {
-        this.mqttClient.onRegistered.subscribe(this.register.bind(this));
-        this.mqttClient.onUnRegistered.subscribe(this.unregister.bind(this));
+        this._registerCallback = this.register.bind(this);
+        this._unregisterCallback = this.unregister.bind(this);
+        this.mqttClient.onRegistered.subscribe(this._registerCallback);
+        this.mqttClient.onUnRegistered.subscribe(this._unregisterCallback);
         if (this.mqttClient.isRegistered())
             this.register();
     }
@@ -71,6 +73,14 @@ class SystemStateDispatcher {
 
         // loop
         this.timeout = setTimeout(this.update.bind(this), DELAY);
+    }
+
+    async destroy() {
+        await this.unregister();
+        if (this.mqttClient) {
+            this.mqttClient.onRegistered.remove(this._registerCallback);
+            this.mqttClient.onUnRegistered.remove(this._unregisterCallback);
+        }
     }
 }
 

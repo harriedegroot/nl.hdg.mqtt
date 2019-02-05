@@ -128,7 +128,7 @@ class CommandHandler {
     destroy() {
         Log.info("Destroy CommandHandler");
         if (this.mqttClient && this._clientCallback) {
-            this.mqttClient.onMessage.unsubscribe(this._clientCallback);
+            this.mqttClient.onMessage.remove(this._clientCallback);
             delete this._clientCallback;
         }
     }

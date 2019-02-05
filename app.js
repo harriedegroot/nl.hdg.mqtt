@@ -156,7 +156,7 @@ class MQTTHub extends Homey.App {
     _stopCommands() {
         if (this.commandHandler) {
             this.commandHandler.destroy();
-            delete this.commandHandler();
+            delete this.commandHandler;
         }
         //if (this.messageHandler) {
         //    this.messageHandler.destroy();
