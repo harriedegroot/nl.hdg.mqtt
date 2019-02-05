@@ -1,22 +1,86 @@
 "use strict";
 
 const Log = require('../Log.js');
-const CommandHandler = require('./CommandHandler.js');
 
 const COMMAND = 'set';
 
-function getRootTopic(settings) {
-    return typeof settings === 'object'
-        ? [settings.rootTopic, settings.deviceId].filter(x => x).join('/')
-        : undefined;
+function getTopic(settings) {
+    const topic = typeof settings === 'object'
+        ? [settings.topicRoot, settings.deviceId]
+        : [];
+    topic.push(COMMAND);
+    return topic.filter(x => x).join('/');
 }
 
-class SetCommandHandler extends CommandHandler {
+class SetCommandHandler {
 
-    constructor({ api, mqttClient, settings }) {
-        super(mqttClient, COMMAND, getRootTopic(settings));
+    constructor({ api, mqttClient, deviceManager, settings }) {
 
         this.api = api;
+        this.mqttClient = mqttClient;
+        this.deviceManager = deviceManager;
+        this.topic = getTopic(settings);
+
+        if (mqttClient) {
+            Log.info("Starting set command handler");
+            if (this.topic) {
+                mqttClient.subscribe(this.topic);
+                this._clientCallback = this._onMessage.bind(this);
+                mqttClient.onMessage.subscribe(this._clientCallback);
+            } else {
+                Log.error('invalid command topic');
+            }
+        }
+    }
+
+    async _onMessage(topic, message) {
+
+        if (topic !== this.topic) return;
+
+        try {
+            Log.debug('SetCommendHandler.onMessage:');
+            Log.debug(message);
+
+            if (!this.mqttClient.isRegistered()) {
+                Log.debug('[Skip] not registered');
+            }
+
+            const command = this.getCommand(message);
+            if (!command) {
+                Log.info("No command provided");
+                return;
+            }
+
+            const deviceId = this.getDeviceId(topic, message);
+            if (!deviceId) {
+                Log.info("Device not found");
+                return;
+            }
+
+            // TODO: Refactor to seperate command handlers (see MessageHandler)
+            // NOTE: Stripped original functionality for quick & dirty solution...
+            if (command === COMMAND) {
+                await this.execute({ command, topic, message, deviceId });
+            }
+
+        } catch (e) {
+            Log.info('Error handling set command message');
+            Log.debug(topic);
+            Log.debug(message);
+            Log.error(e);
+        }
+    }
+
+    getDeviceId(topic, message) {
+        let deviceId;
+        if (typeof message === 'object' && message.device) {
+            deviceId = this.deviceManager.getDeviceId(message.device);
+        }
+        return deviceId || this.deviceManager.getDeviceId(topic.getDeviceTopicName());
+    }
+
+    getCommand(message) {
+        return typeof message === 'object' ? message.command : undefined;
     }
 
     async execute({ topic, message, deviceId }) {
@@ -68,6 +132,14 @@ class SetCommandHandler extends CommandHandler {
 
         }
         return value;
+    }
+
+    destroy() {
+        Log.info("Destroy SetCommandHandler");
+        if (this.mqttClient && this._clientCallback) {
+            this.mqttClient.onMessage.unsubscribe(this._clientCallback);
+            delete this._clientCallback;
+        }
     }
 }
 

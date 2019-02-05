@@ -1,5 +1,6 @@
 === TODO ===
 - Activate & update command + rename to 'set'
+- MQTT Client topic registration bug: Messages are received after adding flow card to topic #
 - Settings Instructions tab
 - HASS Discovery
 - BUG: some $set commands don't work

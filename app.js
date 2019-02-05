@@ -142,14 +142,20 @@ class MQTTHub extends Homey.App {
 
     _startCommands() {
         this._stopCommands();
+        this.setCommandHandler = new SetCommandHandler(this); // TODO: Refactor
+
         //this.messageHandler = new MessageHandler(this);
         //this.messageHandler.addMessageHandler(new SetCommandHandler(this));
     }
     _stopCommands() {
-        if (this.messageHandler) {
-            this.messageHandler.destroy();
-            delete this.messageHandler;
+        if (this.setCommandHandler) {
+            this.setCommandHandler.destroy();
+            delete this.setCommandHandler();
         }
+        //if (this.messageHandler) {
+        //    this.messageHandler.destroy();
+        //    delete this.messageHandler;
+        //}
     }
 
     _startBroadcasters() {
