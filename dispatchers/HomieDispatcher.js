@@ -144,7 +144,7 @@ class HomieDispatcher {
             try {
                 this.disableDevice(id);
             } catch (e) {
-                Log.error(e);
+                Log.error(e, false);
             }
         }
         this._nodes.clear();
@@ -420,7 +420,7 @@ class HomieDispatcher {
                 Log.info("No property found for capability: " + capabilityId);
             }
         } catch (e) {
-            Log.error(e);
+            Log.error(e, false);
         }
     }
 
@@ -442,7 +442,7 @@ class HomieDispatcher {
                 await this.api.devices.setCapabilityValue(state);
             } catch (e) {
                 Log.info("Failed to update capability value");
-                Log.error(e);
+                Log.error(e, false);
             }
         }
     }
@@ -464,7 +464,7 @@ class HomieDispatcher {
                 await this.api.devices.setCapabilityValue({ deviceId: deviceId, capabilityId: 'light_temperature', value: color.v });
             } catch (e) {
                 Log.info("Homie: Failed to update color value");
-                Log.error(e);
+                Log.error(e, false);
             }
         } else {
             Log.info('Invalid color value');

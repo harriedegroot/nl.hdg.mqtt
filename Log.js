@@ -50,13 +50,16 @@ function writelog(level, line, notification, functions, implementation) {
 
    switch(level) {
        case 'error':
-           if (notification !== false) {
-               Homey.ManagerNotifications.registerNotification({
-                   excerpt: line
-               }, function (err, notification) {
-                   if (DEBUG) console.log('Notification added');
-                   if (line) return console.error(line);
-               });
+
+           const message = typeof line === 'object' ? (line.error_description || line.error || line) : line;
+
+           if (notification === true && message && typeof message === 'string') {
+                Homey.ManagerNotifications.registerNotification({
+                    excerpt: message
+                }, function (err, notification) {
+                    if (DEBUG) console.log('Notification added');
+                    if (line) return console.error(line);
+                });
            } else {
                if (line) return console.error(line);
            }

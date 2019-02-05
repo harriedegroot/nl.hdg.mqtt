@@ -40,7 +40,7 @@ class MQTTClient  {
         // Fetch installed app
         this.clientApp.getInstalled()
             .then(this._onClientAppInstalled.bind(this))
-            .catch(error => Log.error(error));
+            .catch(error => Log.error(error, false));
     }
 
     disconnect() {

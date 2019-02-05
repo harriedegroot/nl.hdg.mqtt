@@ -63,7 +63,7 @@ class MessageHandler {
             Log.info('Error handling message');
             Log.debug(topic);
             Log.debug(message);
-            Log.error(e, false); // prevent notification spamming
+            Log.error(e);
         }
     }
 
@@ -95,7 +95,7 @@ class MessageHandler {
                         await handler.process({ command, topic, message, deviceId });
                     } catch (e) {
                         Log.info('Error processing command: ' + command);
-                        Log.error(e, false); // note prevent notification spamming
+                        Log.error(e);
                     }
                 }
             }

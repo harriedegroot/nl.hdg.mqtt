@@ -25,7 +25,7 @@ class SetCommandHandler extends CommandHandler {
 
         const capabilityId = this.getCapabilityIdFromMessage(message);
         if (!capabilityId) {
-            Log.error("capability not found");
+            Log.error("capability not found", false);
             Log.debug(message);
             return;
         }
@@ -41,7 +41,7 @@ class SetCommandHandler extends CommandHandler {
             await this.api.devices.setCapabilityValue(state);
         } catch (e) {
             Log.info("Failed to update capability value");
-            Log.error(e);
+            Log.error(e, false);
         }
     }
 
