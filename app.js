@@ -139,8 +139,8 @@ class MQTTHub extends Homey.App {
 
     _startCommands() {
         this._stopCommands();
-        this.messageHandler = new MessageHandler(this);
-        this.messageHandler.addMessageHandler(new SetCommandHandler(this));
+        //this.messageHandler = new MessageHandler(this);
+        //this.messageHandler.addMessageHandler(new SetCommandHandler(this));
     }
     _stopCommands() {
         if (this.messageHandler) {
