@@ -1,10 +1,10 @@
 === TODO ===
-- MQTT Client topic registration bug: Messages are received after adding flow card to topic #
+- [BUG] MQTT Client topic registration: Messages are received after adding flow card to topic #
 - Settings Instructions tab
 - HASS Discovery
 - BUG: some $set commands don't work
 - fix system info topic
-- optional normalization
+- optional normalization for custom protocol
 - Send empty (non-retained) message to clear device (fixed with restore of homeyProperty retain = null after send?)
 - Publish device/$state disconnect message
 - enable setting for deprecated protocol / clean-up old code
@@ -18,10 +18,8 @@
 - [Check] Refresh devices on device/zone changes + Broadcast
 - Info requests:
   * System
-  * Zone
-  * Devices
-  * Capabilities
-  * Capability
+  * Device classes
+  * Zones
 - Updating state for multiple devices (e.g. all devices in a room)
 - Publish system info on seperate topics (i.s.o. json)
 - Trigger flow command
