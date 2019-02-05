@@ -66,7 +66,7 @@ class SystemStateDispatcher {
 
         } catch (e) {
             Log.info(e);
-            Log.error("Failed to fetch system info", false);
+            Log.error("Failed to fetch system info");
         }
 
         // loop

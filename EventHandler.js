@@ -29,7 +29,7 @@ class EventHandler {
                 } catch (e) {
                     Log.info('Error handling event: ' + this.name);
                     Log.debug(args);
-                    Log.error(e, false); // note prevent notification spamming
+                    Log.error(e);
                 }
             }
         }

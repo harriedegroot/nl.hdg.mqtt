@@ -68,6 +68,24 @@
 
 === Unhandled exceptions ===
 
+Failed to update capability value
+Notification added
+{ request_timeout: Er is een onbekende fout opgetreden [request_timeout]
+    at /node_modules/athom-api/dist/index.js:1:1045125
+    at <anonymous>
+    at process._tickCallback (internal/process/next_tick.js:189:7)
+  name: 'request_timeout',
+  code: 500,
+  cause:
+   t {
+     __athom_api_type: 'HomeyAPI.ManagerDevices.Error',
+     code: 500,
+     error: 'request_timeout',
+     error_description: 'Er is een onbekende fout opgetreden [request_timeout]',
+     '$stack': undefined } }
+
+===
+
 - Handle Socket hang up exceptions:
 { Error: socket hang up
     at Object.<anonymous> (/opt/homey-client/system/manager/ManagerApps/jsonfns.js:1:1103)
