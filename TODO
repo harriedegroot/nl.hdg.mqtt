@@ -1,13 +1,12 @@
 === TODO ===
-- [BUG] MQTT Client topic registration: Messages are received after adding flow card to topic #
 - Settings Instructions tab
+- Check client availability processing
 - HASS Discovery
-- BUG: some $set commands don't work
 - fix system info topic
+- fix non-awaited promises
 - optional normalization for custom protocol
 - Send empty (non-retained) message to clear device (fixed with restore of homeyProperty retain = null after send?)
 - Publish device/$state disconnect message
-- enable setting for deprecated protocol / clean-up old code
 - Support virtual button?
 - implement scalable property 0-1 (float) | 0-100 (int)
 - Flow card for MQTT Device
@@ -25,10 +24,16 @@
 - Trigger flow command
 - Listen to scene flow triggers
 - Uninstall app => unsubscribe from topics
+- test internal MQTT client ('socket hang up' fix? duplicate mem usage, config & maintenance...)
+
+[cannot reproduce]
+- some $set commands don't work (openHab/broker/client/hub config/restart/updates??)
+- all devices are shown off @ first load
 
 [DEPRECATED]
 - Update value parsing (based on capability description)
 - implement remaining destroy methods
+- enable setting for deprecated protocol / clean-up old code
 
 
 ======= DONE =======
@@ -81,6 +86,22 @@ Notification added
      error: 'request_timeout',
      error_description: 'Er is een onbekende fout opgetreden [request_timeout]',
      '$stack': undefined } }
+
+===
+
+{ Error: request to http://localhost:80/api/app/nl.scanno.mqtt/subscribe failed, reason: socket hang up
+    at Object.JSON.parse (/opt/homey-client/system/helpers/jsonfns.js:1:1190)
+    at JSON.parse (<anonymous>)
+    at jsonToObject (/opt/homey-client/system/helpers/jsonfns.js:1:1083)
+    at function.e.data.map.e (/opt/homey-client/system/manager/ManagerApps/bootstrap/sdk/v2/lib/HomeyClient.js:1:1379)
+    at Array.map (<anonymous>)
+    at HomeyClient._onMessage (/opt/homey-client/system/manager/ManagerApps/bootstrap/sdk/v2/lib/HomeyClient.js:1:1372)
+    at emitTwo (events.js:126:13)
+    at process.emit (events.js:214:7)
+    at emit (internal/child_process.js:762:12)
+    at _combinedTickCallback (internal/process/next_tick.js:142:11)
+  message: 'request to http://localhost:80/api/app/nl.scanno.mqtt/subscribe failed, reason: socket hang up',
+  code: 'ECONNRESET' }
 
 ===
 
