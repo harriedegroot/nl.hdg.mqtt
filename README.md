@@ -73,7 +73,8 @@ The MQTT Hub also allows a `custom` communication protocol with the ability to c
 - color format (HSV, RGB, channels)
 - enable/disable dispatching of device states
 - disable topic normalization (*coming soon...*)
-- dimensions & value scaling (*coming soon...*)
+- dimensions & value scaling (*coming soon...*)  
+  
   
 #### Commands
 The hub provides two ways of controlling your devices over MQTT.  
@@ -118,13 +119,13 @@ Some, features that will be introduced in this version will be backported to a s
   
 ## Change Log
   
-#### 2.0.4
-- Added instructions
+#### 2.0.4  
+- Added instructions  
   
-#### 2.0.3
+#### 2.0.3  
 - Custom communication protocol
 - Commands (rewrote some code to allow the command structure again)
-- General bug fixes
+- General bug fixes  
   
 #### 2.0.2  
 - Renamed the app to 'MQTT Hub'
@@ -133,7 +134,7 @@ Some, features that will be introduced in this version will be backported to a s
 - Optionally include `device class` & `zone` into the topic
 - Full re-write of the app booting sequence
 - Added Log stream
-- Dropped support for Homey v1.5
+- Dropped support for Homey v1.5  
   
 #### 2.0.1  
 - Fixed messages for boolean capabilities  
