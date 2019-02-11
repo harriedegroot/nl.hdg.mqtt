@@ -3,7 +3,7 @@
 Turn your Homey into a HUB and let external applications discover & control all your connected devices.
   
 ## Introduction
-With this app you can communicate with your Homey devices using MQTT.  
+With this app you can communicate with all your devices connected to Homey using MQTT.  
 The MQTT Hub automatically broadcasts all your devices and their capabilities. 
 It will setup a communication channel per device, so external apps can control each one of them.
 Furthermore it provides an interface to read the full system state & and allows advanced control of your Homey, without the need to write your own app.
@@ -117,7 +117,10 @@ Some, features that will be introduced in this version will be backported to a s
 - ...
   
 ## Change Log
-
+  
+#### 2.0.3
+- Added instructions
+  
 #### 2.0.3
 - Custom communication protocol
 - Commands (rewrote some code to allow the command structure again)

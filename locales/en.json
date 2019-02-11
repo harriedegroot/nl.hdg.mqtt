@@ -1,6 +1,6 @@
 {
   "settings": {
-    "benefit": "Turn your Homey into a device HUB"
+    "benefit": "Turn your Homey into a HUB"
   },
   "devices": {
     "flowcard": "Flowcard"
@@ -38,10 +38,7 @@
     }
   },
   "tab3": {
-    "title": "Instructions",
-    "instructions": {
-      "title": "Instructions"
-    }
+    "title": "Instructions"
   },
   "tab4": {
     "title": "Log"

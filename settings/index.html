@@ -14,7 +14,7 @@
 </head>
 <body>
     <div id="app">
-        <p data-i18n="settings.benefit" class="benefit">Turn your Homey into a device HUB</p>
+        <p data-i18n="settings.benefit" class="benefit">Turn your Homey into a HUB</p>
 
         <div class="rTable tabs">
             <div class="rTableRow">
@@ -56,7 +56,7 @@
                         </select>
                     </div>
                 </div>
-                
+
                 <div data-i18n="tab1.topic" class="text-header">TOPIC</div>
                 <div class="setting">
                     <label class="settings-item-description" data-i18n="tab1.topicRoot">Root topic (leave blank to discard)</label>
@@ -100,8 +100,8 @@
                         </div>
                     </div>
                 </div>
-            
-                <div data-i18n="tab1.messages" class="text-header">-MESSAGES-</div>
+
+                <div data-i18n="tab1.messages" class="text-header">MESSAGES</div>
                 <div id="propertyScaling-container" class="setting">
                     <label class="settings-item-description" data-i18n="tab1.propertyScaling">Percentage formatting</label>
                     <div class="settings-itemgroup">
@@ -122,9 +122,9 @@
                         </select>
                     </div>
                 </div>
-           
-                <div data-i18n="tab1.publish" class="text-header">-PUBLISH-</div>
-                <div  id="broadcastDevices-container" class="setting">
+
+                <div data-i18n="tab1.publish" class="text-header">PUBLISH</div>
+                <div id="broadcastDevices-container" class="setting">
                     <label class="settings-item-description" data-i18n="tab1.broadcastDevicesChanges">Devices state changes</label>
                     <div class="settings-itemgroup">
                         <div class="settings-item-text">
@@ -159,10 +159,8 @@
                 <div class="loader" v-if="loading">
                     <svg version="1.1" id="loader-1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="40px" height="40px" viewBox="0 0 40 40" enable-background="new 0 0 40 40" xml:space="preserve">
                     <path opacity="0.2" fill="#000" d="M20.201,5.169c-8.254,0-14.946,6.692-14.946,14.946c0,8.255,6.692,14.946,14.946,14.946 s14.946-6.691,14.946-14.946C35.146,11.861,28.455,5.169,20.201,5.169z M20.201,31.749c-6.425,0-11.634-5.208-11.634-11.634 c0-6.425,5.209-11.634,11.634-11.634c6.425,0,11.633,5.209,11.633,11.634C31.834,26.541,26.626,31.749,20.201,31.749z" />
-
                     <path fill="#000" d="M26.013,10.047l1.654-2.866c-2.198-1.272-4.743-2.012-7.466-2.012h0v3.312h0 C22.32,8.481,24.301,9.057,26.013,10.047z">
-                    <animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 20 20" to="360 20 20" dur="0.5s" repeatCount="indefinite" />
-
+                        <animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 20 20" to="360 20 20" dur="0.5s" repeatCount="indefinite" />
                     </path>
                 </div>
                 <div class="rTable">
@@ -187,49 +185,183 @@
                 </div>
             </div>
 
+            <div id="tab3" class="panel" style="display:none;">
+                <div id="instructionsen" style="display:none;">
+                    <p>
+                        <br/>With this app you can communicate with all your devices connected to Homey. A communication channel per device will be created, so external apps can control each one of them.
+                    </p>
 
-            <div id="tab3" class="panel" style="display: none;">
-                <fieldset class="listContainer">
-                    <legend data-i18n="tab4.instructions.title">Instructions</legend>
-                    <div id="instructionsen" style="display:none">
-                        To configure the MQTT Hub you have to do the following:<br />
-                        <br />
+                    <div class="text-header">INSTALLATION</div>
+                    <p>
+                        <br/>To configure the MQTT Hub you have to do the following:
+                    </p>
+                    <ol class="main-list">
+                        <li><b>Configure a MQTT broker</b></li>
                         <ul>
-                            <li><b>Configure a MQTT broker</b></li>
-                            <ul>
-                                <li>
-                                    E.g. Install the MQTT broker app from the app store
-                                </li>
-                            </ul>
-                            <li><b>Install & configure the Homey MQTT Client app</b></li>
-                            <ul>
-                                <li>
-                                    Install the app from the app store...
-                                </li>
-                            </ul>
-                            etc...
+                            <li>
+                                The MQTT broker is the central server handling all MQTT messages.
+                            </li>
+                            <li>
+                                Use the MQTT broker app from Homey the app store or configure an external broker (e.g. CloudMQTT, Mosquitto or HiveMQ).
+                            </li>
                         </ul>
-                    </div>
-                    <div id="instructionsnl" style="display:none">
-                        Stel de MQTT app op de volgende manier in:<br />
-                        <br />
+                        <li><b>Install & configure the Homey MQTT Client app</b></li>
                         <ul>
-                            <li><b>Configure a MQTT broker</b></li>
-                            <ul>
-                                <li>
-                                    E.g. Install the <i>MQTT broker app</i> from the app store.
-                                </li>
-                            </ul>
-                            <li><b>Install & configure the Homey MQTT Client app</b></li>
-                            <ul>
-                                <li>
-                                    Install the app from the app store...
-                                </li>
-                            </ul>
-                            etc...
+                            <li>
+                                Install the <b>beta</b> version of the MQTT Client app from the Homey app store.
+                            </li>
+                            <li>
+                                Connect the MQTT Client to your MQTT broker.
+                            </li>
                         </ul>
-                    </div>
-                </fieldset>
+                        <li><b>Install the MQTT Hub (you already did) and let it discover & broadcast all your connected devices</b></li>
+                        <ul>
+                            <li>
+                                The hub will automatically discover all your devices
+                            </li>
+                            <li>
+                                The availability & state of each device will be broadcasted. This is a resource heavy operation. Homey can become less responsive during a broadcast.
+                            </li>
+                            <li>
+                                NOTE: The broadcast process can take up to several minutes to complete (be patience).
+                            </li>
+                        </ul>
+                        <li><b>Configure the MQTT Hub</b></li>
+                        <ul>
+                            <li>
+                                Adjust the HUB settings where needed
+                            </li>
+                        </ul>
+                        <li><b>Install any external application supporting MQTT</b></li>
+                        <ul>
+                            <li>
+                                There are many applications supporting MQTT, pick one.
+                            </li>
+                            <li>
+                                Connect your external app to the MQTT broker.
+                            </li>
+                            <li>
+                                Let your app discover all connected devices (if it supports the Homie Convention).
+                            </li>
+                            <li>
+                                If Homey is reported 'offline' or datatypes are not discovered correctly, try pressing the 'broadcast' button to re-start the device initialization process and be patience.
+                            </li>
+                            <li>
+                                Configure your communication channels by observing & dispatching messages on the available MQTT topics.
+                            </li>
+                        </ul>
+                        <li><b>Start communicating with Homey</b></li>
+                        <ul>
+                            <li>
+                                Have fun!
+                            </li>
+                        </ul>
+                    </ol>
+
+
+                    <div class="text-header">CONFIGURATION</div>
+                    <p>
+                        <br/>MQTT Hub configuration:
+                    </p>
+                    <ul class="main-list">
+                        <li><b>Running</b></li>
+                        <ul>
+                            <li>
+                                Turn on/off the MQTT Hub service.
+                            </li>
+                        </ul>
+                        <li><b>Broadcast</b></li>
+                        <ul>
+                            <li>
+                                Press the button to broadcast all available devices & their current state, so external applications can discover them (re-starts the devices initialization process).
+                            </li>
+                            <li>
+                                Can be useful to get the OpenHAB MQTT device online or update the channel datatypes if 'dummy' is displayed.
+                            </li>
+                        </ul>
+                        <li><b>Communication protocol</b></li>
+                        <ul>
+                            <li>
+                                Choose a default communication protocol or select 'custom' to adjust the MQTT communication to your needs.
+                            </li>
+                        </ul>
+                        <li><b>Root topic</b></li>
+                        <ul>
+                            <li>
+                                The root topic path used to broadcast all messages on (default 'homie' from the Homie Convention).
+                            </li>
+                            <li>
+                                You can leave the root topic blank to remove it from the topic.
+                            </li>
+                        </ul>
+                        <li><b>Device id</b></li>
+                        <ul>
+                            <li>
+                                The second element in topic path. Used to identify your Homey.
+                            </li>
+                            <li>
+                                By default this is the name of your Homey.
+                            </li>
+                        </ul>
+                        <li><b>Include device class in topic</b></li>
+                        <ul>
+                            <li>
+                                Optionally inject the device class (e.g. light) into the MQTT topic structure.
+                            </li>
+                            <li>
+                                This can be useful to communicate by using topic wildcards.
+                            </li>
+                        </ul>
+                        <li><b>Include device zone in topic</b></li>
+                        <ul>
+                            <li>
+                                Optionally inject the device zone (e.g. kitchen) into the MQTT topic structure.
+                            </li>
+                            <li>
+                                This can be useful to communicate by using topic wildcards.
+                            </li>
+                        </ul>
+                        <li><b>Color format</b></li>
+                        <ul>
+                            <li>
+                                Adjust the way color values are formatted.
+                            </li>
+                            <li>
+                                By default a color is formatted as a HSV string "H,S,V".
+                            </li>
+                            <li>
+                                Optionally format color values as a RGB string "R,G,B" or publish each color value on a separate channel (capabilities).
+                            </li>
+                        </ul>
+                        <li><b>Publish device state changes</b></li>
+                        <ul>
+                            <li>
+                                By default all device state changes (of the enabled devices) are broadcasted. This functionality can be disabled to reduce the workload.
+                            </li>
+                            <li>
+                                When disabled your external interface will NOT be notified about device changes, but you can still communicate with the devices (i.e. set capability values).
+                            </li>
+                        </ul>
+                        <li><b>Dispatch system state</b></li>
+                        <ul>
+                            <li>
+                                Dispatch the current state of Homey in a regular interval (30. sec).
+                            </li>
+                        </ul>
+                        <li><b>Devices</b></li>
+                        <ul>
+                            <li>
+                                Enable/disable each device individually.
+                            </li>
+                            <li>
+                                When a device is <b>disabled</b>, it is fully excluded from the HUB. So all communication is disabled and no device state changes will be broadcasted for this device.
+                            </li>
+                        </ul>
+                    </ul>
+                </div>
+                <div id="instructionsnl" style="display:none">
+                    <!--To be implemented-->
+                </div>
             </div>
 
 

@@ -1,7 +1,11 @@
 === TODO ===
-- Settings Instructions tab
+
+- [BUG] enabling virtual devices breaks the hub
 - Check client availability processing
 - HASS Discovery
+- profile client & hub
+- display broadcast progress (loader)
+- Enable/disable all devices
 - fix system info topic
 - fix non-awaited promises
 - optional normalization for custom protocol
@@ -67,7 +71,7 @@
 - BUG: Normalize injected device class & zone
 - Custom protocal & disable non-protocol options
 - Activate & update command + rename to 'set'
-
+- Settings Instructions tab
 
 === Unhandled exceptions ===
 

@@ -36,6 +36,19 @@ app {
     font-size: medium !important;
 }
 
+main-list,
+main-list > ul,
+ol, ul {
+    padding-left: 0px !important;
+}
+.main-list li {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+.main-list > li {
+    margin-top: 10px !important;
+}
+
 .devices {
     background: white;
 }
@@ -87,12 +100,28 @@ input[type=text] {
 
 button {
     display: block !important;
-    width: 100% !important;
-    margin: 0 !important;
+    width: 99% !important;
+    margin: 0 0 0 2px !important;
     padding: 10px !important;
     font-size: large !important;
     vertical-align: middle !important;
     border: 1px solid rgb(220,220,220) !important;
+
+    background: none !important;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+button:hover {
+    background:  rgb(220,220,220) !important;
+}
+button:active {
+    background-color: rgba(160, 160, 160, 1) !important;
+    color: white;
+    box-shadow: none;
+}
+button:disabled,
+button[disabled] {
+    background: rgb(220,220,220) !important;
+    opacity: 0.3;
 }
 
 .text-header {

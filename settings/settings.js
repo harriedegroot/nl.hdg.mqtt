@@ -35,6 +35,8 @@ const customSettings = {
     "propertyScaling": "default" // not implemented yet
 };
 
+//////////////////////////////////////////////
+
 //const testDevices = {
 //    test: { id: 'test', name: "test some long named device lkfjdh sdlkfjhgsldkfhg lksdjfhslkdh ", zone: "zone", iconObj: { url: "../assets/icon.svg" }},
 //    test1: { id: 'test', name: "device 1", zone: "zone" },
@@ -64,11 +66,13 @@ const customSettings = {
 //                    return callback(null, {});
 //            }
 //        },
-//        getLanguage: () => 'en',
+//        getLanguage: (cb) => cb(null, 'en'),
 //        set: () => 'settings saved',
 //        alert: (...args) => alert(...args)
 //    })
 //});
+
+//////////////////////////////////////////////
 
 function onHomeyReady(homeyReady){
     Homey = homeyReady;
@@ -156,10 +160,13 @@ function onHomeyReady(homeyReady){
             },
             refresh: function () {
                 $("#refreshButton").prop("disabled", true);
-                Homey.api('GET', '/refresh', null, (err, result) => {
-                    $("#refreshButton").prop("disabled", false);
-                    Homey.alert(err ? 'failed to refresh device states' : 'refreshed sucessfully');
-                });
+                setTimeout(() => {
+                    Homey.api('GET', '/refresh', null, (err, result) => {
+                        $("#refreshButton").prop("disabled", false);
+                        Homey.alert(err ? 'failed to refresh device states' : 'refreshed sucessfully');
+                    });
+                }, 0)
+                
             }
         },
         async mounted() {
@@ -191,21 +198,27 @@ function showTab(tab, log){
 }
 
 function getLanguage() {
-    try {
-        Homey.getLanguage(function (err, language) {
-            language = language === 'nl' ? 'nl' : 'en';
-            const el = document.getElementById("instructions" + language) || document.getElementById("instructionsen");
-            if (el) {
-                el.style.display = "inline";
-            }
-        });
-    } catch (e) {
-        Homey.alert('Failed to get language: ' + e);
-        const el = document.getElementById("instructions" + language) || document.getElementById("instructionsen");
-        if (el) {
-            el.style.display = "inline";
-        }
+    const el = document.getElementById("instructionsen");
+    if (el) {
+        el.style.display = "inline";
     }
+
+    //NOTE: Enable if dutch instructions are available
+    //try {
+    //    Homey.getLanguage(function (err, language) {
+    //        language = language === 'nl' ? 'nl' : 'en';
+    //        const el = document.getElementById("instructions" + language) || document.getElementById("instructionsen");
+    //        if (el) {
+    //            el.style.display = "inline";
+    //        }
+    //    });
+    //} catch (e) {
+    //    Homey.alert('Failed to get language: ' + e);
+    //    const el = document.getElementById("instructions" + language) || document.getElementById("instructionsen");
+    //    if (el) {
+    //        el.style.display = "inline";
+    //    }
+    //}
 }
 
 function selectProtocol(protocol) {
