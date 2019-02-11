@@ -28,7 +28,7 @@ The functionality of the MQTT Hub:
 All can be configured via app settings (e.g. topic structure, enable/disable devices, etc.).   
   
 ## Is this app for me?
-*First*: This appp is **NOT** a plug & play solution. **NOR** is it the replacement for the desktop interface.  
+*First*: This appp is NOT a plug & play solution. NOR is it the replacement for the desktop interface.  
 *Second*: You need some technical background to get things working. So, if you don't like to tinker with stuff, you don't like to try many different roads before you finally get your ultimate solution or you don't like to dive just a little deeper to get things up and running: it's probably not for you...
 
 If this meets your expectations and none of the above applies to you: Have fun!  
@@ -38,12 +38,12 @@ If this meets your expectations and none of the above applies to you: Have fun!
 The [Homie Convention](https://homieiot.github.io/) (v3.0.1) is implemented to provide a communication standard.
  
 #### MQTT client & broker
-This app uses the [MQTT Client app](https://apps.athom.com/app/nl.scanno.mqtt) (**beta version** required) to communicate with a MQTT broker.
+This app uses the [MQTT Client app](https://apps.athom.com/app/nl.scanno.mqtt) (beta version required) to communicate with a MQTT broker.
 You can connect with any broker (e.g. [CloudMQTT](https://www.cloudmqtt.com/), [Mosquitto](https://mosquitto.org/) or [HiveMQ](https://www.hivemq.com/)). There is also a [MQTT broker app](https://apps.athom.com/app/nl.scanno.mqttbroker) available for Homey.
   
 ## Installation
 1. Install a MQTT broker of your liking.
-2. Install the MQTT Client **beta** app from the store and connect to your broker.
+2. Install the MQTT Client beta app from the store and connect to your broker.
 3. Install the MQTT Hub and let it discover & broadcast your devices.
 4. Install any external application supporting MQTT and connect it to your broker.
 5. Let your app discover Homeys devices (if it supports the Homie Convention). 
