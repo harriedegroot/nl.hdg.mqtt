@@ -18,6 +18,7 @@ const DeviceManager = require("./DeviceManager.js");
 // Dispatchers
 const SystemStateDispatcher = require("./dispatchers/SystemStateDispatcher.js");
 const HomieDispatcher = require("./dispatchers/HomieDispatcher.js");
+const HomeAssistantDispatcher = require("./dispatchers/HomeAssistantDispatcher.js");
 
 // Commands
 const CommandHandler = require("./commands/CommandHandler.js");
@@ -112,6 +113,7 @@ class MQTTHub extends Homey.App {
             switch (protocol) {
                 case 'ha':
                     // TODO: Implement HA Discovery
+                    this.homeAssistantDispatcher = new HomeAssistantDispatcher(this);
                     break;
                 case 'custom': // NOTE: Fallthrough => Custom protocol uses the homie dispacher
                 case 'homie3': // NOTE: Fallthrough => Homie3 is default protocol
@@ -129,7 +131,10 @@ class MQTTHub extends Homey.App {
             if (protocol) {
                 switch (protocol) {
                     case 'ha':
-                        // TODO: Destroy HA Discovery
+                        if (this.homeAssistantDispatcher) {
+                            this.homeAssistantDispatcher.destroy();
+                            delete this.homeAssistantDispatcher;
+                        }
                         break;
                     case 'custom': // NOTE: Fallthrough => Custom protocol uses the homie dispacher
                     case 'homie3': // NOTE: Fallthrough => Homie3 is default protocol
@@ -169,6 +174,13 @@ class MQTTHub extends Homey.App {
             Log.info("homie dispatcher broadcast: " + broadcast);
             this.homieDispatcher.broadcast = broadcast;
         }
+
+        if (this.homeAssistantDispatcher) {
+            const broadcast = this.settings.broadcastDevices !== false;
+            Log.info("Home Assistant dispatcher broadcast: " + broadcast);
+            this.homeAssistantDispatcher.broadcast = broadcast;
+        }
+
         if (!this.systemStateDispatcher && this.settings.broadcastSystemState) {
             Log.info("start system dispatcher");
             this.systemStateDispatcher = new SystemStateDispatcher(this);
@@ -180,6 +192,11 @@ class MQTTHub extends Homey.App {
         if (this.homieDispatcher) {
             Log.info("stop homie dispatcher");
             this.homieDispatcher.broadcast = false;
+        }
+
+        if (this.homeAssistantDispatcher) {
+            Log.info("stop Home Assistant dispatcher");
+            this.systemStateDispatcher.broadcast = false;
         }
 
         if (this.systemStateDispatcher) {
@@ -238,6 +255,10 @@ class MQTTHub extends Homey.App {
         if (this.homieDispatcher) {
             this.homieDispatcher.dispatchState();
         }
+
+        if (this.homeAssistantDispatcher) {
+            this.homeAssistantDispatcher.dispatchState();
+        }
     }
 
     async settingsChanged() {
@@ -260,6 +281,10 @@ class MQTTHub extends Homey.App {
 
         if (this.homieDispatcher) {
             this.homieDispatcher.updateSettings(this.settings, deviceChanges);
+        }
+
+        if (this.homeAssistantDispatcher) {
+            this.homeAssistantDispatcher.updateSettings(this.settings, deviceChanges);
         }
 
         // protocol, broadcasts
