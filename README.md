@@ -79,11 +79,11 @@ The MQTT Hub also allows a `custom` communication protocol with the ability to c
 #### Commands
 The hub provides two ways of controlling your devices over MQTT.  
 The first one is provided by the selected communication protocol.  
-Additionally the hub allows communication by message (payload). To command your Homey, you can send a payload to the topic `<root>/<homey device>/$command`.  
+Additionally the hub allows communication by message (payload). To command your Homey, you can send a payload to the topic `<homey devicd id>/$command`.  
   
 E.g. These two messages will both dim the tv light to 30%:
 1. publish to topic 'homie/homey/tv/dim/set', with message payload: 0.3
-2. publish to topic 'homie/homey/$command', with message payload:
+2. publish to topic 'homey/$command', with message payload:
   
 ```javascript
 {
@@ -118,6 +118,9 @@ Some, features that will be introduced in this version will be backported to a s
 - ...
   
 ## Change Log
+  
+#### 2.0.5  
+- Topic fixes for system state dispatcher & command handler  
   
 #### 2.0.4  
 - Added instructions  

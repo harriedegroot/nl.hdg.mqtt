@@ -1,13 +1,9 @@
 "use strict";
 
 const Log = require('../Log.js');
-//const Topic = require('../mqtt/Topic.js');
 const Message = require('../mqtt/Message.js');
 
-const DEVICE = 'system';
-const PROPERTY = 'info';
-//const TRIGGER = 'general';
-//const COMMAND = 'state';
+const TOPIC = 'info';
 const DELAY = 30000;
 
 class SystemStateDispatcher {
@@ -16,8 +12,7 @@ class SystemStateDispatcher {
         this.api = api;
         this.mqttClient = mqttClient;
 
-        //this.topic = new Topic(DEVICE, TRIGGER, COMMAND);
-        this.topic = [DEVICE, PROPERTY].join('/');
+        this.topic = TOPIC;
 
         this._init();
     }

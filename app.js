@@ -37,9 +37,7 @@ const defaultSettings = {
 */
 
 function getTopicRoot(settings) {
-    return typeof settings === 'object'
-        ? [settings.topicRoot, settings.deviceId].filter(x => x).join('/')
-        : undefined;
+    return typeof settings === 'object' ? settings.deviceId : 'homey';
 }
 
 class MQTTHub extends Homey.App {
