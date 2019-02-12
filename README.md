@@ -119,6 +119,9 @@ Some, features that will be introduced in this version will be backported to a s
   
 ## Change Log
   
+#### 2.0.6  
+- Fixed a BUG in the Homie protocol regarding device state broadcasts  
+  
 #### 2.0.5  
 - Topic fixes for system state dispatcher & command handler  
   
