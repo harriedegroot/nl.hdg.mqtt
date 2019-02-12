@@ -102,6 +102,8 @@ class HomieDispatcher {
         const current = this.settings ? JSON.stringify(this.settings) : null;
         this.settings = this.settings || {};
 
+        this.broadcast = settings.broadcastDevices !== false;
+
         this.settings.topicRoot = settings.topicRoot === undefined ? DEFAULT_TOPIC_ROOT : settings.topicRoot;
         this.settings.deviceId = normalize(settings.deviceId || this.system.name || DEFAULT_DEVICE_ID);
         this.settings.topicIncludeClass = settings.topicIncludeClass === true;
