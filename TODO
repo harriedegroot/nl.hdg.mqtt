@@ -1,8 +1,14 @@
 === TODO ===
 
+- HASS Discovery
+- Switch protocol (homie => ha => homie)
+- unsubscribe topics (switch protocol / uninstall app)
+- hass publish timeouts
+- hass settings
+- settings default vs disabled controls
+
 - [BUG] enabling virtual devices breaks the hub
 - Check client availability processing
-- HASS Discovery
 - profile client & hub
 - display broadcast progress (loader)
 - Enable/disable all devices

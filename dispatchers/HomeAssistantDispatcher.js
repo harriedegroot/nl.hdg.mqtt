@@ -8,421 +8,415 @@ const Message = require('../mqtt/Message.js');
 const normalize = Topic.normalize;
 
 const configurations = {
-    // NOT IMPLEMENTED
-    //
-    // thermostat_mode
-
-
-
 
     // Binary sensor
-    'alarm_generic': {
-        type: 'binary_sensor',
-        object_id: 'alarm',
-        discovery_payload: {
-            payload_on: true,
-            payload_off: false,
-            value_template: '{{ value_json.alarm }}',
-            device_class: 'alarm',
-        },
-    },
-    'alarm_motion': {
-        type: 'binary_sensor',
-        object_id: 'motion',
-        discovery_payload: {
-            payload_on: true,
-            payload_off: false,
-            value_template: '{{ value_json.motion }}',
-            device_class: 'motion',
-        },
-    },
-    'alarm_contact': {
-        type: 'binary_sensor',
-        object_id: 'contact',
-        discovery_payload: {
-            payload_on: false,
-            payload_off: true,
-            value_template: '{{ value_json.contact }}',
-            device_class: 'door',
-        },
-    },
-    'alarm_co': {
-        type: 'binary_sensor',
-        object_id: 'alarm_co',
-        discovery_payload: {
-            payload_on: true,
-            payload_off: false,
-            value_template: '{{ value_json.alarm_co }}',
-            device_class: 'gas',
-        },
-    },
-    'alarm_co2': {
-        type: 'binary_sensor',
-        object_id: 'alarm_co2',
-        discovery_payload: {
-            payload_on: true,
-            payload_off: false,
-            value_template: '{{ value_json.alarm_co2 }}',
-            device_class: 'gas',
-        },
-    },
-    'alarm_pm25': {
-        type: 'binary_sensor',
-        object_id: 'alarm_pm25',
-        discovery_payload: {
-            payload_on: true,
-            payload_off: false,
-            value_template: '{{ value_json.alarm_pm25 }}',
-            device_class: 'dust',
-        },
-    },
-    'alarm_tamper': {
-        type: 'binary_sensor',
-        object_id: 'tamper',
-        discovery_payload: {
-            payload_on: true,
-            payload_off: false,
-            value_template: '{{ value_json.tamper }}',
-            device_class: 'motion',
-        },
-    },
-    'alarm_smoke': {
-        type: 'binary_sensor',
-        object_id: 'smoke',
-        discovery_payload: {
-            payload_on: true,
-            payload_off: false,
-            value_template: '{{ value_json.smoke }}',
-            device_class: 'smoke',
-        },
-    },
-    'alarm_fire': {
-        type: 'binary_sensor',
-        object_id: 'fire',
-        discovery_payload: {
-            payload_on: true,
-            payload_off: false,
-            value_template: '{{ value_json.fire }}',
-            device_class: 'fire',
-        },
-    },
-    'alarm_heat': {
-        type: 'binary_sensor',
-        object_id: 'heat',
-        discovery_payload: {
-            payload_on: true,
-            payload_off: false,
-            value_template: '{{ value_json.heat }}',
-            device_class: 'heat',
-        },
-    },
-    'alarm_water': {
-        type: 'binary_sensor',
-        object_id: 'alarm_water',
-        discovery_payload: {
-            payload_on: true,
-            payload_off: false,
-            value_template: '{{ value_json.alarm_water }}',
-            device_class: 'moisture',
-        },
-    },
-    'alarm_battery': {
-        type: 'binary_sensor',
-        object_id: 'alarm_battery',
-        discovery_payload: {
-            payload_on: true,
-            payload_off: false,
-            value_template: '{{ value_json.alarm_battery }}',
-            device_class: 'battery',
-        },
-    },
-    'alarm_night': {
-        type: 'binary_sensor',
-        object_id: 'alarm_night',
-        discovery_payload: {
-            payload_on: true,
-            payload_off: false,
-            value_template: '{{ value_json.alarm_night }}',
-            device_class: 'night',
-        },
-    },
-
-    ////////////// TODO: Iplement the rest of the pre-defined capabilities /////////////
-
-    //'binary_sensor_occupancy': {
+    //'alarm_generic': {
     //    type: 'binary_sensor',
-    //    object_id: 'occupancy',
+    //    object_id: 'alarm',
     //    discovery_payload: {
     //        payload_on: true,
     //        payload_off: false,
-    //        value_template: '{{ value_json.occupancy }}',
+    //        value_template: '{{ value_json.alarm }}',
+    //        device_class: 'alarm',
+    //    },
+    //},
+    //'alarm_motion': {
+    //    type: 'binary_sensor',
+    //    object_id: 'motion',
+    //    discovery_payload: {
+    //        payload_on: true,
+    //        payload_off: false,
+    //        value_template: '{{ value_json.motion }}',
     //        device_class: 'motion',
     //    },
     //},
-    //'binary_sensor_presence': {
+    //'alarm_contact': {
     //    type: 'binary_sensor',
-    //    object_id: 'presence',
+    //    object_id: 'contact',
     //    discovery_payload: {
-    //        payload_on: true,
-    //        payload_off: false,
-    //        value_template: '{{ value_json.presence }}',
-    //        device_class: 'presence',
+    //        payload_on: false,
+    //        payload_off: true,
+    //        value_template: '{{ value_json.contact }}',
+    //        device_class: 'door',
     //    },
     //},
-    //'binary_sensor_gas': {
+    //'alarm_co': {
     //    type: 'binary_sensor',
-    //    object_id: 'gas',
+    //    object_id: 'alarm_co',
     //    discovery_payload: {
     //        payload_on: true,
     //        payload_off: false,
-    //        value_template: '{{ value_json.gas }}',
+    //        value_template: '{{ value_json.alarm_co }}',
     //        device_class: 'gas',
     //    },
     //},
-    //'binary_sensor_router': {
+    //'alarm_co2': {
     //    type: 'binary_sensor',
-    //    object_id: 'router',
+    //    object_id: 'alarm_co2',
     //    discovery_payload: {
     //        payload_on: true,
     //        payload_off: false,
-    //        value_template: '{{ value_json.state }}',
-    //        device_class: 'connectivity',
+    //        value_template: '{{ value_json.alarm_co2 }}',
+    //        device_class: 'gas',
+    //    },
+    //},
+    //'alarm_pm25': {
+    //    type: 'binary_sensor',
+    //    object_id: 'alarm_pm25',
+    //    discovery_payload: {
+    //        payload_on: true,
+    //        payload_off: false,
+    //        value_template: '{{ value_json.alarm_pm25 }}',
+    //        device_class: 'dust',
+    //    },
+    //},
+    //'alarm_tamper': {
+    //    type: 'binary_sensor',
+    //    object_id: 'tamper',
+    //    discovery_payload: {
+    //        payload_on: true,
+    //        payload_off: false,
+    //        value_template: '{{ value_json.tamper }}',
+    //        device_class: 'motion',
+    //    },
+    //},
+    //'alarm_smoke': {
+    //    type: 'binary_sensor',
+    //    object_id: 'smoke',
+    //    discovery_payload: {
+    //        payload_on: true,
+    //        payload_off: false,
+    //        value_template: '{{ value_json.smoke }}',
+    //        device_class: 'smoke',
+    //    },
+    //},
+    //'alarm_fire': {
+    //    type: 'binary_sensor',
+    //    object_id: 'fire',
+    //    discovery_payload: {
+    //        payload_on: true,
+    //        payload_off: false,
+    //        value_template: '{{ value_json.fire }}',
+    //        device_class: 'fire',
+    //    },
+    //},
+    //'alarm_heat': {
+    //    type: 'binary_sensor',
+    //    object_id: 'heat',
+    //    discovery_payload: {
+    //        payload_on: true,
+    //        payload_off: false,
+    //        value_template: '{{ value_json.heat }}',
+    //        device_class: 'heat',
+    //    },
+    //},
+    //'alarm_water': {
+    //    type: 'binary_sensor',
+    //    object_id: 'alarm_water',
+    //    discovery_payload: {
+    //        payload_on: true,
+    //        payload_off: false,
+    //        value_template: '{{ value_json.alarm_water }}',
+    //        device_class: 'moisture',
+    //    },
+    //},
+    //'alarm_battery': {
+    //    type: 'binary_sensor',
+    //    object_id: 'alarm_battery',
+    //    discovery_payload: {
+    //        payload_on: true,
+    //        payload_off: false,
+    //        value_template: '{{ value_json.alarm_battery }}',
+    //        device_class: 'battery',
+    //    },
+    //},
+    //'alarm_night': {
+    //    type: 'binary_sensor',
+    //    object_id: 'alarm_night',
+    //    discovery_payload: {
+    //        payload_on: true,
+    //        payload_off: false,
+    //        value_template: '{{ value_json.alarm_night }}',
+    //        device_class: 'night',
     //    },
     //},
 
-    //// Sensor
-    'target_temperature': {
-        type: 'sensor',
-        object_id: 'temperature',
-        discovery_payload: {
-            unit_of_measurement: '°C',
-            device_class: 'temperature',
-            value_template: '{{ value_json.temperature }}',
-        },
-    },
-    'measure_temperature': {
-        type: 'sensor',
-        object_id: 'temperature',
-        discovery_payload: {
-            unit_of_measurement: '°C',
-            device_class: 'temperature',
-            value_template: '{{ value_json.temperature }}',
-        },
-    },
-    'measure_co': {
-        type: 'sensor',
-        object_id: 'co',
-        discovery_payload: {
-            unit_of_measurement: 'ppm',
-            device_class: 'gas',
-            value_template: '{{ value_json.co }}',
-        },
-    },
-    'measure_co2': {
-        type: 'sensor',
-        object_id: 'co2',
-        discovery_payload: {
-            unit_of_measurement: 'ppm',
-            device_class: 'gas',
-            value_template: '{{ value_json.co2 }}',
-        },
-    },
-    'measure_pm25': {
-        type: 'sensor',
-        object_id: 'pm25',
-        discovery_payload: {
-            unit_of_measurement: 'ppm',
-            device_class: 'gas',
-            value_template: '{{ value_json.pm25 }}',
-        },
-    },
-    'measure_humidity': {
-        type: 'sensor',
-        object_id: 'humidity',
-        discovery_payload: {
-            unit_of_measurement: '%',
-            device_class: 'humidity',
-            value_template: '{{ value_json.humidity }}',
-        },
-    },
-    'measure_pressure': {
-        type: 'sensor',
-        object_id: 'pressure',
-        discovery_payload: {
-            unit_of_measurement: 'hPa',
-            device_class: 'pressure',
-            value_template: '{{ value_json.pressure }}',
-        },
-    },
-    'measure_noise': {
-        type: 'sensor',
-        object_id: 'noise',
-        discovery_payload: {
-            unit_of_measurement: 'dB',
-            device_class: 'noise',
-            value_template: '{{ value_json.noise }}',
-        },
-    },
-    'measure_rain': {
-        type: 'sensor',
-        object_id: 'rain',
-        discovery_payload: {
-            unit_of_measurement: 'mm',
-            device_class: 'rain',
-            value_template: '{{ value_json.rain }}',
-        },
-    },
-    'measure_wind_strength': {
-        type: 'sensor',
-        object_id: 'wind_strength',
-        discovery_payload: {
-            unit_of_measurement: 'km/h',
-            device_class: 'wind',
-            value_template: '{{ value_json.wind_strength }}',
-        },
-    },
-    'measure_wind_angle': {
-        type: 'sensor',
-        object_id: 'wind_angle',
-        discovery_payload: {
-            unit_of_measurement: '°',
-            device_class: 'wind',
-            value_template: '{{ value_json.wind_angle }}',
-        },
-    },
-    'measure_gust_strength': {
-        type: 'sensor',
-        object_id: 'gust_strength',
-        discovery_payload: {
-            unit_of_measurement: 'km/h',
-            device_class: 'gust',
-            value_template: '{{ value_json.gust_strength }}',
-        },
-    },
-    'measure_gust_angle': {
-        type: 'sensor',
-        object_id: 'gust_angle',
-        discovery_payload: {
-            unit_of_measurement: '°',
-            device_class: 'gust',
-            value_template: '{{ value_json.gust_angle }}',
-        },
-    },
-    'measure_battery': {
-        type: 'sensor',
-        object_id: 'battery',
-        discovery_payload: {
-            unit_of_measurement: '%',
-            device_class: 'battery',
-            value_template: '{{ value_json.battery }}',
-        },
-    },
-    'measure_power': {
-        type: 'sensor',
-        object_id: 'power',
-        discovery_payload: {
-            unit_of_measurement: 'Watt',
-            icon: 'mdi:flash',
-            value_template: '{{ value_json.power }}',
-        },
-    },
-    'measure_voltage': {
-        type: 'sensor',
-        object_id: 'voltage',
-        discovery_payload: {
-            unit_of_measurement: 'Volt',
-            icon: 'mdi:flash',
-            value_template: '{{ value_json.voltage }}',
-        },
-    },
-    'measure_current': {
-        type: 'sensor',
-        object_id: 'current',
-        discovery_payload: {
-            unit_of_measurement: 'Ampere',
-            icon: 'mdi:flash',
-            value_template: '{{ value_json.current }}',
-        },
-    },
-    'measure_luminance': {
-        type: 'sensor',
-        object_id: 'luminance',
-        discovery_payload: {
-            unit_of_measurement: 'lx',
-            device_class: 'luminance',
-            value_template: '{{ value_json.luminance }}',
-        },
-    },
-    'measure_ultraviolet': {
-        type: 'sensor',
-        object_id: 'ultraviolet',
-        discovery_payload: {
-            unit_of_measurement: 'UVI',
-            device_class: 'ultraviolet',
-            value_template: '{{ value_json.ultraviolet }}',
-        },
-    },
-    'measure_water': {
-        type: 'sensor',
-        object_id: 'water',
-        discovery_payload: {
-            unit_of_measurement: 'L/min',
-            device_class: 'water',
-            value_template: '{{ value_json.water }}',
-        },
-    },
+    //////////////// TODO: Iplement the rest of the pre-defined capabilities /////////////
 
-    //'sensor_click': {
+    ////'binary_sensor_occupancy': {
+    ////    type: 'binary_sensor',
+    ////    object_id: 'occupancy',
+    ////    discovery_payload: {
+    ////        payload_on: true,
+    ////        payload_off: false,
+    ////        value_template: '{{ value_json.occupancy }}',
+    ////        device_class: 'motion',
+    ////    },
+    ////},
+    ////'binary_sensor_presence': {
+    ////    type: 'binary_sensor',
+    ////    object_id: 'presence',
+    ////    discovery_payload: {
+    ////        payload_on: true,
+    ////        payload_off: false,
+    ////        value_template: '{{ value_json.presence }}',
+    ////        device_class: 'presence',
+    ////    },
+    ////},
+    ////'binary_sensor_gas': {
+    ////    type: 'binary_sensor',
+    ////    object_id: 'gas',
+    ////    discovery_payload: {
+    ////        payload_on: true,
+    ////        payload_off: false,
+    ////        value_template: '{{ value_json.gas }}',
+    ////        device_class: 'gas',
+    ////    },
+    ////},
+    ////'binary_sensor_router': {
+    ////    type: 'binary_sensor',
+    ////    object_id: 'router',
+    ////    discovery_payload: {
+    ////        payload_on: true,
+    ////        payload_off: false,
+    ////        value_template: '{{ value_json.state }}',
+    ////        device_class: 'connectivity',
+    ////    },
+    ////},
+
+    ////// Sensor
+    //'target_temperature': {
     //    type: 'sensor',
-    //    object_id: 'click',
+    //    object_id: 'temperature',
     //    discovery_payload: {
-    //        icon: 'mdi:toggle-switch',
-    //        value_template: '{{ value_json.click }}',
-    //        force_update: true,
+    //        unit_of_measurement: '°C',
+    //        device_class: 'temperature',
+    //        value_template: '{{ value_json.temperature }}',
     //    },
     //},
-    //'sensor_action': {
+    //'measure_temperature': {
     //    type: 'sensor',
-    //    object_id: 'action',
+    //    object_id: 'temperature',
     //    discovery_payload: {
-    //        icon: 'mdi:gesture-double-tap',
-    //        value_template: '{{ value_json.action }}',
-    //        force_update: true,
+    //        unit_of_measurement: '°C',
+    //        device_class: 'temperature',
+    //        value_template: '{{ value_json.temperature }}',
     //    },
     //},
-    //'sensor_brightness': {
+    //'measure_co': {
     //    type: 'sensor',
-    //    object_id: 'brightness',
+    //    object_id: 'co',
     //    discovery_payload: {
-    //        unit_of_measurement: 'brightness',
-    //        icon: 'mdi:brightness-5',
-    //        value_template: '{{ value_json.brightness }}',
+    //        unit_of_measurement: 'ppm',
+    //        device_class: 'gas',
+    //        value_template: '{{ value_json.co }}',
     //    },
     //},
-    //'sensor_lock': {
+    //'measure_co2': {
     //    type: 'sensor',
-    //    object_id: 'lock',
+    //    object_id: 'co2',
     //    discovery_payload: {
-    //        icon: 'mdi:lock',
-    //        value_template: '{{ value_json.inserted }}',
+    //        unit_of_measurement: 'ppm',
+    //        device_class: 'gas',
+    //        value_template: '{{ value_json.co2 }}',
     //    },
     //},
-    //'sensor_linkquality': {
+    //'measure_pm25': {
     //    type: 'sensor',
-    //    object_id: 'linkquality',
+    //    object_id: 'pm25',
     //    discovery_payload: {
-    //        unit_of_measurement: '-',
-    //        value_template: '{{ value_json.linkquality }}',
+    //        unit_of_measurement: 'ppm',
+    //        device_class: 'gas',
+    //        value_template: '{{ value_json.pm25 }}',
     //    },
     //},
-    //'sensor_gas_density': {
+    //'measure_humidity': {
     //    type: 'sensor',
-    //    object_id: 'gas_density',
+    //    object_id: 'humidity',
     //    discovery_payload: {
-    //        value_template: '{{ value_json.gas_density }}',
-    //        icon: 'mdi:google-circles-communities',
+    //        unit_of_measurement: '%',
+    //        device_class: 'humidity',
+    //        value_template: '{{ value_json.humidity }}',
     //    },
     //},
+    //'measure_pressure': {
+    //    type: 'sensor',
+    //    object_id: 'pressure',
+    //    discovery_payload: {
+    //        unit_of_measurement: 'hPa',
+    //        device_class: 'pressure',
+    //        value_template: '{{ value_json.pressure }}',
+    //    },
+    //},
+    //'measure_noise': {
+    //    type: 'sensor',
+    //    object_id: 'noise',
+    //    discovery_payload: {
+    //        unit_of_measurement: 'dB',
+    //        device_class: 'noise',
+    //        value_template: '{{ value_json.noise }}',
+    //    },
+    //},
+    //'measure_rain': {
+    //    type: 'sensor',
+    //    object_id: 'rain',
+    //    discovery_payload: {
+    //        unit_of_measurement: 'mm',
+    //        device_class: 'rain',
+    //        value_template: '{{ value_json.rain }}',
+    //    },
+    //},
+    //'measure_wind_strength': {
+    //    type: 'sensor',
+    //    object_id: 'wind_strength',
+    //    discovery_payload: {
+    //        unit_of_measurement: 'km/h',
+    //        device_class: 'wind',
+    //        value_template: '{{ value_json.wind_strength }}',
+    //    },
+    //},
+    //'measure_wind_angle': {
+    //    type: 'sensor',
+    //    object_id: 'wind_angle',
+    //    discovery_payload: {
+    //        unit_of_measurement: '°',
+    //        device_class: 'wind',
+    //        value_template: '{{ value_json.wind_angle }}',
+    //    },
+    //},
+    //'measure_gust_strength': {
+    //    type: 'sensor',
+    //    object_id: 'gust_strength',
+    //    discovery_payload: {
+    //        unit_of_measurement: 'km/h',
+    //        device_class: 'gust',
+    //        value_template: '{{ value_json.gust_strength }}',
+    //    },
+    //},
+    //'measure_gust_angle': {
+    //    type: 'sensor',
+    //    object_id: 'gust_angle',
+    //    discovery_payload: {
+    //        unit_of_measurement: '°',
+    //        device_class: 'gust',
+    //        value_template: '{{ value_json.gust_angle }}',
+    //    },
+    //},
+    //'measure_battery': {
+    //    type: 'sensor',
+    //    object_id: 'battery',
+    //    discovery_payload: {
+    //        unit_of_measurement: '%',
+    //        device_class: 'battery',
+    //        value_template: '{{ value_json.battery }}',
+    //    },
+    //},
+    //'measure_power': {
+    //    type: 'sensor',
+    //    object_id: 'power',
+    //    discovery_payload: {
+    //        unit_of_measurement: 'Watt',
+    //        icon: 'mdi:flash',
+    //        value_template: '{{ value_json.power }}',
+    //    },
+    //},
+    //'measure_voltage': {
+    //    type: 'sensor',
+    //    object_id: 'voltage',
+    //    discovery_payload: {
+    //        unit_of_measurement: 'Volt',
+    //        icon: 'mdi:flash',
+    //        value_template: '{{ value_json.voltage }}',
+    //    },
+    //},
+    //'measure_current': {
+    //    type: 'sensor',
+    //    object_id: 'current',
+    //    discovery_payload: {
+    //        unit_of_measurement: 'Ampere',
+    //        icon: 'mdi:flash',
+    //        value_template: '{{ value_json.current }}',
+    //    },
+    //},
+    //'measure_luminance': {
+    //    type: 'sensor',
+    //    object_id: 'luminance',
+    //    discovery_payload: {
+    //        unit_of_measurement: 'lx',
+    //        device_class: 'luminance',
+    //        value_template: '{{ value_json.luminance }}',
+    //    },
+    //},
+    //'measure_ultraviolet': {
+    //    type: 'sensor',
+    //    object_id: 'ultraviolet',
+    //    discovery_payload: {
+    //        unit_of_measurement: 'UVI',
+    //        device_class: 'ultraviolet',
+    //        value_template: '{{ value_json.ultraviolet }}',
+    //    },
+    //},
+    //'measure_water': {
+    //    type: 'sensor',
+    //    object_id: 'water',
+    //    discovery_payload: {
+    //        unit_of_measurement: 'L/min',
+    //        device_class: 'water',
+    //        value_template: '{{ value_json.water }}',
+    //    },
+    //},
+
+    ////'sensor_click': {
+    ////    type: 'sensor',
+    ////    object_id: 'click',
+    ////    discovery_payload: {
+    ////        icon: 'mdi:toggle-switch',
+    ////        value_template: '{{ value_json.click }}',
+    ////        force_update: true,
+    ////    },
+    ////},
+    ////'sensor_action': {
+    ////    type: 'sensor',
+    ////    object_id: 'action',
+    ////    discovery_payload: {
+    ////        icon: 'mdi:gesture-double-tap',
+    ////        value_template: '{{ value_json.action }}',
+    ////        force_update: true,
+    ////    },
+    ////},
+    ////'sensor_brightness': {
+    ////    type: 'sensor',
+    ////    object_id: 'brightness',
+    ////    discovery_payload: {
+    ////        unit_of_measurement: 'brightness',
+    ////        icon: 'mdi:brightness-5',
+    ////        value_template: '{{ value_json.brightness }}',
+    ////    },
+    ////},
+    ////'sensor_lock': {
+    ////    type: 'sensor',
+    ////    object_id: 'lock',
+    ////    discovery_payload: {
+    ////        icon: 'mdi:lock',
+    ////        value_template: '{{ value_json.inserted }}',
+    ////    },
+    ////},
+    ////'sensor_linkquality': {
+    ////    type: 'sensor',
+    ////    object_id: 'linkquality',
+    ////    discovery_payload: {
+    ////        unit_of_measurement: '-',
+    ////        value_template: '{{ value_json.linkquality }}',
+    ////    },
+    ////},
+    ////'sensor_gas_density': {
+    ////    type: 'sensor',
+    ////    object_id: 'gas_density',
+    ////    discovery_payload: {
+    ////        value_template: '{{ value_json.gas_density }}',
+    ////        icon: 'mdi:google-circles-communities',
+    ////    },
+    ////},
 
 
 
@@ -481,9 +475,9 @@ const configurations = {
         type: 'switch',
         object_id: 'switch',
         discovery_payload: {
-            payload_off: 'OFF',
-            payload_on: 'ON',
-            value_template: '{{ value_json.state }}',
+            payload_off: false,
+            payload_on: true,
+            value_template: '{{ value_json.onoff }}',
         },
     },
 
@@ -553,18 +547,18 @@ const configurations = {
     }
 };
 
-const switchWithPostfix = (postfix) => {
-    return {
-        type: 'switch',
-        object_id: `switch_${postfix}`,
-        discovery_payload: {
-            payload_off: 'OFF',
-            payload_on: 'ON',
-            value_template: `{{ value_json.state_${postfix} }}`,
-            command_topic_prefix: postfix,
-        },
-    };
-};
+//const switchWithPostfix = (postfix) => {
+//    return {
+//        type: 'switch',
+//        object_id: `switch_${postfix}`,
+//        discovery_payload: {
+//            payload_off: 'OFF',
+//            payload_on: 'ON',
+//            value_template: `{{ value_json.state_${postfix} }}`,
+//            command_topic_prefix: postfix,
+//        },
+//    };
+//};
 
 const TOPIC_ROOT = 'homeassistant';
 const CLIENT_OPTIONS = { injectRoot: false };
@@ -587,11 +581,15 @@ class HomeAssistantDispatcher {
         this.deviceManager = deviceManager;
         this.system = system;
 
-        // A map of all discoverd devices
-        this._discovered = new Set();
-
+        this._registered = new Set();
         this._capabilityInstances = new Map();
-        this._init();
+
+        if (this.mqttClient.isRegistered()) {
+            this._init();
+        } else {
+            this.mqttClient.onRegistered.subscribe(() => this._init());
+            this.mqttClient.connect();
+        }
     }
     
     _init() {
@@ -662,16 +660,15 @@ class HomeAssistantDispatcher {
     }
 
     _createConfig(device, capability) {
-        const type = capability.id.split('_').pop();
+        if (typeof capability.id !== 'string') return undefined;
 
-        switch (capability.dataType) {
+        switch (capability.type) {
             case 'boolean':
                 return {
                     type: 'binary_sensor',
                     discovery_payload: {
                         payload_on: true,
-                        payload_off: false,
-                        value_template: '{{ value_json.'+type+' }}'
+                        payload_off: false
                     }
                 };
             case 'number':
@@ -683,7 +680,6 @@ class HomeAssistantDispatcher {
                     type: 'sensor',
                     discovery_payload: {
                         unit_of_measurement: capability.units && typeof capability.units === 'object' ? capability.units['en'] : capability.units,
-                        value_template: '{{ value_json.' + type + ' }}'
                     }
                 };
             default:
@@ -692,13 +688,22 @@ class HomeAssistantDispatcher {
     }
 
     _getConfiguration(device, capability) {
-        let config = configurations[capability.id] || this._createConfig(device, capability);
+        if (typeof device !== 'object' || typeof capability !== 'object') return undefined;
 
-        // NOTE: Config is stored persistent in global configurations
-        if (!config.discovery_payload.device_class) {
-            config.discovery_payload.device_class = device.class; 
+        let config = configurations[capability.id] || this._createConfig(device, capability);
+        if (config) {
+            // NOTE: Config is stored persistent in global configurations
+            if (config.discovery_payload) {
+
+                if (!config.discovery_payload.device_class && ['binary_sensor', 'sensor', 'cover'].includes(config.type)) {
+                    config.discovery_payload.device_class = device.class;
+                }
+                if (!config.discovery_payload.value_template) {
+                    config.discovery_payload.value_template = '{{ value_json.' + capability.id + ' }}';
+                }
+            } 
+            config.object_id = config.object_id || capability.id;
         }
-        config.object_id = config.object_id || capability.id;
 
         return config;
     }
@@ -722,80 +727,102 @@ class HomeAssistantDispatcher {
         this._registered.add(device.id);
 
         Log.info("register device: " + device.name);
-        
+
         const capabilities = device.capabilitiesObj;
-        if (capabilities) {
-            for (let key in capabilities) {
-                if (capabilities.hasOwnProperty(key)) {
-                    const capability = capabilities[key];
-                    const capabilityTitle = (capability.title && typeof capability.title === 'object') ? capability.title['en'] : capability.title;
-                    const capabilityName = capabilityTitle || capability.desc || capability.id;
-                    const name = _.replace([device.name, capabilityName].filter(x => x).join(' - '), "_", " ");
-                    const value = capability.value;
-                    const friendlyName = Topic.normalize(device.name);
-                    
-                    let config = this._getConfiguration(device, capability);
+        if (!capabilities)
+            return;
+         
+        const friendlyName = Topic.normalize(device.name);
+        const states = new Map();
+        for (let key in capabilities) {
+            if (capabilities.hasOwnProperty(key)) {
+                const capability = capabilities[key];
+                const capabilityTitle = (capability.title && typeof capability.title === 'object') ? capability.title['en'] : capability.title;
+                const capabilityName = capabilityTitle || capability.desc || capability.id;
+                const name = _.replace([device.name, capabilityName].filter(x => x).join(' - '), "_", " ");
+                const value = capability.value;
 
-                    ///////////////////
+                
+                let config = this._getConfiguration(device, capability);
+                if (!config) {
+                    Log.info("Failed to resolve config for device: " + device.name);
+                    continue;
+                }
 
-                    const topic = `${this._topicRoot}/${config.type}/${device.id}/${config.object_id}/config`;
-                    const payload = { ...config.discovery_payload };
-                    payload.state_topic = `${this._topicRoot}/${friendlyName}`;
+                // register state
+                let state = states.get(config.type) || {};
+                state[capability.id] = value;
+                states.set(config.type, state);
 
-                    // Set json_attributes_topic for types which support this
-                    if (['binary_sensor', 'sensor'].includes(config.type)) {
-                        payload.json_attributes_topic = payload.state_topic;
-                    }
+                ///////////////////
 
-                    // Set (unique) name
-                    payload.name = `${friendlyName}_${config.object_id}`;
+                const nodeTopic = `${this._topicRoot}/${config.type}/${friendlyName}`;
+                const objectTopic = `${nodeTopic}/${config.object_id}`;
+                const configTopic = `${objectTopic}/config`;
+                const stateTopic = `${nodeTopic}/state`;
+                const payload = { ...config.discovery_payload };
+                payload.state_topic = stateTopic;
 
-                    // Set unique_id
-                    payload.unique_id = `${device.id}_${config.object_id}`;
+                // Set json_attributes_topic for types which support this
+                if (['binary_sensor', 'sensor'].includes(config.type)) {
+                    payload.json_attributes_topic = payload.stateTopic;
+                }
 
-                    // Attributes for device registry
-                    payload.device = {
-                        identifiers: `${this._deviceId}_${device.id}`,
-                        name: device.name,
-                        //sw_version: `Homey ${this.system.version}`,
-                        //model: `${mappedModel.description} (${mappedModel.model})`,
-                        //manufacturer: mappedModel.vendor,
-                    };
+                // Set (unique) name
+                payload.name = `${friendlyName}_${config.object_id}`;
 
-                    // Set availability payload
-                    payload.availability_topic = `${payload.state_topic}/availability`;
+                // Set unique_id
+                payload.unique_id = `${device.id}_${config.object_id}`;
 
-                    // Add precision to value_template
-                    if (capability.decimals) {
-                        let template = payload.value_template;
-                        template = template.replace('{{ ', '').replace(' }}', '');
-                        template = `{{ (${template} | float) | round(${capability.decimals}) }}`;
-                        payload.value_template = template;
-                    }
+                // Attributes for device registry
+                payload.device = {
+                    identifiers: `${this._deviceId}_${device.id}`,
+                    name: name,
+                    //sw_version: `Homey ${this.system.version}`,
+                    //model: `${mappedModel.description} (${mappedModel.model})`,
+                    //manufacturer: mappedModel.vendor,
+                };
 
-                    if (capability.setable) {
-                        payload.command_topic = [payload.state_topic, payload.command_topic_prefix, 'set'].filter(x => x).join('/');
-                    }
+                // Set availability payload
+                payload.availability_topic = `${nodeTopic}/availability`;
 
-                    this.publish(topic, JSON.stringify(payload), { retain: true, qos: 0 });
+                // Add precision to value_template
+                //if (capability.decimals) {
+                //    let template = payload.value_template;
+                //    if (typeof template === 'string') {
+                //        template = template.replace('{{ ', '').replace(' }}', '');
+                //        template = `{{ (${template} | float) | round(${capability.decimals}) }}`;
+                //        payload.value_template = template;
+                //    }
+                //}
 
-                    // Listen to state changes
-                    try {
-                        const deviceCapabilityId = device.id + capability.id;
-                        this._destroyCapabilityInstance(deviceCapabilityId);
-                        const capabilityInstance = device.makeCapabilityInstance(key, value =>
-                            this._handleStateChange(node, device.id, key, value)
-                        );
-                        Log.debug("Register CapabilityInstance: " + device.name + " - " + capability.title);
-                        this._capabilityInstances.set(deviceCapabilityId, capabilityInstance);
-                    } catch (e) {
-                        Log.info("Error capability: " + key);
-                        Log.debug(e);
-                    }
+                if (capability.setable) {
+                    payload.command_topic = [...nodeTopic.split('/'), payload.command_topic_prefix, 'set'].filter(x => x).join('/');
+                }
+
+                this.publish(configTopic, JSON.stringify(payload), { retain: true, qos: 0 });
+
+                // Listen to state changes
+                try {
+                    const deviceCapabilityId = device.id + capability.id;
+                    this._destroyCapabilityInstance(deviceCapabilityId);
+                    const capabilityInstance = device.makeCapabilityInstance(key, value =>
+                        this._handleStateChange(device.id, stateTopic, state, capability, value)
+                    );
+                    Log.debug("Register CapabilityInstance: " + device.name + " - " + capability.title);
+                    this._capabilityInstances.set(deviceCapabilityId, capabilityInstance);
+                } catch (e) {
+                    Log.info("Error capability: " + key);
+                    Log.debug(e);
                 }
             }
         }
-        return undefined;
+
+        // publish current state for each type
+        for (let [type, state] of states) {
+            const topic = `${this._topicRoot}/${type}/${friendlyName}/state`;
+            this.publish(topic, JSON.stringify(state), { retain: true, qos: 0 });
+        }
     }
 
     publish(topic, msg, opt) {
@@ -857,14 +884,14 @@ class HomeAssistantDispatcher {
         }
     }
 
-    async _handleStateChange(deviceId, capabilityId, value) {
+    async _handleStateChange(deviceId, topic, state, capability, value) {
 
         if (!this.deviceManager.isDeviceEnabled(deviceId)) {
             //Log.info('[SKIP] Device disabled');
             return;
         }
         
-        Log.info("HASS set value [" + capabilityId + "]: " + value);
+        Log.info("HASS set value [" + capability.id + "]: " + value);
 
         if (value === undefined) {
             Log.info("HASS: No value provided");
@@ -872,7 +899,9 @@ class HomeAssistantDispatcher {
         }
 
         try {
-            // TODO: Implement
+            state[capability.id] = this._parseValue(value, capability.type);
+            this.publish(topic, JSON.stringify(state), { retain: true, qos: 0 });
+
         } catch (e) {
             Log.error(e);
         }
@@ -897,9 +926,9 @@ class HomeAssistantDispatcher {
     }
 
     _formatValue(value) {
-        if (typeof value === 'boolean') {
-            return value ? 'ON' : 'OFF';
-        }
+        //if (typeof value === 'boolean') {
+        //    return value ? 'ON' : 'OFF';
+        //}
         return value;
     }
 
@@ -922,39 +951,6 @@ class HomeAssistantDispatcher {
         }
     }
 
-    ///////////////////////
-
-    onMQTTMessage(topic, message) {
-        if (!topic === 'hass/status') {
-            return false;
-        }
-
-        if (message.toString().toLowerCase() === 'online') {
-            const timer = setTimeout(() => {
-                // Publish all device states.
-                this.zigbee.getAllClients().forEach((device) => {
-                    if (this.state.exists(device.deviceId)) {
-                        this.publishDeviceState(device, this.state.get(device.deviceId), false);
-                    }
-                });
-
-                clearTimeout(timer);
-            }, 20000);
-        }
-
-        return true;
-    }
-
-    onZigbeeMessage(message, device, mappedModel) {
-        if (device && mappedModel) {
-            this.discover(device.deviceId, mappedModel);
-        }
-    }
-
-
-
-    /////////////////////////
-   
     destroy() {
         Log.info('Destroy HomeAssistantDispatcher');
     }
