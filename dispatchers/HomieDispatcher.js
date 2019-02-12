@@ -33,6 +33,7 @@ class HomieDispatcher {
         
         this._nodes = new Map();
         this._capabilityInstances = new Map();
+        this._sendTimeouts = new Map();
 
         this._initHomieDevice();
     }
@@ -102,6 +103,8 @@ class HomieDispatcher {
         const current = this.settings ? JSON.stringify(this.settings) : null;
         this.settings = this.settings || {};
 
+        this.broadcast = settings.broadcastDevices !== false;
+
         this.settings.topicRoot = settings.topicRoot === undefined ? DEFAULT_TOPIC_ROOT : settings.topicRoot;
         this.settings.deviceId = normalize(settings.deviceId || this.system.name || DEFAULT_DEVICE_ID);
         this.settings.topicIncludeClass = settings.topicIncludeClass === true;
@@ -163,6 +166,25 @@ class HomieDispatcher {
         }
         return path.join('/');
     }
+
+    _send(deviceId, property, value) {
+        try {
+            let timeouts = this._sendTimeouts.get(deviceId);
+            if (!timeouts) {
+                timeouts = new Set();
+                this._sendTimeouts.set(deviceId, timeouts);
+            }
+
+            let timeout = -1;
+            timeout = setTimeout(() => {
+                timeouts.delete(timeout);
+                property.send(value);
+            }, 0);
+            timeouts.add(timeout);
+        } catch (e) {
+            Log.debug(e);
+        }
+    }
     
     _registerDevice(device) {
         if (!device || !(device || {}).id) {
@@ -208,7 +230,7 @@ class HomieDispatcher {
                             .setRetained(true);
 
                         if (this.broadcast) {
-                            property.send(color ? this._formatColor(capabilities) : this._formatValue(value)); 
+                            this._send(device.id, property, color ? this._formatColor(capabilities) : this._formatValue(value));
                         }
 
                         const format = this._format(capability);
@@ -295,6 +317,9 @@ class HomieDispatcher {
     }
 
     disableDevice(deviceId) {
+
+        this._clearTimeouts(deviceId);
+
         if (!this._nodes.has(deviceId))
             return;
 
@@ -304,6 +329,15 @@ class HomieDispatcher {
             this._unregisterDevice(device);
         } else {
             Log.error("Failed to unregister device: Device not found");
+        }
+    }
+
+    _clearTimeouts(deviceId) {
+        let timeouts = this._sendTimeouts.get(deviceId);
+        if (timeouts) {
+            for (let timeout of timeouts) {
+                clearTimeout(timeout);
+            }
         }
     }
 
@@ -417,7 +451,7 @@ class HomieDispatcher {
             if (property) {
                 property.setRetained(true);
                 if (this.broadcast) {
-                    property.send(this._formatValue(value));
+                    this._send(deviceId, property, this._formatValue(value));
                 }
             } else {
                 Log.info("No property found for capability: " + capabilityId);

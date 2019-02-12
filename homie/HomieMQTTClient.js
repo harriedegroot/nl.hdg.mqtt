@@ -36,6 +36,10 @@ class HomieMQTTClient  {
                 }
                 this._connectCallback = callback;
                 this.mqttClient.onRegistered.subscribe(callback);
+                if (this.isRegistered()) {
+                    callback();
+                }
+
                 break;
             case 'close':
                 if (this._closeCallback) {
