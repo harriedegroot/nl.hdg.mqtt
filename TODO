@@ -75,6 +75,26 @@
 
 === Unhandled exceptions ===
 
+??????????????? Logging stdout & stderr ???????????????
+/opt/homey-client/system/manager/ManagerApps/bootstrap/sdk/v2/manager/settings.js:1
+(function (exports, require, module, __filename, __dirname) { "use strict";const fs=require("fs"),path=require("path"),Homey=require("homey");class ManagerSettings extends Homey.Manager{__onInit(){this._updateSettingsTimeout=void 0,this._writing=!1,this.__client.emitSystem("getSettings").then(t=>{this._settings=t,this.__ready()}).catch(t=>{this.error(t),this._settings={},this._updateSettings(),this.__ready()}),this.__client.on("settings.get",this._onSettingsGet.bind(this)),this.__client.on("settings.set",this._onSettingsSet.bind(this)),this.__client.on("settings.unset",this._onSettingsUnset.bind(this))}_onSettingsGet(t,e){return!1===t.name?e(null,this._settings):e(null,this.get(t.name))}_onSettingsSet(t,e){try{return this.set(t.name,t.value),e(null,this.get(t.name))}catch(t){return e(t)}}_onSettingsUnset(t,e){try{return this.unset(t.name,t.value),e(null)}catch(t){return e(t)}}getKeys(){return Object.keys(this._settings)}get(
+
+TypeError: Cannot read property 'settings' of undefined
+    at ManagerSettings.get (/opt/homey-client/system/manager/ManagerApps/bootstrap/sdk/v2/manager/settings.js:1:1060)
+    at ManagerSettings._onSettingsGet (/opt/homey-client/system/manager/ManagerApps/bootstrap/sdk/v2/manager/settings.js:1:684)
+    at _eventListeners.filter.forEach.t (/opt/homey-client/system/manager/ManagerApps/bootstrap/sdk/v2/lib/HomeyClient.js:1:1220)
+    at Array.forEach (<anonymous>)
+    at HomeyClient._onMessage (/opt/homey-client/system/manager/ManagerApps/bootstrap/sdk/v2/lib/HomeyClient.js:1:1197)
+    at emitTwo (events.js:126:13)
+    at process.emit (events.js:214:7)
+    at emit (internal/child_process.js:762:12)
+    at _combinedTickCallback (internal/process/next_tick.js:142:11)
+    at process._tickCallback (internal/process/next_tick.js:181:9)
+
+--- INFO: nl.hdg.mqtt has been killed ---
+???????????????????????????????????????????????????????
+
+
 Failed to update capability value
 Notification added
 { request_timeout: Er is een onbekende fout opgetreden [request_timeout]
@@ -91,7 +111,8 @@ Notification added
      error_description: 'Er is een onbekende fout opgetreden [request_timeout]',
      '$stack': undefined } }
 
-===
+???????????????????????????????????????????????????????
+
 
 { Error: request to http://localhost:80/api/app/nl.scanno.mqtt/subscribe failed, reason: socket hang up
     at Object.JSON.parse (/opt/homey-client/system/helpers/jsonfns.js:1:1190)
@@ -107,7 +128,8 @@ Notification added
   message: 'request to http://localhost:80/api/app/nl.scanno.mqtt/subscribe failed, reason: socket hang up',
   code: 'ECONNRESET' }
 
-===
+???????????????????????????????????????????????????????
+
 
 - Handle Socket hang up exceptions:
 { Error: socket hang up
