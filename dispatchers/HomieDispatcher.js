@@ -255,6 +255,7 @@ class HomieDispatcher {
                     try {
                         const deviceCapabilityId = device.id + capability.id;
                         this._destroyCapabilityInstance(deviceCapabilityId);
+                        device.setMaxListeners(100);
                         const capabilityInstance = device.makeCapabilityInstance(key, value =>
                             this._handleStateChange(node, device.id, key, value)
                         );
