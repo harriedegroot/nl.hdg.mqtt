@@ -255,6 +255,7 @@ class HomieDispatcher {
                     try {
                         const deviceCapabilityId = device.id + capability.id;
                         this._destroyCapabilityInstance(deviceCapabilityId);
+                        device.setMaxListeners(100);
                         const capabilityInstance = device.makeCapabilityInstance(key, value =>
                             this._handleStateChange(node, device.id, key, value)
                         );
@@ -510,15 +511,16 @@ class HomieDispatcher {
 
     _formatColor(capabilities) {
         // Note: Homey values are rang 0...1
+
+        const hue = (capabilities['light_hue'] || {}).value || 0;
+        const saturation = (capabilities['light_saturation'] || {}).value || 0;
+        const temp = (capabilities['light_temperature'] || {}).value || 0;
+
         switch (this.settings.colorFormat) {
             case 'hsv':
-                return [
-                    capabilities['light_hue'].value * 360,
-                    capabilities['light_saturation'].value * 100,
-                    capabilities['light_temperature'].value * 100
-                ].join(',');
+                return [hue * 360, saturation * 100, temp * 100].join(',');
             case 'rgb':
-                const rgb = Color.HSVtoRGB(capabilities['light_hue'].value * 360, capabilities['light_saturation'].value * 100, capabilities['light_temperature'].value * 100);
+                const rgb = Color.HSVtoRGB(hue * 360, saturation * 100, temp.value * 100);
                 return [rgb.r, rgb.g, rgb.b].join(',');
         }
     }
