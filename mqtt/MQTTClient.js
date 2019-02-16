@@ -135,7 +135,7 @@ class MQTTClient  {
     }
 
     async _onClientAppUninstalled() {
-        Log.debug('mqttClient.onClientAppInstalled');
+        Log.debug('mqttClient.onClientAppUnInstalled');
         this.registered = false;
         await this.onUnRegistered.emit();
     }
