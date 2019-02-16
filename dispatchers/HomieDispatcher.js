@@ -1,13 +1,11 @@
 "use strict";
 
 const _ = require('lodash');
-const Log = require('../Log.js');
-const Topic = require('../mqtt/Topic.js');
+const normalize = require('../normalize');
+const Log = require('../Log');
 const HomieDevice = require('../homie/homieDevice');
 const HomieMQTTClient = require('../homie/HomieMQTTClient');
-const Color = require('../Color.js');
-
-const normalize = Topic.normalize;
+const Color = require('../Color');
 
 const DEFAULT_TOPIC_ROOT = 'homie';
 const DEFAULT_DEVICE_NAME = 'Homey';
@@ -31,23 +29,23 @@ class HomieDispatcher {
         return this.settings && this.settings.deviceId ? this.settings.deviceId : DEFAULT_DEVICE_ID;
     }
 
-    constructor({ api, mqttClient, deviceManager, system, settings }) {
+    constructor({ api, mqttClient, deviceManager, system, settings, messageQueue }) {
         this.api = api;
-        this.mqttClient = new HomieMQTTClient(mqttClient);
+        this.mqttClient = new HomieMQTTClient(mqttClient, messageQueue);
         this.deviceManager = deviceManager;
         this.system = system;
+        this.messageQueue = messageQueue;
+
         this.updateSettings(settings);
         
         this._nodes = new Map();
         this._capabilityInstances = new Map();
-        this._sendTimeouts = new Map();
 
         // Wait for the client to be connected, otherwise messages wont be send
         if (mqttClient.isRegistered()) {
             this._initHomieDevice();
         } else {
             mqttClient.onRegistered.subscribe(() => this._initHomieDevice(), true);
-            mqttClient.connect();
         }
     }
     
@@ -58,7 +56,7 @@ class HomieDispatcher {
 
         Log.info("Create HomieDevice");
         this.homieDevice = new HomieDevice(this.deviceConfig);
-        this.homieDevice.setFirmware("Homey", this.system.version);
+        this.homieDevice.setFirmware(this.system.homeyModelName || 'Homey', this.system.homeyVersion || '2+');
 
         this._messageCallback = function (topic, value) {
             Log.info('message: ' + topic + ' with value: ' + value);
@@ -163,6 +161,7 @@ class HomieDispatcher {
             try {
                 this.disableDevice(id);
             } catch (e) {
+                Log.error('HomieDispatcher: Failed to unregister devices');
                 Log.error(e);
             }
         }
@@ -189,23 +188,15 @@ class HomieDispatcher {
         return path.join('/');
     }
 
-    _send(deviceId, property, value) {
-        try {
-            let timeouts = this._sendTimeouts.get(deviceId);
-            if (!timeouts) {
-                timeouts = new Set();
-                this._sendTimeouts.set(deviceId, timeouts);
-            }
+    _send(property, value, retained) {
 
-            let timeout = -1;
-            timeout = setTimeout(() => {
-                timeouts.delete(timeout);
-                property.send(value);
-            }, 0);
-            timeouts.add(timeout);
-        } catch (e) {
-            Log.debug(e);
-        }
+        let topic = property.mqttTopicProperty;
+        // TODO: Homie property ranges
+        //if (t.homieNode.isRange && t.rangeIndex !== null) {
+        //    topic = t.homieNode.mqttTopic + '_' + t.rangeIndex + '/' + t.name;
+        //}
+
+        this.messageQueue.add(topic, value, { retain: retained !== false });
     }
     
     _registerDevice(device) {
@@ -225,7 +216,7 @@ class HomieDispatcher {
             return;
         }
 
-        Log.info("register device: " + device.name);
+        Log.info("Register device: " + device.name);
 
         const name = this.getNodeName(device);
         let node = this.homieDevice.node(name, device.name, this._convertClass(device.class));
@@ -262,14 +253,18 @@ class HomieDispatcher {
                                     //Log.info('[SKIP] Device disabled');
                                     return;
                                 }
-                                await this.setValue(device.id, id, value, dataType);
+                                try {
+                                    await this.setValue(device.id, id, value, dataType);
+                                } catch (e) {
+                                    Log.error("Failed to set capability value: " + name);
+                                }
                             });
                         }
 
                         // NOTE: Ranges not implemented
 
                         if (this.broadcast) {
-                            this._send(device.id, property, color ? this._formatColor(capabilities) : this._formatValue(value));
+                            this._send(property, color ? this._formatColor(capabilities) : this._formatValue(value));
                         }
                     }
 
@@ -280,6 +275,11 @@ class HomieDispatcher {
                         device.setMaxListeners(100);
                         const capabilityInstance = device.makeCapabilityInstance(key, value =>
                             this._handleStateChange(node, device.id, key, value)
+                                .then()
+                                .catch(error => {
+                                    Log.error("Failed to handle device state change");
+                                    Log.error(error);
+                                })
                         );
                         Log.debug("Register CapabilityInstance: " + device.name + " - " + capability.title);
                         this._capabilityInstances.set(deviceCapabilityId, capabilityInstance);
@@ -341,7 +341,7 @@ class HomieDispatcher {
 
     disableDevice(deviceId) {
 
-        this._clearTimeouts(deviceId);
+        this.removeDeviceMessages(deviceId);
 
         if (!this._nodes.has(deviceId))
             return;
@@ -355,13 +355,8 @@ class HomieDispatcher {
         }
     }
 
-    _clearTimeouts(deviceId) {
-        let timeouts = this._sendTimeouts.get(deviceId);
-        if (timeouts) {
-            for (let timeout of timeouts) {
-                clearTimeout(timeout);
-            }
-        }
+    removeDeviceMessages(deviceId) {
+        // TODO: Remove device messages from queue
     }
 
     _convertClass(deviceClass) {
@@ -473,12 +468,13 @@ class HomieDispatcher {
             const property = node.setProperty(normalize(capabilityId));
             if (property) {
                 if (this.broadcast) {
-                    this._send(deviceId, property, this._formatValue(value));
+                    this._send(property, this._formatValue(value));
                 }
             } else {
                 Log.info("No property found for capability: " + capabilityId);
             }
         } catch (e) {
+            Log.error('HomieDispatcher: Failed to publish capability value');
             Log.error(e);
         }
     }
@@ -489,7 +485,11 @@ class HomieDispatcher {
 
         // handle colors
         if (dataType === 'color') {
-            await this._setColor(deviceId, value);
+            try {
+                await this._setColor(deviceId, value);
+            } catch (e) {
+                Log.error("Failed to set color value");
+            }
         } else { // all other datatypes
             try {
                 const state = {
