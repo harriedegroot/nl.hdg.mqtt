@@ -1,45 +1,99 @@
 "use strict";
 
-const Log = require('../Log.js');
-const Message = require('../mqtt/Message.js');
+const Log = require('../Log');
 
-const TOPIC = 'info';
+const TOPIC = 'homey/system/info'; // TODO: Make system info topic configurable
 const DELAY = 30000;
+
+/*
+{
+    "system": {
+    "bootId": "xxxxxxxxxxxxxxxxxxx",
+    "cloudId": "`xxxxxxxxxxxxxxxxxxxxx",
+    "hostname": "Homey",
+    "platform": "linux",
+    "release": "4.14.15-g81f15bab94",
+    "arch": "arm",
+    "uptime": 5465,
+    "loadavg": [
+        0.3359375,
+        0.263671875,
+        0.3818359375
+    ],
+    "totalmem": 511922176,
+    "freememMachine": 12529664,
+    "freememHuman": "2%",
+    "cpus": [
+        {
+        "model": "ARMv7 Processor rev 10 (v7l)",
+        "speed": 996,
+        "times": {
+            "user": 7944800,
+            "nice": 3252900,
+            "sys": 7554700,
+            "idle": 35332100,
+            "irq": 0
+        }
+        }
+    ],
+    "date": "2019-02-16T14:15:16.493Z",
+    "dateHuman": "zaterdag 16de februari 2019 15:15:16",
+    "dateDst": false,
+    "devmode": false,
+    "nodeVersion": "v8.12.0",
+    "homeyVersion": "2.0.2",
+    "homeyModelId": "homey2s",
+    "homeyModelName": "Homey (Early 2018)",
+    "timezone": "Europe/Amsterdam",
+    "wifiSsid": "xxxxxxxxx",
+    "wifiAddress": "192.168.1.1:80",
+    "wifiMac": "aa:00:aa:00:aa:00"
+    },
+    "timestamp": 1550326516547
+}
+*/
 
 class SystemStateDispatcher {
 
-    constructor({ api, mqttClient }) {
+    constructor({ api, mqttClient, messageQueue }) {
         this.api = api;
         this.mqttClient = mqttClient;
+        this.messageQueue = messageQueue;
 
         this.topic = TOPIC;
 
-        this._init();
+        this._init()
+            .then(() => Log.info("SystemStateDispatcher initialized"))
+            .catch(error => Log.error(error));
     }
 
-    _init() {
+    async _init() {
         this._registerCallback = this.register.bind(this);
         this._unregisterCallback = this.unregister.bind(this);
         this.mqttClient.onRegistered.subscribe(this._registerCallback);
         this.mqttClient.onUnRegistered.subscribe(this._unregisterCallback);
         if (this.mqttClient.isRegistered())
-            this.register();
+            await this.register();
     }
 
     // Get all devices and add them
     async register() {
 
-        this.registered = true;
-        await this.update();
+        try {
+            this.registered = true;
+            await this.update();
 
-        Log.debug('System info dispatcher registered');
+            Log.debug('System info dispatcher registered');
+        } catch (e) {
+            Log.error("Failed to register SystemState dispatcher");
+            Log.error(e);
+        }
     }
 
     async unregister() {
         this.registered = false;
         this._resetTimeout();
     }
-
 
     _resetTimeout() {
         if (this.timeout) {
@@ -56,21 +110,19 @@ class SystemStateDispatcher {
             // TODO: Create state value messages for each value of interest
             const info = {
                 system: await this.api.system.getInfo(),
-//                storage: await this.api.system.getStorageStats(),
-//                memory: await this.api.system.getMemoryStats(),
+                //storage: await this.api.system.getStorageStats(),
+                //memory: await this.api.system.getMemoryStats(),
                 timestamp: new Date().getTime()
             };
-            
-            const msg = new Message(this.topic, info);
-            this.mqttClient.publish(msg);
+            this.messageQueue.add(this.topic, info, { qos: 0, retain: true });
 
         } catch (e) {
-            Log.info(e);
             Log.error("Failed to fetch system info");
+            Log.info(e);
         }
 
         // loop
-        this.timeout = setTimeout(this.update.bind(this), DELAY);
+        this.timeout = setTimeout(async () => await this.update(), DELAY);
     }
 
     async destroy() {
