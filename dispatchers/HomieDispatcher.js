@@ -24,6 +24,13 @@ const DEFAULT_COLOR_FORMAT = "hasv";
  * */
 class HomieDispatcher {
 
+    get _topicRoot() {
+        return this.settings && this.settings.topicRoot ? this.settings.topicRoot : '';
+    }
+    get _deviceId() {
+        return this.settings && this.settings.deviceId ? this.settings.deviceId : DEFAULT_DEVICE_ID;
+    }
+
     constructor({ api, mqttClient, deviceManager, system, settings }) {
         this.api = api;
         this.mqttClient = new HomieMQTTClient(mqttClient);
@@ -35,7 +42,13 @@ class HomieDispatcher {
         this._capabilityInstances = new Map();
         this._sendTimeouts = new Map();
 
-        this._initHomieDevice();
+        // Wait for the client to be connected, otherwise messages wont be send
+        if (mqttClient.isRegistered()) {
+            this._initHomieDevice();
+        } else {
+            mqttClient.onRegistered.subscribe(() => this._initHomieDevice(), true);
+            mqttClient.connect();
+        }
     }
     
     _initHomieDevice() {
@@ -81,11 +94,11 @@ class HomieDispatcher {
     get deviceConfig() {
         return {
             name: this.system.name || DEFAULT_DEVICE_NAME,
-            device_id: this.settings.deviceId || DEFAULT_DEVICE_ID,
+            device_id: this._deviceId,
             mqtt: {
                 host: "localhost",
                 port: 1883,
-                base_topic: this.settings.topicRoot ? this.settings.topicRoot + '/' : '',
+                base_topic: this._topicRoot + '/',
                 auth: false,
                 username: null,
                 password: null
@@ -154,6 +167,15 @@ class HomieDispatcher {
             }
         }
         this._nodes.clear();
+    }
+
+    getTopic(device, capability) {
+        return [
+            this._topicRoot,
+            this._deviceId,
+            ...this.getNodeName(device).split('/'),
+            normalize(capability.id)
+        ].filter(x => x).join('/');
     }
 
     getNodeName(device) {
@@ -229,10 +251,6 @@ class HomieDispatcher {
                             .setDatatype(dataType)
                             .setRetained(true);
 
-                        if (this.broadcast) {
-                            this._send(device.id, property, color ? this._formatColor(capabilities) : this._formatValue(value));
-                        }
-
                         const format = this._format(capability);
                         if (format) {
                             property.setFormat(format);
@@ -249,6 +267,10 @@ class HomieDispatcher {
                         }
 
                         // NOTE: Ranges not implemented
+
+                        if (this.broadcast) {
+                            this._send(device.id, property, color ? this._formatColor(capabilities) : this._formatValue(value));
+                        }
                     }
 
                     // Listen to state changes
@@ -425,7 +447,7 @@ class HomieDispatcher {
             return;
         }
         
-        Log.info("Homie set value [" + capabilityId + "]: " + value);
+        Log.info("Homie set value [" + node.name + "." + capabilityId + "]: " + value);
 
         if (value === undefined) {
             Log.info("Homie: No value provided");
@@ -450,7 +472,6 @@ class HomieDispatcher {
         try {
             const property = node.setProperty(normalize(capabilityId));
             if (property) {
-                property.setRetained(true);
                 if (this.broadcast) {
                     this._send(deviceId, property, this._formatValue(value));
                 }
