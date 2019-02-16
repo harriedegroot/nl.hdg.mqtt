@@ -1,12 +1,12 @@
 === TODO ===
 
+- Register & cleanup device topics when disabling devices
 - HASS Discovery
-- Switch protocol (homie => ha => homie)
-- unsubscribe topics (switch protocol / uninstall app)
-- hass publish timeouts
-- hass settings
+- hass settings (enable disable discovery + topic root)
+- Settings for seperate root topics (homie, hass, system state, custom, etc.)
+- Split hiding of controls & applying default (protocol) settings
 - settings default vs disabled controls
-
+- settings restore dafaults button
 - [BUG] enabling virtual devices breaks the hub
 - Check client availability processing
 - profile client & hub

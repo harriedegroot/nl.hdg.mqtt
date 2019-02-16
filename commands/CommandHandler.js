@@ -1,6 +1,6 @@
 "use strict";
 
-const Log = require('../Log.js');
+const Log = require('../Log');
 
 const TOPIC = '$command'; // <root>/<device id>/$command
 
@@ -15,11 +15,23 @@ class CommandHandler {
         this.mqttClient = mqttClient;
         this.deviceManager = deviceManager;
 
-        if (mqttClient) {
-            Log.info("Starting set command handler");
-            mqttClient.subscribe(TOPIC);
-            this._clientCallback = this._onMessage.bind(this);
-            mqttClient.onMessage.subscribe(this._clientCallback);
+        this._init()
+            .then(() => Log.info("CommandHandler initialized"))
+            .catch(error => Log.error(error));
+    }
+
+    async _init() {
+        try {
+            if (this.mqttClient) {
+                Log.info("Starting set command handler");
+                this._clientCallback = this._onMessage.bind(this);
+                this.mqttClient.onMessage.subscribe(this._clientCallback);
+
+                await this.mqttClient.subscribe(TOPIC);
+            }
+        } catch (e) {
+            Log.error('Failed to initialize CommandHandler');
+            Log.debug(e);
         }
     }
 

@@ -1,15 +1,15 @@
 "use strict";
 
-const Log = require('../Log.js');
-const Topic = require('../mqtt/Topic.js');
-const Message = require('../mqtt/Message.js');
-const DeviceInfo = require('../models/DeviceInfo.js');
-const CommandHandler = require('./CommandHandler.js');
+const Log = require('../Log');
+const Topic = require('../mqtt/Topic');
+const Message = require('../mqtt/Message');
+const DeviceInfo = require('../models/DeviceInfo');
+const CommandHandler = require('./CommandHandler');
 
 const COMMAND = 'describe';
 
 /**
- * [DEPRECATED]
+ * @deprecated [DEPRECATED]
  * */
 class DescribeCommandHandler extends CommandHandler {
 

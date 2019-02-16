@@ -1,11 +1,11 @@
 "use strict";
 
-const Log = require('../Log.js');
+const Log = require('../Log');
 
 const TOPIC_ROOT = '+/+/+/+/'; // [homey]/+/+/+/+/<command>
 
 /**
- * [DEPRECATED] CommandHandler base class
+ * @deprecated [DEPRECATED] CommandHandler base class
  * */
 class CommandHandler {
 

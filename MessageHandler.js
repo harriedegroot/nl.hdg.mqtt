@@ -1,8 +1,11 @@
 "use strict";
 
-const Log = require('./Log.js');
-const Topic = require('./mqtt/Topic.js');
+const Log = require('./Log');
+const Topic = require('./mqtt/Topic');
 
+/**
+ * @deprecated [DEPRECATED] Left for future reference
+ * */
 class MessageHandler {
 
     constructor({ api, mqttClient, deviceManager }) {

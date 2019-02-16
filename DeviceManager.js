@@ -1,8 +1,8 @@
 "use strict";
 
-const Topic = require('./mqtt/Topic.js');
-const Log = require('./Log.js');
-const EventHandler = require('./EventHandler.js');
+const normalize = require('./normalize');
+const Log = require('./Log');
+const EventHandler = require('./EventHandler');
 
 class DeviceManager {
 
@@ -48,7 +48,7 @@ class DeviceManager {
     getDeviceName(device) {
         // from device info
         if (typeof device === 'object' && device.name) {
-            return Topic.normalize(device.name);
+            return normalize(device.name);
         }
 
         // from mapping
@@ -156,7 +156,7 @@ class DeviceManager {
             this.deviceTopicIds = this.deviceTopicIds || new Map(); // id => topic
             this.deviceTopics = this.deviceTopics || new Map();     // topic => id
 
-            const deviceTopic = Topic.normalize(deviceName);
+            const deviceTopic = normalize(deviceName);
             Log.info(deviceName + ': ' + deviceTopic);
 
             this.deviceIds.set(device.id, deviceName);

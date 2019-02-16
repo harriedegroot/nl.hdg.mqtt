@@ -1,13 +1,13 @@
 "use strict";
 
-const Log = require('../Log.js');
-const Topic = require('../mqtt/Topic.js');
-const Message = require('../mqtt/Message.js');
+const Log = require('../Log');
+const Topic = require('../mqtt/Topic');
+const Message = require('../mqtt/Message');
 
 const COMMAND = 'state';
 
 /**
- * [DEPRECATED]
+ * @deprecated [DEPRECATED]
  * */
 class DeviceStateChangeDispatcher {
 

@@ -1,14 +1,14 @@
 "use strict";
 
-const Log = require('../Log.js');
-const Topic = require('../mqtt/Topic.js');
-const Message = require('../mqtt/Message.js');
-const CommandHandler = require('./CommandHandler.js');
+const Log = require('../Log');
+const Topic = require('../mqtt/Topic');
+const Message = require('../mqtt/Message');
+const CommandHandler = require('./CommandHandler');
 
 const COMMAND = 'request';
 
 /**
- * [DEPRECATED]
+ * @deprecated [DEPRECATED]
  * */
 class StateRequestCommandHandler extends CommandHandler {
 

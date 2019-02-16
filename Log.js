@@ -97,7 +97,6 @@ function writelog(level, line, notification, functions, implementation) {
 }
 
 function getLogLines() {
-   //writelog('debug', "getLogLines called");
    return logArray;
 }
 

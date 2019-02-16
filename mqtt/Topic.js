@@ -1,5 +1,7 @@
 "use strict";
 
+const normalize = require('../normalize');
+
 const DEFAULT_CLASS = 'other';
 const DEFAULT_ZONE = 'home';
 const DEFAULT_DEVICE = 'homey';
@@ -7,8 +9,11 @@ const DEFAULT_TRIGGER = 'default';
 const DEFAULT_COMMAND = 'state';
 
 /**
+ * @deprecated [DEPRECATED] Replaced by Homie convention
+ * 
  * Topic descriptor
  * Format: <homey>/class/zone/device/trigger/command
+ * 
  * */
 class Topic {
 
@@ -56,7 +61,7 @@ class Topic {
         return name ? name.trim() : undefined;
     }
     getZoneTopicName() {
-        return Topic.normalize(this.getZoneName());
+        return normalize(this.getZoneName());
     }
 
     getDevice() {
@@ -67,7 +72,7 @@ class Topic {
         return name ? name.trim() : undefined;
     }
     getDeviceTopicName() {
-        return Topic.normalize(this.getDeviceName());
+        return normalize(this.getDeviceName());
     }
 
     getTrigger() { return this.trigger; }

@@ -170,8 +170,12 @@ function onHomeyReady(homeyReady){
             }
         },
         async mounted() {
-            await this.getZones();
-            await this.getDevices();
+            try {
+                await this.getZones();
+                await this.getDevices();
+            } catch (e) {
+                // TODO: Log error;
+            }
 
             lockProtocolSetttings(hubSettings.protocol || 'homie');
         },
