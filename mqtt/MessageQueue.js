@@ -4,7 +4,7 @@ const delay = require('../delay');
 const Log = require('../Log');
 const Message = require('./Message');
 
-const DELAY = 10; // Wait 10 ms before sending next message to give Homey some breathing time
+const DELAY = 0; // Wait 10 ms before sending next message to give Homey some breathing time
 
 // TODO: Wait for MQTT client registration
 
@@ -80,11 +80,13 @@ class MessageQueue {
                     Log.error(e);
                 }
 
-                try {
-                    await delay(DELAY); // give Homey some breathing time
-                } catch (e) {
-                    Log.error("MessageQueue: delay failure");
-                    Log.error(e);
+                if (DELAY) {
+                    try {
+                        await delay(DELAY); // give Homey some breathing time
+                    } catch (e) {
+                        Log.error("MessageQueue: delay failure");
+                        Log.error(e);
+                    }
                 }
             }
         } catch (e) {
