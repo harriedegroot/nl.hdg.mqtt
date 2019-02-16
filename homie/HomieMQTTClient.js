@@ -17,7 +17,7 @@ class HomieMQTTClient  {
     }
 
     publish(topic, msg, opt) {
-        if (msg) {
+        if (topic) {
             opt = opt || {};
             const message = new Message(topic, msg, opt.qos, opt.retain);
             this.mqttClient.publish(message, CLIENT_OPTIONS);
