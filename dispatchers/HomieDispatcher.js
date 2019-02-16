@@ -40,6 +40,7 @@ class HomieDispatcher {
         
         this._nodes = new Map();
         this._capabilityInstances = new Map();
+        this._deviceTopics = new Map();
 
         // Wait for the client to be connected, otherwise messages wont be send
         if (mqttClient.isRegistered()) {
@@ -188,7 +189,7 @@ class HomieDispatcher {
         return path.join('/');
     }
 
-    _send(property, value, retained) {
+    _send(deviceId, property, value, retained) {
 
         let topic = property.mqttTopicProperty;
         // TODO: Homie property ranges
@@ -196,6 +197,7 @@ class HomieDispatcher {
         //    topic = t.homieNode.mqttTopic + '_' + t.rangeIndex + '/' + t.name;
         //}
 
+        this._registerDeviceTopic(deviceId, topic);
         this.messageQueue.add(topic, value, { retain: retained !== false });
     }
     
@@ -264,7 +266,7 @@ class HomieDispatcher {
                         // NOTE: Ranges not implemented
 
                         if (this.broadcast) {
-                            this._send(property, color ? this._formatColor(capabilities) : this._formatValue(value));
+                            this._send(device.id, property, color ? this._formatColor(capabilities) : this._formatValue(value));
                         }
                     }
 
@@ -355,8 +357,23 @@ class HomieDispatcher {
         }
     }
 
+    _registerDeviceTopic(deviceId, topic) {
+        let topics = this._deviceTopics.get(deviceId);
+        if (!topics) {
+            topics = new Set();
+            this._deviceTopics.set(deviceId, topics);
+        }
+        topics.add(topic);
+    }
+
     removeDeviceMessages(deviceId) {
-        // TODO: Remove device messages from queue
+        const topics = this._deviceTopics.get(deviceId);
+        if (topics) {
+            this._deviceTopics.delete(deviceId);
+            for (let topic of topics) {
+                this.messageQueue.remove(topic);
+            }
+        }
     }
 
     _convertClass(deviceClass) {
@@ -468,7 +485,7 @@ class HomieDispatcher {
             const property = node.setProperty(normalize(capabilityId));
             if (property) {
                 if (this.broadcast) {
-                    this._send(property, this._formatValue(value));
+                    this._send(deviceId, property, this._formatValue(value));
                 }
             } else {
                 Log.info("No property found for capability: " + capabilityId);
