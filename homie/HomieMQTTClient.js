@@ -1,31 +1,27 @@
 'use strict';
 
-const Message = require("../mqtt/Message.js");
-
-const CLIENT_OPTIONS = {
-    injectRoot: false
-};
-
 class HomieMQTTClient  {
 
     isRegistered() {
         return this.mqttClient.isRegistered();
     }
 
-    constructor(mqttClient) {
+    constructor(mqttClient, messageQueue) {
         this.mqttClient = mqttClient;
+        this.messageQueue = messageQueue;
     }
 
     publish(topic, msg, opt) {
-        if (topic) {
-            opt = opt || {};
-            const message = new Message(topic, msg, opt.qos, opt.retain);
-            this.mqttClient.publish(message, CLIENT_OPTIONS);
-        }
+        this.messageQueue.add(topic, msg, opt);
     }
 
     subscribe(topic) {
-        this.mqttClient.subscribe(topic, CLIENT_OPTIONS);
+        this.mqttClient.subscribe(topic)
+            .then("HomieMQTTClient: Succesfully subscribed to topic: " + topic)
+            .catch(e => {
+                Log.error('HomieMQTTClient: Failed to subscribe to topic: ' + topic);
+                Log.debug(e);
+            });
     }
 
     on(event, callback) {
@@ -73,7 +69,7 @@ class HomieMQTTClient  {
         }
 
         if (this.topics) {
-            this.topics.forEach(t => this.mqttClient.unsubscribe(t, CLIENT_OPTIONS));
+            this.topics.forEach(t => this.mqttClient.unsubscribe(t));
         }
     }
 }
