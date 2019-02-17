@@ -174,7 +174,7 @@ class HomieDispatcher {
             this._topicRoot,
             this._deviceId,
             ...this.getNodeName(device).split('/'),
-            normalize(capability.id)
+            capability ? normalize(typeof capability === 'string' ? capability : capability.id) : undefined
         ].filter(x => x).join('/');
     }
 
@@ -189,9 +189,9 @@ class HomieDispatcher {
         return path.join('/');
     }
 
-    _send(deviceId, property, value, retained) {
+    _send(deviceId, propertyOrTopic, value, retained) {
 
-        let topic = property.mqttTopicProperty;
+        let topic = typeof propertyOrTopic === 'string' ? propertyOrTopic : propertyOrTopic.mqttTopicProperty;
         // TODO: Homie property ranges
         //if (t.homieNode.isRange && t.rangeIndex !== null) {
         //    topic = t.homieNode.mqttTopic + '_' + t.rangeIndex + '/' + t.name;
@@ -199,6 +199,32 @@ class HomieDispatcher {
 
         this._registerDeviceTopic(deviceId, topic);
         this.messageQueue.add(topic, value, { retain: retained !== false });
+    }
+
+    _sendColor(device, property, { hsv, rgb }, retained) {
+
+        // Send color for property
+        switch (this.settings.colorFormat) {
+            case 'hsv':
+                this._send(device.id, property, `${hsv.h},${hsv.s},${hsv.v}`, retained);
+                break;
+            case 'rgb':
+                this._send(device.id, property, `${rgb.r},${rgb.g},${rgb.b}`, retained);
+                break;
+        }
+
+        // TODO: Seperate settings switches for color formatting
+        const topic = property.mqttTopicProperty;
+
+        // send color objects
+        this._send(device.id, `${topic}/rgb`, rgb, retained);
+        this._send(device.id, `${topic}/hsv`, hsv, retained);
+
+        // Send seperate color channels
+        let channels = { ...rgb, ...hsv };
+        for (let c in channels) {
+            this._send(device.id, `${topic}/${c}`, channels[c], retained);
+        }
     }
     
     _registerDevice(device) {
@@ -266,7 +292,11 @@ class HomieDispatcher {
                         // NOTE: Ranges not implemented
 
                         if (this.broadcast) {
-                            this._send(device.id, property, color ? this._formatColor(capabilities) : this._formatValue(value));
+                            if (color) {
+                                this._sendColor(device, property, this._formatColor(capabilities));
+                            } else {
+                                this._send(device.id, property, this._formatValue(value));
+                            }
                         }
                     }
 
@@ -467,19 +497,21 @@ class HomieDispatcher {
         }
 
         // Catch colors
-        if (this.settings.colorFormat !== 'values') {
+        //if (this.settings.colorFormat !== 'values') {
             if (capabilityId === 'light_hue') {
                 capabilityId = 'color';
                 let device = await this.api.devices.getDevice({ id: deviceId });
                 if (device) {
-                    value = this._formatColor(device.capabilitiesObj);
-                    Log.info("Homie set color: " + value);
+                    if (this.broadcast) {
+                        this._sendColor(device, property, this._formatColor(device.capabilitiesObj));
+                    }
                 }
+                return;
             }
             if (capabilityId === 'light_saturation' || capabilityId === 'light_temperature') {
                 return; // NOTE: Skip additional color value. The color dataType is already handled by 'light_hue'
             }
-        }
+        //}
 
         try {
             const property = node.setProperty(normalize(capabilityId));
@@ -554,13 +586,13 @@ class HomieDispatcher {
         const saturation = (capabilities['light_saturation'] || {}).value || 0;
         const temp = (capabilities['light_temperature'] || {}).value || 0;
 
-        switch (this.settings.colorFormat) {
-            case 'hsv':
-                return [hue * 360, saturation * 100, temp * 100].join(',');
-            case 'rgb':
-                const rgb = Color.HSVtoRGB(hue * 360, saturation * 100, temp.value * 100);
-                return [rgb.r, rgb.g, rgb.b].join(',');
+        const hsv = {
+            h: hue * 360,
+            s: saturation * 100,
+            v: temp * 100
         }
+        const rgb = Color.HSVtoRGB(hsv);
+        return { hsv, rgb };
     }
 
     _formatValue(value) {
