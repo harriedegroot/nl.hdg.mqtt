@@ -416,8 +416,8 @@ const coverClasses = new Set([
  */
 }
 
-const DEVICE_ID = 'homey';
-const TOPIC_ROOT = 'homeassistant';
+const DEFAULT_DEVICE_ID = 'homey';
+const DEFAULT_TOPIC_ROOT = 'homeassistant';
 const STATUS_TOPIC = 'hass/status';
 
 /**
@@ -426,10 +426,10 @@ const STATUS_TOPIC = 'hass/status';
 class HomeAssistantDispatcher {
 
     get _topicRoot() {
-        return this.settings && this.settings.haRoot ? this.settings.haRoot : TOPIC_ROOT; // TODO: add haRoot property to settings
+        return this.settings && this.settings.haRoot ? this.settings.haRoot : DEFAULT_TOPIC_ROOT; // TODO: add haRoot property to settings
     }
     get _deviceId() {
-        return this.settings && this.settings.deviceId ? this.settings.deviceId : DEVICE_ID;
+        return this.settings && this.settings.deviceId ? this.settings.deviceId : DEFAULT_DEVICE_ID;
     }
 
     constructor({ api, mqttClient, deviceManager, system, settings, homieDispatcher, messageQueue }) {
@@ -492,7 +492,7 @@ class HomeAssistantDispatcher {
         this.settings.deviceId = normalize(settings.deviceId || this.system.name || DEFAULT_DEVICE_ID);
         //this.settings.topicIncludeClass = settings.topicIncludeClass === true;
         //this.settings.topicIncludeZone = settings.topicIncludeZone === true;
-        //this.settings.propertyScaling = settings.propertyScaling || DEFAULT_PROPERTY_SCALING;
+        //this.settings.percentageScale = settings.percentageScale || DEFAULT_PROPERTY_SCALING;
         //this.settings.colorFormat = settings.colorFormat || DEFAULT_COLOR_FORMAT;
 
         // Breaking changes? => Start a new HomieDevice (& destroy current)
@@ -607,23 +607,24 @@ class HomeAssistantDispatcher {
             state_topic: `${stateTopic}/onoff`,
             state_value_template: '{{ value }}',
             command_topic: `${stateTopic}/onoff/set`,
+            on_command_type: 'first' // send 'onoff' before sending state (dim, color, etc.)
         };
 
         if (capabilities.hasOwnProperty('dim')) {
-            payload.brightness_state_topic = `${stateTopic}/dim*100`;
-            payload.brightness_command_topic = `${stateTopic}/dim/set*100`;
+            payload.brightness_state_topic = `${stateTopic}/dim`;
+            payload.brightness_command_topic = `${stateTopic}/dim/set`;
             payload.brightness_value_template = "{{ value }}";
             payload.brightness_scale = 100;
         }
-        //if (capabilities.hasOwnProperty('light_temperature')) {
-        //    payload.payload.color_temp_state_topic = `${stateTopic}/color/v*100`;
-        //    payload.payload.color_temp_command_topic = `${stateTopic}/color`;
-        //    payload.color_temp_value_template = "{{ value_json }}";
-        //    payload.brightness_scale = 100;
-        //}
+        if (capabilities.hasOwnProperty('light_temperature')) {
+            payload.color_temp_state_topic = `${stateTopic}/color/v`;
+            payload.color_temp_command_topic = `${stateTopic}/color`; // TODO: Handle temp with single value
+            payload.color_temp_value_template = "{{ value }}";
+            payload.color_temp_scale = 100;
+        }
         if (capabilities.hasOwnProperty('light_hue') || capabilities.hasOwnProperty('light_saturation')) {
             payload.hs_state_topic = `${stateTopic}/color/hsv`;
-            payload.hs_command_topic = `${stateTopic}/color`;
+            payload.hs_command_topic = `${stateTopic}/color`; // TODO: Handle HS color value
             payload.hs_value_template = `{{ value_json.h }},{{ value_json.s }}`;
         }
 
