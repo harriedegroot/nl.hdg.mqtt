@@ -1,7 +1,9 @@
 === TODO ===
 
-- HASS Devices
+- HASS set numeric values?
+- HASS Enum & string values?
 - HASS settings (enable disable discovery + topic root)
+- HASS Remaining device types (Alarm control panels, Binary sensors, Cameras, Covers, Fans, HVACs, Lights, Locks, Sensors, Switches, Vacuums)
 - Settings for seperate root topics (homie, HASS, system state, custom, etc.)
 - Split hiding of controls & applying default (protocol) settings
 - settings default vs disabled controls
@@ -17,6 +19,7 @@
 - Publish device/$state disconnect message
 - implement scalable property 0-1 (float) | 0-100 (int)
 - Flow card for MQTT Device
+- HASS configure additional properties for the remaining capabilities (e.g. icon, device class, etc.)
 - Create virtual devices from MQTT discovery
 - Setting to enable/disable set command handler
 - [Check] Refresh devices on device/zone changes + Broadcast
@@ -29,7 +32,6 @@
 - Trigger flow command
 - Listen to scene flow triggers
 - Uninstall app => unsubscribe from topics
-
 
 
 ======= DONE =======
@@ -72,3 +74,5 @@ x test internal MQTT client ('socket hang up' fix? duplicate mem usage, config &
 - [fixed] some $set commands don't work (false|null|undefie|'' messages)
 - [fixed] all devices are shown off @ first load (dispatch state @ registering devices)
 - HASS Discovery setup
+- HASS Devices
+- HASS icons
