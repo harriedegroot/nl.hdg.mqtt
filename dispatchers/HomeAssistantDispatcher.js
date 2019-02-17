@@ -3,494 +3,187 @@
 const _ = require('lodash');
 const Log = require('../Log');
 const normalize = require('../normalize');
-//const Color = require('../Color');
 
+// Specific capability overrides
 const configurations = {
 
     // Binary sensor
-    //'alarm_generic': {
-    //    type: 'binary_sensor',
-    //    type: 'alarm',
-    //    payload: {
-    //        payload_on: true,
-    //        payload_off: false,
-    //        value_template: '{{ value_json.alarm }}',
-    //        device_class: 'alarm',
-    //    },
-    //},
-    //'alarm_motion': {
-    //    type: 'binary_sensor',
-    //    type: 'motion',
-    //    payload: {
-    //        payload_on: true,
-    //        payload_off: false,
-    //        value_template: '{{ value_json.motion }}',
-    //        device_class: 'motion',
-    //    },
-    //},
-    //'alarm_contact': {
-    //    type: 'binary_sensor',
-    //    type: 'contact',
-    //    payload: {
-    //        payload_on: false,
-    //        payload_off: true,
-    //        value_template: '{{ value_json.contact }}',
-    //        device_class: 'door',
-    //    },
-    //},
-    //'alarm_co': {
-    //    type: 'binary_sensor',
-    //    type: 'alarm_co',
-    //    payload: {
-    //        payload_on: true,
-    //        payload_off: false,
-    //        value_template: '{{ value_json.alarm_co }}',
-    //        device_class: 'gas',
-    //    },
-    //},
-    //'alarm_co2': {
-    //    type: 'binary_sensor',
-    //    type: 'alarm_co2',
-    //    payload: {
-    //        payload_on: true,
-    //        payload_off: false,
-    //        value_template: '{{ value_json.alarm_co2 }}',
-    //        device_class: 'gas',
-    //    },
-    //},
-    //'alarm_pm25': {
-    //    type: 'binary_sensor',
-    //    type: 'alarm_pm25',
-    //    payload: {
-    //        payload_on: true,
-    //        payload_off: false,
-    //        value_template: '{{ value_json.alarm_pm25 }}',
-    //        device_class: 'dust',
-    //    },
-    //},
-    //'alarm_tamper': {
-    //    type: 'binary_sensor',
-    //    type: 'tamper',
-    //    payload: {
-    //        payload_on: true,
-    //        payload_off: false,
-    //        value_template: '{{ value_json.tamper }}',
-    //        device_class: 'motion',
-    //    },
-    //},
-    //'alarm_smoke': {
-    //    type: 'binary_sensor',
-    //    type: 'smoke',
-    //    payload: {
-    //        payload_on: true,
-    //        payload_off: false,
-    //        value_template: '{{ value_json.smoke }}',
-    //        device_class: 'smoke',
-    //    },
-    //},
-    //'alarm_fire': {
-    //    type: 'binary_sensor',
-    //    type: 'fire',
-    //    payload: {
-    //        payload_on: true,
-    //        payload_off: false,
-    //        value_template: '{{ value_json.fire }}',
-    //        device_class: 'fire',
-    //    },
-    //},
-    //'alarm_heat': {
-    //    type: 'binary_sensor',
-    //    type: 'heat',
-    //    payload: {
-    //        payload_on: true,
-    //        payload_off: false,
-    //        value_template: '{{ value_json.heat }}',
-    //        device_class: 'heat',
-    //    },
-    //},
-    //'alarm_water': {
-    //    type: 'binary_sensor',
-    //    type: 'alarm_water',
-    //    payload: {
-    //        payload_on: true,
-    //        payload_off: false,
-    //        value_template: '{{ value_json.alarm_water }}',
-    //        device_class: 'moisture',
-    //    },
-    //},
-    //'alarm_battery': {
-    //    type: 'binary_sensor',
-    //    type: 'alarm_battery',
-    //    payload: {
-    //        payload_on: true,
-    //        payload_off: false,
-    //        value_template: '{{ value_json.alarm_battery }}',
-    //        device_class: 'battery',
-    //    },
-    //},
+    alarm_motion: {
+        payload: {
+            device_class: 'motion'
+        }
+    },
+    alarm_contact: {
+        payload: {
+            device_class: 'door'
+        }
+    },
+    alarm_co: {
+        payload: {
+            device_class: 'gas'
+        }
+    },
+    alarm_co2: {
+        payload: {
+            device_class: 'gas'
+        }
+    },
+    alarm_pm25: {
+        payload: {
+            device_class: 'smoke'
+        }
+    },
+    alarm_tamper: {
+        payload: {
+            device_class: 'motion'
+        }
+    },
+    alarm_smoke: {
+        payload: {
+            device_class: 'smoke'
+        }
+    },
+    alarm_fire: {
+        payload: {
+            device_class: 'fire'
+        }
+    },
+    alarm_heat: {
+        payload: {
+            device_class: 'heat'
+        }
+    },
+    alarm_water: {
+        payload: {
+            device_class: 'moisture'
+        }
+    },
+    alarm_battery: {
+        payload: {
+            device_class: 'battery'
+        }
+    },
     //'alarm_night': {
-    //    type: 'binary_sensor',
-    //    type: 'alarm_night',
     //    payload: {
-    //        payload_on: true,
-    //        payload_off: false,
-    //        value_template: '{{ value_json.alarm_night }}',
-    //        device_class: 'night',
-    //    },
+    //        device_class: 'night' // invalid class??
+    //    }
     //},
 
     //////////////// TODO: Iplement the rest of the pre-defined capabilities /////////////
 
-    ////'binary_sensor_occupancy': {
-    ////    type: 'binary_sensor',
-    ////    type: 'occupancy',
-    ////    payload: {
-    ////        payload_on: true,
-    ////        payload_off: false,
-    ////        value_template: '{{ value_json.occupancy }}',
-    ////        device_class: 'motion',
-    ////    },
-    ////},
-    ////'binary_sensor_presence': {
-    ////    type: 'binary_sensor',
-    ////    type: 'presence',
-    ////    payload: {
-    ////        payload_on: true,
-    ////        payload_off: false,
-    ////        value_template: '{{ value_json.presence }}',
-    ////        device_class: 'presence',
-    ////    },
-    ////},
-    ////'binary_sensor_gas': {
-    ////    type: 'binary_sensor',
-    ////    type: 'gas',
-    ////    payload: {
-    ////        payload_on: true,
-    ////        payload_off: false,
-    ////        value_template: '{{ value_json.gas }}',
-    ////        device_class: 'gas',
-    ////    },
-    ////},
-    ////'binary_sensor_router': {
-    ////    type: 'binary_sensor',
-    ////    type: 'router',
-    ////    payload: {
-    ////        payload_on: true,
-    ////        payload_off: false,
-    ////        value_template: '{{ value_json.state }}',
-    ////        device_class: 'connectivity',
-    ////    },
-    ////},
-
-    ////// Sensor
-    //'target_temperature': {
-    //    type: 'sensor',
-    //    type: 'temperature',
+    //// Sensor
+    target_temperature: {
+        payload: {
+            device_class: 'temperature'
+        }
+    },
+    measure_temperature: {
+        payload: {
+            device_class: 'temperature'
+        }
+    },
+    //measure_co: {
     //    payload: {
-    //        unit_of_measurement: '°C',
-    //        device_class: 'temperature',
-    //        value_template: '{{ value_json.temperature }}',
+    //        device_class: 'gas' // invalid
     //    },
     //},
-    //'measure_temperature': {
-    //    type: 'sensor',
-    //    type: 'temperature',
+    //measure_co2: {
     //    payload: {
-    //        unit_of_measurement: '°C',
-    //        device_class: 'temperature',
-    //        value_template: '{{ value_json.temperature }}',
+    //        device_class: 'gas' // invalid
     //    },
     //},
-    //'measure_co': {
-    //    type: 'sensor',
-    //    type: 'co',
+    //measure_pm25: {
     //    payload: {
-    //        unit_of_measurement: 'ppm',
-    //        device_class: 'gas',
-    //        value_template: '{{ value_json.co }}',
-    //    },
+    //        device_class: 'gas' // invalid
+    //    }
     //},
-    //'measure_co2': {
-    //    type: 'sensor',
-    //    type: 'co2',
+    measure_humidity: {
+        payload: {
+            device_class: 'humidity'
+        }
+    },
+    measure_pressure: {
+        payload: {
+            device_class: 'pressure'
+        }
+    },
+    //measure_noise: {
     //    payload: {
-    //        unit_of_measurement: 'ppm',
-    //        device_class: 'gas',
-    //        value_template: '{{ value_json.co2 }}',
-    //    },
+    //        device_class: 'noise' // invalid
+    //    }
     //},
-    //'measure_pm25': {
-    //    type: 'sensor',
-    //    type: 'pm25',
+    //measure_rain: {
     //    payload: {
-    //        unit_of_measurement: 'ppm',
-    //        device_class: 'gas',
-    //        value_template: '{{ value_json.pm25 }}',
-    //    },
+    //        device_class: 'rain' // invalid
+    //    }
     //},
-    //'measure_humidity': {
-    //    type: 'sensor',
-    //    type: 'humidity',
+    //measure_wind_strength: {
     //    payload: {
-    //        unit_of_measurement: '%',
-    //        device_class: 'humidity',
-    //        value_template: '{{ value_json.humidity }}',
-    //    },
+    //        device_class: 'wind' // invalid
+    //    }
     //},
-    //'measure_pressure': {
-    //    type: 'sensor',
-    //    type: 'pressure',
+    //measure_wind_angle: {
     //    payload: {
-    //        unit_of_measurement: 'hPa',
-    //        device_class: 'pressure',
-    //        value_template: '{{ value_json.pressure }}',
-    //    },
+    //        device_class: 'wind' // invalid
+    //    }
     //},
-    //'measure_noise': {
-    //    type: 'sensor',
-    //    type: 'noise',
+    //measure_gust_strength: {
     //    payload: {
-    //        unit_of_measurement: 'dB',
-    //        device_class: 'noise',
-    //        value_template: '{{ value_json.noise }}',
-    //    },
+    //        device_class: 'gust' // invalid
+    //    }
     //},
-    //'measure_rain': {
-    //    type: 'sensor',
-    //    type: 'rain',
+    //measure_gust_angle: {
     //    payload: {
-    //        unit_of_measurement: 'mm',
-    //        device_class: 'rain',
-    //        value_template: '{{ value_json.rain }}',
-    //    },
+    //        device_class: 'gust' // invalid
+    //    }
     //},
-    //'measure_wind_strength': {
-    //    type: 'sensor',
-    //    type: 'wind_strength',
+    measure_battery: {
+        payload: {
+            device_class: 'battery'
+        }
+    },
+    measure_power: {
+        payload: {
+            icon: 'mdi:flash'
+        }
+    },
+    measure_voltage: {
+        payload: {
+            icon: 'mdi:flash'
+        }
+    },
+    measure_current: {
+        payload: {
+            icon: 'mdi:flash'
+        }
+    },
+    measure_luminance: {
+        payload: {
+            device_class: 'luminance'
+        }
+    },
+    //measure_ultraviolet: {
     //    payload: {
-    //        unit_of_measurement: 'km/h',
-    //        device_class: 'wind',
-    //        value_template: '{{ value_json.wind_strength }}',
-    //    },
+    //        device_class: 'ultraviolet' // invlaid
+    //    }
     //},
-    //'measure_wind_angle': {
-    //    type: 'sensor',
-    //    type: 'wind_angle',
-    //    payload: {
-    //        unit_of_measurement: '°',
-    //        device_class: 'wind',
-    //        value_template: '{{ value_json.wind_angle }}',
-    //    },
-    //},
-    //'measure_gust_strength': {
-    //    type: 'sensor',
-    //    type: 'gust_strength',
-    //    payload: {
-    //        unit_of_measurement: 'km/h',
-    //        device_class: 'gust',
-    //        value_template: '{{ value_json.gust_strength }}',
-    //    },
-    //},
-    //'measure_gust_angle': {
-    //    type: 'sensor',
-    //    type: 'gust_angle',
-    //    payload: {
-    //        unit_of_measurement: '°',
-    //        device_class: 'gust',
-    //        value_template: '{{ value_json.gust_angle }}',
-    //    },
-    //},
-    //'measure_battery': {
-    //    type: 'sensor',
-    //    type: 'battery',
-    //    payload: {
-    //        unit_of_measurement: '%',
-    //        device_class: 'battery',
-    //        value_template: '{{ value_json.battery }}',
-    //    },
-    //},
-    //'measure_power': {
-    //    type: 'sensor',
-    //    type: 'power',
-    //    payload: {
-    //        unit_of_measurement: 'Watt',
-    //        icon: 'mdi:flash',
-    //        value_template: '{{ value_json.power }}',
-    //    },
-    //},
-    //'measure_voltage': {
-    //    type: 'sensor',
-    //    type: 'voltage',
-    //    payload: {
-    //        unit_of_measurement: 'Volt',
-    //        icon: 'mdi:flash',
-    //        value_template: '{{ value_json.voltage }}',
-    //    },
-    //},
-    //'measure_current': {
-    //    type: 'sensor',
-    //    type: 'current',
-    //    payload: {
-    //        unit_of_measurement: 'Ampere',
-    //        icon: 'mdi:flash',
-    //        value_template: '{{ value_json.current }}',
-    //    },
-    //},
-    //'measure_luminance': {
-    //    type: 'sensor',
-    //    type: 'luminance',
-    //    payload: {
-    //        unit_of_measurement: 'lx',
-    //        device_class: 'luminance',
-    //        value_template: '{{ value_json.luminance }}',
-    //    },
-    //},
-    //'measure_ultraviolet': {
-    //    type: 'sensor',
-    //    type: 'ultraviolet',
-    //    payload: {
-    //        unit_of_measurement: 'UVI',
-    //        device_class: 'ultraviolet',
-    //        value_template: '{{ value_json.ultraviolet }}',
-    //    },
-    //},
-    //'measure_water': {
-    //    type: 'sensor',
-    //    type: 'water',
-    //    payload: {
-    //        unit_of_measurement: 'L/min',
-    //        device_class: 'water',
-    //        value_template: '{{ value_json.water }}',
-    //    },
-    //},
-
-    ////'sensor_click': {
-    ////    type: 'sensor',
-    ////    type: 'click',
-    ////    payload: {
-    ////        icon: 'mdi:toggle-switch',
-    ////        value_template: '{{ value_json.click }}',
-    ////        force_update: true,
-    ////    },
-    ////},
-    ////'sensor_action': {
-    ////    type: 'sensor',
-    ////    type: 'action',
-    ////    payload: {
-    ////        icon: 'mdi:gesture-double-tap',
-    ////        value_template: '{{ value_json.action }}',
-    ////        force_update: true,
-    ////    },
-    ////},
-    ////'sensor_brightness': {
-    ////    type: 'sensor',
-    ////    type: 'brightness',
-    ////    payload: {
-    ////        unit_of_measurement: 'brightness',
-    ////        icon: 'mdi:brightness-5',
-    ////        value_template: '{{ value_json.brightness }}',
-    ////    },
-    ////},
-    ////'sensor_lock': {
-    ////    type: 'sensor',
-    ////    type: 'lock',
-    ////    payload: {
-    ////        icon: 'mdi:lock',
-    ////        value_template: '{{ value_json.inserted }}',
-    ////    },
-    ////},
-    ////'sensor_linkquality': {
-    ////    type: 'sensor',
-    ////    type: 'linkquality',
-    ////    payload: {
-    ////        unit_of_measurement: '-',
-    ////        value_template: '{{ value_json.linkquality }}',
-    ////    },
-    ////},
-    ////'sensor_gas_density': {
-    ////    type: 'sensor',
-    ////    type: 'gas_density',
-    ////    payload: {
-    ////        value_template: '{{ value_json.gas_density }}',
-    ////        icon: 'mdi:google-circles-communities',
-    ////    },
-    ////},
-
-    
-
-    //// Light
-    //'light_hue': {
-    //    type: 'light',
-    //    type: 'light',
-    //    payload: {
-    //        brightness: true,
-    //        color_temp: true,
-    //        hs: true,
-    //        schema: 'json',
-    //    },
-    //},
-    //'light_saturation': {
-    //    type: 'light',
-    //    type: 'light',
-    //    payload: {
-    //        brightness: true,
-    //        hs: true,
-    //        schema: 'json',
-    //    },
-    //},
-    //'light_temperature': {
-    //    type: 'light',
-    //    type: 'light',
-    //    payload: {
-    //        brightness: true,
-    //        color_temp: true,
-    //        hs: true,
-    //        schema: 'json',
-    //    },
-    //},
-    //'dim': {
-    //    type: 'light',
-    //    type: 'light',
-    //    payload: {
-    //        brightness: true,
-    //        schema: 'json',
-    //    },
-    //},
-    // ? Enum ?
-    //'light_mode': {
-    //    type: 'light',
-    //    type: 'light',
-    //    payload: {
-    //        brightness: true,
-    //        schema: 'json',
-    //    },
-    //},
-
-    //// Switch
-    //'onoff': {
-    //    type: 'switch',
-    //    type: 'switch',
-    //    payload: {
-    //        payload_off: false,
-    //        payload_on: true,
-    //        value_template: '{{ value_json.onoff }}',
-    //    },
-    //},
+    measure_water: {
+        payload: {
+            device_class: 'humidity'
+        }
+    },
 
     //// Cover
     // TODO: Implement window cover: https://www.home-assistant.io/components/cover.mqtt/
 
     //'sensor_cover': {
     //    type: 'sensor',
-    //    type: 'cover',
     //    payload: {
-    //        value_template: '{{ value_json.position }}',
     //        icon: 'mdi:view-array',
     //    },
     //},
 
     //'windowcoverings_state': {
-    //    type: 'cover',
     //    type: 'cover',
     //    payload: {
     //        optimistic: true,
@@ -498,13 +191,11 @@ const configurations = {
     //},
     //'windowcoverings_tilt_up': {
     //    type: 'cover',
-    //    type: 'cover',
     //    payload: {
     //        optimistic: true,
     //    },
     //},
     //'windowcoverings_tilt_down': {
-    //    type: 'cover',
     //    type: 'cover',
     //    payload: {
     //        optimistic: true,
@@ -512,20 +203,17 @@ const configurations = {
     //},
     //'windowcoverings_tilt_set': {
     //    type: 'cover',
-    //    type: 'cover',
     //    payload: {
     //        optimistic: true,
     //    },
     //},
     //'windowcoverings_closed': {
     //    type: 'cover',
-    //    type: 'cover',
     //    payload: {
     //        optimistic: true,
     //    },
     //},
     //'windowcoverings_set': {
-    //    type: 'cover',
     //    type: 'cover',
     //    payload: {
     //        optimistic: true,
@@ -536,27 +224,11 @@ const configurations = {
     // TODO: implement vacuum: https://www.home-assistant.io/components/vacuum.mqtt/
     //'vacuumcleaner_state': {
     //    type: 'vacuum',
-    //    type: 'vacuum',
-    //    payload: {
-    //        value_template: '{{ value_json.state }}',
-    //    },
     //}
 };
 
 const NodeRed = { // Node RED
     //switch (Dtype) {     // TODO check is settable & has name & properties
-    //    case "kettle": //TODO
-    //        node.warn("kettle TODO");
-    //        break
-    //    case "other": //TODO
-    //        node.warn("other TODO");
-    //        break;
-    //    case "":  //TODO do - well handle
-    //        node.warn("<blank> TODO, need more info");
-    //        break;
-    //    case "vacuumcleaner": //TODO
-    //        node.warn("vacuumcleaner TODO TODO");
-    //        break;
     //    case "button": // not working in MQTT-Gateway
     //        node.warn("button TOFIX");
     //        newmsg = {
@@ -571,18 +243,8 @@ const NodeRed = { // Node RED
     //            }
     //        }
     //        break;
-    //    case "doorbell":
-    //        node.warn("doorbell TODO");
-    //        break;
-    //    case "speaker":
-    //        //node.warn ("speaker TODO")
-    //        break;
-    //    case "zwavecontroller":
-    //        node.warn("zwavecontroller ToLOOKAT");
-    //        break;
     //    case "switch":
     //    case "socket":
-
     //        //node.warn ("Adding socket: " + Dname)
     //        newmsg = {
     //            topic: "homeassistant/switch" + "/" + homey + "/" + device + "/config",
@@ -595,7 +257,6 @@ const NodeRed = { // Node RED
     //                "command_topic": "homie/" + homey + "/" + device + "/onoff" + "/set"
     //            }
     //        };
-
     //        break;
     //    case "light":
     //        //node.warn ("Adding light: " + Dname)
@@ -628,7 +289,6 @@ const NodeRed = { // Node RED
     //                "hs_command_topic": "homie/" + homey + "/" + device + "/color/set_hs"
     //            }
     //        };
-
     //        break;
     //    case "thermostat":
     //        //node.warn ("Adding thermostat: " + Dname)
@@ -664,14 +324,95 @@ const NodeRed = { // Node RED
     //                "unit_of_measurement": Dunit
     //            }
     //        }; //"value_template": "{{ value_json.humidity }}"}}
-
     //        //return [ newmsg1, newmsg2] 
     //        break;
     //    default:
     //        node.error("## Unhandled type " + Dname + " " + Dtype + " ## PLEASE REPORT");
     //        return null;
     //}
-}
+};
+
+const sensorClasses = new Set([
+    'battery',
+    'humidity',
+    'illuminance',
+    'temperature',
+    'pressure',
+    'timestamp'
+]);
+
+const binarySensorClasses = new Set([
+    'battery',
+    'cold',
+    'connectivity',
+    'door',
+    'pressure',
+    'garage_door',
+    'gas',
+    'heat',
+    'light',
+    'lock',
+    'moisture',
+    'motion',
+    'moving',
+    'occupancy',
+    'opening',
+    'plug',
+    'power',
+    'presence',
+    'problem',
+    'safety',
+    'smoke',
+    'sound',
+    'vibration',
+    'window'
+]);
+
+const coverClasses = new Set([
+    'damper',
+    'garage',
+    'window'
+]);
+
+/* device classes
+SENSOR:
+    battery: Percentage of battery that is left.
+    humidity: Percentage of humidity in the air.
+    illuminance: The current light level in lx or lm.
+    temperature: Temperature in °C or °F.
+    pressure: Pressure in hPa or mbar.
+    timestamp: Datetime object or timestamp string.
+
+BINARY SENSOR:
+    battery: On means low, Off means normal
+    cold: On means cold, Off means normal
+    connectivity: On means connected, Off means disconnected
+    door: On means open, Off means closed
+    garage_door: On means open, Off means closed
+    gas: On means gas detected, Off means no gas (clear)
+    heat: On means hot, Off means normal
+    light: On means light detected, Off means no light
+    lock: On means open (unlocked), Off means closed (locked)
+    moisture: On means moisture detected (wet), Off means no moisture (dry)
+    motion: On means motion detected, Off means no motion (clear)
+    moving: On means moving, Off means not moving (stopped)
+    occupancy: On means occupied, Off means not occupied (clear)
+    opening: On means open, Off means closed
+    plug: On means device is plugged in, Off means device is unplugged
+    power: On means power detected, Off means no power
+    presence: On means home, Off means away
+    problem: On means problem detected, Off means no problem (OK)
+    safety: On means unsafe, Off means safe
+    smoke: On means smoke detected, Off means no smoke (clear)
+    sound: On means sound detected, Off means no sound (clear)
+    vibration: On means vibration detected, Off means no vibration (clear)
+    window: On means open, Off means closed
+
+COVER:
+    damper: Ventilation damper controller.
+    garage: Garage door controller.
+    window: Window controller.
+*/
 
 const DEVICE_ID = 'homey';
 const TOPIC_ROOT = 'homeassistant';
@@ -788,110 +529,6 @@ class HomeAssistantDispatcher {
         Log.info("HomeAssistantDispatcher.unregisterDevices");
     }
 
-    _createConfig(device, capability) {
-        if (typeof capability.id !== 'string') return undefined;
-
-        //switch (capability.id) {
-        //    case 'onoff': {
-        //        return {
-        //            type: 'switch',
-        //            payload: {
-        //                payload_on: true,
-        //                payload_off: false
-        //            }
-        //        };
-        //    }
-        //}
-
-        // TODO: icons
-
-        //TODO: Lights
-        //"brightness_state_topic": "homie/" + homey + "/" + device + "/dim*100",
-        //        "brightness_command_topic": "homie/" + homey + "/" + device + "/dim" + "/set*100",
-        //        "brightness_scale": "100"
-        //    }
-
-        switch (capability.type) {
-            case 'boolean':
-                return {
-                    type: capability.setable ? 'switch' : 'binary_sensor',
-                    payload: {
-                        payload_on: "true",
-                        payload_off: "false"
-                    }
-                };
-            case 'number':
-            case 'float':
-            case 'integer':
-                return {
-                    type: 'sensor',
-                    payload: {
-                        value_template: '{{ value }}',
-                        unit_of_measurement: capability.units && typeof capability.units === 'object' ? capability.units['en'] : capability.units
-                    }
-                };
-            case 'enum': // ????
-            case 'string':// ????
-            default:
-                return undefined;
-        }
-    }
-
-    _getConfiguration(device, capability) {
-        if (typeof device !== 'object' || typeof capability !== 'object') return undefined;
-        return configurations[capability.id] || this._createConfig(device, capability);
-    }
-
-    _getMessage(device, capability) {
-
-        const config = this._getConfiguration(device, capability);
-        if (!config) return undefined;
-
-        const deviceId = normalize(device.name);
-        const capabilityId = normalize(capability.id);
-        const capabilityTitle = capability.title && typeof capability.title === 'object' ? capability.title['en'] : capability.title;
-        const capabilityName = capabilityTitle || capability.desc || capability.id;
-        const type = config.type;
-        const stateTopic = this.homieDispatcher.getTopic(device, capability);
-
-        const payload = {
-            name: `${device.name} - ${capabilityName}`,
-            unique_id: `${device.id}_${capability.id}`,
-            state_topic: stateTopic,
-            device: {
-                identifiers: `${this._deviceId}_${device.id}`,
-                name: device.name
-            }
-        };
-
-        if (capability.setable) {
-            payload.command_topic = `${stateTopic}/set`;
-        }
-
-        //if (['binary_sensor', 'sensor', 'cover'].includes(config.type)) {
-        //    payload.device_class = device.class;
-        //}
-
-        //// Set availability payload
-        //payload.availability_topic = `${nodeTopic}/availability`;
-
-        // Add precision to value_template
-        //if (capability.decimals) {
-        //    let template = payload.value_template;
-        //    if (typeof template === 'string') {
-        //        template = template.replace('{{ ', '').replace(' }}', '');
-        //        template = `{{ (${template} | float) | round(${capability.decimals}) }}`;
-        //        payload.value_template = template;
-        //    }
-        //}
-
-        // final payload = above payload with added & overidden values from config
-        return {
-            topic: [this._topicRoot, type, deviceId, capabilityId, 'config'].join('/'),
-            payload: { ...payload, ...config.payload }
-        };
-    }
-
     _registerDevice(device) {
         if (!device || !(device || {}).id) {
             Log.info("invalid device");
@@ -912,28 +549,258 @@ class HomeAssistantDispatcher {
 
         Log.info("Home Assistant discover: " + device.name);
 
+        const remainingCapabilities = this._registerDeviceClass(device);
+        this._registerCapabilities(device, remainingCapabilities);
+    }
+
+    _registerDeviceClass(device) {
+
+        const capabilities = { ...device.capabilitiesObj };
+
+        switch (device.class) {
+            case 'light':
+                for (let id of ['onoff', 'dim', 'light_hue', 'light_saturation', 'light_temperature'])
+                    delete capabilities[id];
+                this._registerLight(device);
+                break;
+            case 'thermostat':
+                this._registerThermostat(device);
+                break;
+            case 'socket':
+            case 'vacuumcleaner':
+            case 'fan':
+            case 'heater':
+            case 'sensor':
+            case 'kettle':
+            case 'coffeemachine':
+            case 'homealarm':
+            case 'speaker':
+            case 'button':
+            case 'doorbell':
+            case 'lock':
+            case 'windowcoverings':
+            case 'tv':
+            case 'amplifier':
+            case 'curtain':
+            case 'blinds':
+            case 'sunshade':
+            case 'remote':
+            case 'other':
+            default:
+                // nothing
+                break;
+        }
+
+        return capabilities;
+    }
+
+    _registerLight(device) {
         const capabilities = device.capabilitiesObj;
-        if (!capabilities)
-            return;
+        const stateTopic = this.homieDispatcher.getTopic(device);
+        const type = 'light';
+
+        const payload = {
+            name: device.name,
+            unique_id: `${device.id}_${type}`,
+            payload_on: "true",
+            payload_off: "false",
+            state_topic: `${stateTopic}/onoff`,
+            state_value_template: '{{ value }}',
+            command_topic: `${stateTopic}/onoff/set`,
+        };
+
+        if (capabilities.hasOwnProperty('dim')) {
+            payload.brightness_state_topic = `${stateTopic}/dim*100`;
+            payload.brightness_command_topic = `${stateTopic}/dim/set*100`;
+            payload.brightness_value_template = "{{ value }}";
+            payload.brightness_scale = 100;
+        }
+        //if (capabilities.hasOwnProperty('light_temperature')) {
+        //    payload.payload.color_temp_state_topic = `${stateTopic}/color/v*100`;
+        //    payload.payload.color_temp_command_topic = `${stateTopic}/color`;
+        //    payload.color_temp_value_template = "{{ value_json }}";
+        //    payload.brightness_scale = 100;
+        //}
+        if (capabilities.hasOwnProperty('light_hue') || capabilities.hasOwnProperty('light_saturation')) {
+            payload.hs_state_topic = `${stateTopic}/color/hsv`;
+            payload.hs_command_topic = `${stateTopic}/color`;
+            payload.hs_value_template = `{{ value_json.h }},{{ value_json.s }}`;
+        }
+
+        // TODO: handle colors by json scheme
+        // TODO: light_mode
+        // TODO: RGB color setting
         
+        const topic = [this._topicRoot, type, normalize(device.name), 'config'].join('/');
+        this._registerConfig(device, type, topic, payload);
+    }
+
+    _registerThermostat(device) {
+        const capability = device.capabilitiesObj['measure-temperature'] || device.capabilitiesObj['target-temperature'] || device.capabilitiesObj['measure-temperature'];
+        const stateTopic = this.homieDispatcher.getTopic(device);
+        const type = 'thermostat';
+        let unit = capability
+            ? (capability.units && typeof capability.units === 'object' ? capability.units['en'] : capability.units)
+            : undefined;
+
+        const payload = {
+            name: device.name,
+            unique_id: `${device.id}_${type}`,
+            curr_temp_t: `${stateTopic}/measure-temperature`,
+            temp_stat_t: `${stateTopic}/target-temperature`,
+            temp_cmd_t: `${stateTopic}/target-temperature/set`,
+            mode_stat_t: `${stateTopic}/custom-thermostat-mode`,
+            mode_cmd_t: `${stateTopic}/custom-thermostat-mode/set`,
+            mode_stat_tpl: "{% set values = { 'schedule':'auto', 'manual':'heat',  'notused':'cool', 'off':'off'} %}{{ values[value] if value in values.keys() else 'off' }}",
+            min_temp: 5,
+            max_temp: 30,
+            temp_step: 0.5,
+            unit_of_measurement: unit || '°C' 
+        };
+        
+        const topic = [this._topicRoot, type, normalize(device.name), 'config'].join('/');
+        this._registerConfig(device, type, topic, payload);
+    }
+
+    _registerCapabilities(device, capabilities) {
+        if (!device || !capabilities) return;
+
+        Log.info("HASS: register (remaining) capabilities: " + device.name);
         for (let key in capabilities) {
             if (capabilities.hasOwnProperty(key)) {
                 const capability = capabilities[key];
-
                 if (capability && capability.id) {
-                    let msg = this._getMessage(device, capability);
-                    if (msg) {
-                        this.publish(msg);
-                    } else {
-                        Log.info("Failed to generate message for device: " + device.name);
-                    }
+                    this._registerCapability(device, capability);
                 }
             }
         }
     }
 
-    publish(msg) {
-        this.messageQueue.add(msg.topic, msg.payload, { qos:0, retained: true });
+    _registerCapability(device, capability) {
+        if (typeof device !== 'object' || typeof capability !== 'object') return undefined;
+
+        const config = this._createConfig(device, capability);
+        if (!config) {
+            Log.debug(`[SKIP] No config for: ${device.name} - ${capability.id}`);
+            return undefined;
+        }
+
+        const deviceId = normalize(device.name);
+        const capabilityId = normalize(capability.id);
+        const capabilityTitle = capability.title && typeof capability.title === 'object' ? capability.title['en'] : capability.title;
+        const capabilityName = capabilityTitle || capability.desc || capability.id;
+        const type = config.type;
+        const stateTopic = this.homieDispatcher.getTopic(device, capability);
+
+        const payload = {
+            name: `${device.name} - ${capabilityName}`,
+            unique_id: `${device.id}_${capability.id}`,
+            state_topic: stateTopic
+        };
+
+        if (capability.setable) {
+            payload.command_topic = `${stateTopic}/set`;
+        }
+
+        //// Set availability payload
+        //payload.availability_topic = `${nodeTopic}/availability`;
+
+        // Add precision to value_template
+        //if (capability.decimals) {
+        //    let template = payload.value_template;
+        //    if (typeof template === 'string') {
+        //        template = template.replace('{{ ', '').replace(' }}', '');
+        //        template = `{{ (${template} | float) | round(${capability.decimals}) }}`;
+        //        payload.value_template = template;
+        //    }
+        //}
+
+        // final payload = above payload with added & overidden values from config
+        const topic = [this._topicRoot, type, deviceId, capabilityId, 'config'].join('/');
+        this._registerConfig(device, type, topic, { ...payload, ...config.payload });
+    }
+
+    _createConfig(device, capability) {
+        if (typeof capability.id !== 'string') return undefined;
+
+        // based on capability type from id (i.e. type_property)
+        switch (capability.id.split('_').shift()) {
+            case 'alarm':
+                return {
+                    type: 'alarm',
+                    payload: {
+                        payload_on: "true",
+                        payload_off: "false",
+                        device_class: 'alarm'
+                    }
+                };
+        }
+
+        // TODO: icons
+
+        // based on capability data type
+        let cfg;
+        switch (capability.type) {
+            case 'boolean':
+                cfg = {
+                    type: capability.setable ? 'switch' : 'binary_sensor',
+                    payload: {
+                        payload_on: "true",
+                        payload_off: "false"
+                    }
+                };
+                if (capability.setable) {
+                    cfg.payload.icon = 'mdi:power';
+                }
+                return cfg;
+            case 'number':
+            case 'float':
+            case 'integer':
+                cfg = {
+                    type: 'sensor',
+                    payload: {}
+                };
+                const unit = capability.units && typeof capability.units === 'object' ? capability.units['en'] : capability.units;
+                if (unit) {
+                    cfg.payload.unit_of_measurement = unit;
+                }
+                return cfg;
+            case 'enum': // ????  TODO: Handle enums
+            case 'string':// ???? TODO: Handle strings
+            default:
+                return undefined;
+        }
+    }
+
+    _registerConfig(device, type, topic, config) {
+        if (!device || !topic || !config) return;
+
+        if (!type) {
+            Log.error('HASS: No device type provided');
+            return;
+        }
+        if (!config.name) {
+            Log.error('HASS: No config name provided');
+            return;
+        }
+
+        Log.debug(`HASS: Register [${type}]: ${config.name}`);
+
+        // Include device info
+        config.device = {
+            identifiers: `${this._deviceId}_${device.id}`,
+            name: device.name
+        };
+
+        if (['binary_sensor', 'sensor'].includes(type)) {
+            config.value_template = config.value_template || '{{ value }}';
+        }
+
+        this.publish(topic, config);
+    }
+
+    publish(topic, payload, retained) {
+        this.messageQueue.add(topic, payload, { qos:0, retained: retained !== false });
     }
 
     _unregisterDevice(device) {
