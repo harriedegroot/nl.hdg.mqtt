@@ -1,9 +1,14 @@
 === TODO ===
 
+- CHECK: MQTT CLient handling 0 values
 - HASS set numeric values?
 - HASS Enum & string values?
+- HASS Broadcast
+- HASS disable devices
+- HASS Keep track of device topics & remove messages from queue when disabling device
 - HASS settings (enable disable discovery + topic root)
 - HASS Remaining device types (Alarm control panels, Binary sensors, Cameras, Covers, Fans, HVACs, Lights, Locks, Sensors, Switches, Vacuums)
+- HASS thermostat modes
 - Settings for seperate root topics (homie, HASS, system state, custom, etc.)
 - Split hiding of controls & applying default (protocol) settings
 - settings default vs disabled controls

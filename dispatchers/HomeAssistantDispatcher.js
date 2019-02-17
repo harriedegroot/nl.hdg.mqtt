@@ -4,7 +4,7 @@ const _ = require('lodash');
 const Log = require('../Log');
 const normalize = require('../normalize');
 
-// Specific capability overrides
+// Capability overrides
 const configurations = {
 
     // Binary sensor
@@ -374,45 +374,47 @@ const coverClasses = new Set([
     'window'
 ]);
 
+{
 /* device classes
-SENSOR:
-    battery: Percentage of battery that is left.
-    humidity: Percentage of humidity in the air.
-    illuminance: The current light level in lx or lm.
-    temperature: Temperature in °C or °F.
-    pressure: Pressure in hPa or mbar.
-    timestamp: Datetime object or timestamp string.
-
-BINARY SENSOR:
-    battery: On means low, Off means normal
-    cold: On means cold, Off means normal
-    connectivity: On means connected, Off means disconnected
-    door: On means open, Off means closed
-    garage_door: On means open, Off means closed
-    gas: On means gas detected, Off means no gas (clear)
-    heat: On means hot, Off means normal
-    light: On means light detected, Off means no light
-    lock: On means open (unlocked), Off means closed (locked)
-    moisture: On means moisture detected (wet), Off means no moisture (dry)
-    motion: On means motion detected, Off means no motion (clear)
-    moving: On means moving, Off means not moving (stopped)
-    occupancy: On means occupied, Off means not occupied (clear)
-    opening: On means open, Off means closed
-    plug: On means device is plugged in, Off means device is unplugged
-    power: On means power detected, Off means no power
-    presence: On means home, Off means away
-    problem: On means problem detected, Off means no problem (OK)
-    safety: On means unsafe, Off means safe
-    smoke: On means smoke detected, Off means no smoke (clear)
-    sound: On means sound detected, Off means no sound (clear)
-    vibration: On means vibration detected, Off means no vibration (clear)
-    window: On means open, Off means closed
-
-COVER:
-    damper: Ventilation damper controller.
-    garage: Garage door controller.
-    window: Window controller.
-*/
+    SENSOR:
+        battery: Percentage of battery that is left.
+        humidity: Percentage of humidity in the air.
+        illuminance: The current light level in lx or lm.
+        temperature: Temperature in °C or °F.
+        pressure: Pressure in hPa or mbar.
+        timestamp: Datetime object or timestamp string.
+    
+    BINARY SENSOR:
+        battery: On means low, Off means normal
+        cold: On means cold, Off means normal
+        connectivity: On means connected, Off means disconnected
+        door: On means open, Off means closed
+        garage_door: On means open, Off means closed
+        gas: On means gas detected, Off means no gas (clear)
+        heat: On means hot, Off means normal
+        light: On means light detected, Off means no light
+        lock: On means open (unlocked), Off means closed (locked)
+        moisture: On means moisture detected (wet), Off means no moisture (dry)
+        motion: On means motion detected, Off means no motion (clear)
+        moving: On means moving, Off means not moving (stopped)
+        occupancy: On means occupied, Off means not occupied (clear)
+        opening: On means open, Off means closed
+        plug: On means device is plugged in, Off means device is unplugged
+        power: On means power detected, Off means no power
+        presence: On means home, Off means away
+        problem: On means problem detected, Off means no problem (OK)
+        safety: On means unsafe, Off means safe
+        smoke: On means smoke detected, Off means no smoke (clear)
+        sound: On means sound detected, Off means no sound (clear)
+        vibration: On means vibration detected, Off means no vibration (clear)
+        window: On means open, Off means closed
+    
+    COVER:
+        damper: Ventilation damper controller.
+        garage: Garage door controller.
+        window: Window controller.
+ */
+}
 
 const DEVICE_ID = 'homey';
 const TOPIC_ROOT = 'homeassistant';
@@ -559,12 +561,10 @@ class HomeAssistantDispatcher {
 
         switch (device.class) {
             case 'light':
-                for (let id of ['onoff', 'dim', 'light_hue', 'light_saturation', 'light_temperature'])
-                    delete capabilities[id];
-                this._registerLight(device);
+                this._registerLight(device).forEach(id => delete capabilities[id]);
                 break;
             case 'thermostat':
-                this._registerThermostat(device);
+                this._registerThermostat(device).forEach(id => delete capabilities[id]);
                 break;
             case 'socket':
             case 'vacuumcleaner':
@@ -633,33 +633,55 @@ class HomeAssistantDispatcher {
         
         const topic = [this._topicRoot, type, normalize(device.name), 'config'].join('/');
         this._registerConfig(device, type, topic, payload);
+
+        return ['onoff', 'dim', 'light_hue', 'light_saturation', 'light_temperature', 'color', 'rgb', 'hsv'];
     }
 
     _registerThermostat(device) {
-        const capability = device.capabilitiesObj['measure-temperature'] || device.capabilitiesObj['target-temperature'] || device.capabilitiesObj['measure-temperature'];
+        const capabilities = device.capabilitiesObj;
         const stateTopic = this.homieDispatcher.getTopic(device);
-        const type = 'thermostat';
-        let unit = capability
-            ? (capability.units && typeof capability.units === 'object' ? capability.units['en'] : capability.units)
-            : undefined;
+        const type = 'climate';
+
+        //const capability = device.capabilitiesObj['measure-temperature'] || device.capabilitiesObj['target-temperature'] || device.capabilitiesObj['measure-temperature'];
+        //let unit = capability
+        //    ? (capability.units && typeof capability.units === 'object' ? capability.units['en'] : capability.units)
+        //    : undefined;
 
         const payload = {
             name: device.name,
             unique_id: `${device.id}_${type}`,
-            curr_temp_t: `${stateTopic}/measure-temperature`,
-            temp_stat_t: `${stateTopic}/target-temperature`,
-            temp_cmd_t: `${stateTopic}/target-temperature/set`,
-            mode_stat_t: `${stateTopic}/custom-thermostat-mode`,
-            mode_cmd_t: `${stateTopic}/custom-thermostat-mode/set`,
-            mode_stat_tpl: "{% set values = { 'schedule':'auto', 'manual':'heat',  'notused':'cool', 'off':'off'} %}{{ values[value] if value in values.keys() else 'off' }}",
+            current_temperature_topic: `${stateTopic}/measure-temperature`,
+            current_temperature_template: `{{ value }}`,
+            temperature_state_topic: `${stateTopic}/target-temperature`,
+            temperature_command_topic: `${stateTopic}/target-temperature/set`,
+            temperature_state_template: `{{ value }}`,
             min_temp: 5,
             max_temp: 30,
             temp_step: 0.5,
-            unit_of_measurement: unit || '°C' 
+            //unit_of_measurement: unit || '°C'  // NOT Supported?
         };
-        
+
+        if (capabilities.hasOwnProperty('onoff')) {
+            payload.payload_on = `true`;
+            payload.payload_off = `false`;
+            payload.state_topic = `${stateTopic}/onoff`;
+            //payload.power_state_topic = `${stateTopic}/onoff`;
+            payload.power_command_topic = `${stateTopic}/onoff/set`;
+            payload.value_template = '{{ value }}';
+        }
+
+        // TODO: Implement thermostat modes
+        if (capabilities.hasOwnProperty('custom-thermostat-mode')) {
+            payload.mode_state_topic = `${stateTopic}/custom-thermostat-mode`;
+            payload.mode_command_topic = `${stateTopic}/custom-thermostat-mode/set`;
+            payload.modes = ['auto', 'off', 'cool', 'heat', 'dry', 'fan_only'];
+            payload.mode_state_template = "{% set values = { 'schedule':'auto', 'manual':'heat', 'notused':'cool', 'off':'off'} %}{{ values[value] if value in values.keys() else 'off' }}";
+        }
+
         const topic = [this._topicRoot, type, normalize(device.name), 'config'].join('/');
         this._registerConfig(device, type, topic, payload);
+
+        return ['onoff', 'measure-temperature', 'target-temperature', 'custom-thermostat-mode'];
     }
 
     _registerCapabilities(device, capabilities) {
@@ -756,6 +778,8 @@ class HomeAssistantDispatcher {
             case 'number':
             case 'float':
             case 'integer':
+            case 'string':
+            case 'enum':
                 cfg = {
                     type: 'sensor',
                     payload: {}
@@ -765,8 +789,6 @@ class HomeAssistantDispatcher {
                     cfg.payload.unit_of_measurement = unit;
                 }
                 return cfg;
-            case 'enum': // ????  TODO: Handle enums
-            case 'string':// ???? TODO: Handle strings
             default:
                 return undefined;
         }
