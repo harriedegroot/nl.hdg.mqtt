@@ -121,7 +121,7 @@ class HomieDispatcher {
         this.settings.deviceId = normalize(settings.deviceId || this.system.name || DEFAULT_DEVICE_ID);
         this.settings.topicIncludeClass = settings.topicIncludeClass === true;
         this.settings.topicIncludeZone = settings.topicIncludeZone === true;
-        this.settings.propertyScaling = settings.propertyScaling || DEFAULT_PROPERTY_SCALING;
+        this.settings.percentageScale = settings.percentageScale || DEFAULT_PROPERTY_SCALING;
         this.settings.colorFormat = settings.colorFormat || DEFAULT_COLOR_FORMAT;
 
         // Breaking changes? => Start a new HomieDevice (& destroy current)
@@ -282,7 +282,7 @@ class HomieDispatcher {
                                     return;
                                 }
                                 try {
-                                    await this.setValue(device.id, id, value, dataType);
+                                    await this.setValue(device.id, capability, value, dataType);
                                 } catch (e) {
                                     Log.error("Failed to set capability value: " + name);
                                 }
@@ -295,7 +295,7 @@ class HomieDispatcher {
                             if (color) {
                                 this._sendColor(device, property, this._formatColor(capabilities));
                             } else {
-                                this._send(device.id, property, this._formatValue(value));
+                                this._send(device.id, property, this._formatValue(value, capability));
                             }
                         }
                     }
@@ -306,7 +306,7 @@ class HomieDispatcher {
                         this._destroyCapabilityInstance(deviceCapabilityId);
                         device.setMaxListeners(100);
                         const capabilityInstance = device.makeCapabilityInstance(key, value =>
-                            this._handleStateChange(node, device.id, key, value)
+                            this._handleStateChange(node, device.id, capability, value)
                                 .then()
                                 .catch(error => {
                                     Log.error("Failed to handle device state change");
@@ -462,6 +462,25 @@ class HomieDispatcher {
         }
 
         if (capability.min !== undefined && capability.max !== undefined) {
+
+            // catch percentage
+            if (capability.units === '%') {
+                switch (this.settings.percentageScale) {
+                    case 'int':
+                        if (capability.min === 0 && capability.max === 1)
+                            return '0:100';
+                        break;
+                    case 'float':
+                        if (capability.min === 0 && capability.max === 100)
+                            return '0:1';
+                        break;
+                    case 'default':
+                    default:
+                        // nothing
+                        break;
+                }
+            }
+
             return `${capability.min}:${capability.max}`;
         }
 
@@ -472,7 +491,7 @@ class HomieDispatcher {
         return null;
     }
 
-    async _handleStateChange(node, deviceId, capabilityId, value) {
+    async _handleStateChange(node, deviceId, capability, value) {
 
         if (!node) {
             Log.info("[SKIP] No valid node provided");
@@ -489,7 +508,7 @@ class HomieDispatcher {
             return;
         }
         
-        Log.info("Homie set value [" + node.name + "." + capabilityId + "]: " + value);
+        Log.info("Homie set value [" + node.name + "." + capability.id + "]: " + value);
 
         if (value === undefined) {
             Log.info("Homie: No value provided");
@@ -498,8 +517,8 @@ class HomieDispatcher {
 
         // Catch colors
         //if (this.settings.colorFormat !== 'values') {
-            if (capabilityId === 'light_hue') {
-                capabilityId = 'color';
+            if (capability.id === 'light_hue') {
+                capability.id = 'color';
                 let device = await this.api.devices.getDevice({ id: deviceId });
                 if (device) {
                     if (this.broadcast) {
@@ -508,19 +527,19 @@ class HomieDispatcher {
                 }
                 return;
             }
-            if (capabilityId === 'light_saturation' || capabilityId === 'light_temperature') {
+            if (capability.id === 'light_saturation' || capability.id === 'light_temperature') {
                 return; // NOTE: Skip additional color value. The color dataType is already handled by 'light_hue'
             }
         //}
 
         try {
-            const property = node.setProperty(normalize(capabilityId));
+            const property = node.setProperty(normalize(capability.id));
             if (property) {
                 if (this.broadcast) {
-                    this._send(deviceId, property, this._formatValue(value));
+                    this._send(deviceId, property, this._formatValue(value, capability));
                 }
             } else {
-                Log.info("No property found for capability: " + capabilityId);
+                Log.info("No property found for capability: " + capability.id);
             }
         } catch (e) {
             Log.error('HomieDispatcher: Failed to publish capability value');
@@ -528,7 +547,7 @@ class HomieDispatcher {
         }
     }
 
-    async setValue(deviceId, capabilityId, value, dataType) {
+    async setValue(deviceId, capability, value, dataType) {
 
         Log.info('HomieDispatcher.setValue');
 
@@ -543,8 +562,8 @@ class HomieDispatcher {
             try {
                 const state = {
                     deviceId: deviceId,
-                    capabilityId: capabilityId,
-                    value: this._parseValue(value, dataType)
+                    capabilityId: capability.id,
+                    value: this._parseValue(value, dataType, capability)
                 };
                 Log.debug("state: " + JSON.stringify(state));
                 await this.api.devices.setCapabilityValue(state);
@@ -595,14 +614,52 @@ class HomieDispatcher {
         return { hsv, rgb };
     }
 
-    _formatValue(value) {
+    _formatValue(value, capability) {
         if (typeof value === 'boolean') {
             return value ? 'true' : 'false';
         }
+
+        if (capability.units === '%') {
+            switch (this.settings.percentageScale) {
+                case 'int':
+                    if (capability.min === 0 && capability.max === 1)
+                        return value * 100;
+                    break;
+                case 'float':
+                    if (capability.min === 0 && capability.max === 100)
+                        return value / 100;
+                    break;
+                case 'default':
+                default:
+                    // nothing
+                    break;
+            }
+        }
+
         return value;
     }
 
-    _parseValue(value, dataType) {
+    _parseValue(value, dataType, capability) {
+
+        // Handle percentage scaling
+        if (capability && capability.units === '%') {
+            switch (this.settings.percentageScale) {
+                case 'int':
+                    if (capability.min === 0 && capability.max === 1)
+                        return this._parseValue(value, 'int') / 100.0;
+                    break;
+                case 'float':
+                    if (capability.min === 0 && capability.max === 100)
+                        return this._parseValue(value, 'float') * 100;
+                    break;
+                case 'default':
+                default:
+                    // nothing
+                    break;
+            }
+        }
+
+        // by data type
         switch (dataType) {
             case 'boolean':
                 return value === true || value === 'true' || value === 1 || value === '1';

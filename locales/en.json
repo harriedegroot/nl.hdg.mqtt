@@ -20,7 +20,7 @@
     "topicIncludeZone": "Include zone in topic?",
     "includeZone": "Include zone",
     "messages": "MESSAGES",
-    "propertyScaling": "Percentage formatting (coming soon...)",
+    "percentageScale": "Percentage format",
     "colorFormat": "Color format",
     "broadcast": "Broadcast",
     "publish": "PUBLISH",

@@ -14,7 +14,7 @@ const defaultSettings = {
     "deviceId": "homey",
     "topicIncludeClass": false,
     "topicIncludeZone": false,
-    "propertyScaling": "default",
+    "percentageScale": "default",
     "colorFormat": "hsv",
     "broadcastDevices": true,
     "broadcastSystemState": false
@@ -23,16 +23,16 @@ const defaultSettings = {
 const homie3Settings = {
     "topicIncludeClass": false,
     "topicIncludeZone": false,
-    "propertyScaling": "default",
+    //"percentageScale": "int",
     "colorFormat": "hsv",
     "broadcastDevices": true
 };
 
 const haSettings = {
-    "propertyScaling": "default" // not implemented yet
+    //"percentageScale": "int"
 };
 const customSettings = {
-    "propertyScaling": "default" // not implemented yet
+    //"percentageScale": "default"
 };
 
 //////////////////////////////////////////////
