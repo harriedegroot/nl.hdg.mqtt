@@ -424,6 +424,26 @@ class HomieDispatcher {
     }
 
     _convertDataType(capability) {
+
+        // percentage
+        if (capability.units === '%') {
+            switch (this.settings.percentageScale) {
+                case 'int':
+                    if (capability.min === 0 && capability.max === 1)
+                        return 'int';
+                    break;
+                case 'float':
+                    if (capability.min === 0 && capability.max === 100)
+                        return 'float';
+                    break;
+                case 'default':
+                default:
+                    // nothing
+                    break;
+            }
+        }
+
+        // color
         if (this.settings.colorFormat !== 'values') {
             switch (capability.id) {
                 case 'light_hue':
@@ -433,7 +453,8 @@ class HomieDispatcher {
                     return undefined;       // NOTE: Skip additional color value. The color dataType is already created from 'light_hue'
             }
         }
-        
+
+        // default
         let dataType = capability.type;
         switch (dataType) {
             case 'number':
