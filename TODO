@@ -1,10 +1,13 @@
 === TODO ===
 
+- color values: round float values (int)
+- HASS: Color temperature (read & write)
+- Update correct HSV values when setting one of the values (color topic)
 - CHECK: MQTT CLient handling 0 values
-- HASS set numeric values?
-- HASS Enum & string values?
+- HASS set numeric values? input_number: https://www.home-assistant.io/components/input_number/?
 - HASS Broadcast
 - HASS disable devices
+- HASS enable device => send discover config
 - HASS Keep track of device topics & remove messages from queue when disabling device
 - HASS settings (enable disable discovery + topic root)
 - HASS Remaining device types (Alarm control panels, Binary sensors, Cameras, Covers, Fans, HVACs, Lights, Locks, Sensors, Switches, Vacuums)
@@ -81,3 +84,4 @@ x test internal MQTT client ('socket hang up' fix? duplicate mem usage, config &
 - HASS Discovery setup
 - HASS Devices
 - HASS icons
+- HASS Enum & string values
