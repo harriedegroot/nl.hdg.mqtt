@@ -276,16 +276,17 @@ class HomieDispatcher {
                         }
 
                         if (capability.setable) {
-                            property.settable(async (format, value) => {
+                            property.settable((format, value) => {
                                 if (!this.deviceManager.isDeviceEnabled(device.id)) {
                                     //Log.info('[SKIP] Device disabled');
                                     return;
                                 }
-                                try {
-                                    await this.setValue(device.id, capability, value, dataType);
-                                } catch (e) {
-                                    Log.error("Failed to set capability value: " + name);
-                                }
+                                this.setValue(device.id, capability, value, dataType)
+                                    .then()
+                                    .catch(e => {
+                                        Log.error("Failed to set capability value: " + name);
+                                        Log.error(e);
+                                    });
                             });
                         }
 
@@ -575,7 +576,7 @@ class HomieDispatcher {
         // handle colors
         if (dataType === 'color') {
             try {
-                await this._setColor(deviceId, value);
+                await this._setColor(deviceId, value, capability);
             } catch (e) {
                 Log.error("Failed to set color value");
             }
@@ -595,8 +596,11 @@ class HomieDispatcher {
         }
     }
 
-    async _setColor(deviceId, value) {
-        let split = (value || '').toString().split(',').map(v => parseFloat(v.trim()));
+    async _setColor(deviceId, value, capability) {
+        let split = typeof value === 'number'
+            ? [value]
+            : (value || '').toString().split(',').map(v => parseFloat(v.trim()));
+
         if (split.length === 3) {
             try {
                 let color = this.settings.colorFormat === 'rgb' ? Color.RGBtoHSV(...split) : { h: split[0], s: split[1], v: split[2] };
@@ -607,9 +611,38 @@ class HomieDispatcher {
                 color.s /= 100;
                 color.v /= 100;
 
-                await this.api.devices.setCapabilityValue({ deviceId: deviceId, capabilityId: 'light_hue', value: color.h });
                 await this.api.devices.setCapabilityValue({ deviceId: deviceId, capabilityId: 'light_saturation', value: color.s });
                 await this.api.devices.setCapabilityValue({ deviceId: deviceId, capabilityId: 'light_temperature', value: color.v });
+                await this.api.devices.setCapabilityValue({ deviceId: deviceId, capabilityId: 'light_hue', value: color.h }); // NOTE: Executed last because 'hue' triggers the update
+            } catch (e) {
+                Log.info("Homie: Failed to update color value");
+                Log.error(e);
+            }
+        }
+        else if (split.length === 2) { // HASS: assume HS format
+            try {
+                let color = { h: split[0], s: split[1] };
+                Log.debug("color: " + JSON.stringify(color));
+
+                // Note: Homey values are rang 0...1
+                color.h /= 360;
+                color.s /= 100;
+                
+                await this.api.devices.setCapabilityValue({ deviceId: deviceId, capabilityId: 'light_saturation', value: color.s });
+                await this.api.devices.setCapabilityValue({ deviceId: deviceId, capabilityId: 'light_hue', value: color.h }); // NOTE: Executed last because 'hue' triggers the update
+            } catch (e) {
+                Log.info("Homie: Failed to update color value");
+                Log.error(e);
+            }
+        }
+        else if (split.length === 1) { // HASS: temperature
+            try {
+                // Note: Homey values are rang 0...1 (percentage)
+                // HASS: The color temperature command slider has a range of 153 to 500 mireds (micro reciprocal degrees).
+                let temperature = (split[0] - 153) / (500 - 153);
+                Log.debug("light_temperature: " + temperature);
+
+                await this.api.devices.setCapabilityValue({ deviceId: deviceId, capabilityId: 'light_temperature', value: temperature });
             } catch (e) {
                 Log.info("Homie: Failed to update color value");
                 Log.error(e);
