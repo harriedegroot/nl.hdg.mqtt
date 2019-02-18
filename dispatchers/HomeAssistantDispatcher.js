@@ -618,17 +618,18 @@ class HomeAssistantDispatcher {
         }
         if (capabilities.hasOwnProperty('light_temperature')) {
             payload.color_temp_state_topic = `${stateTopic}/color/v`;
-            payload.color_temp_command_topic = `${stateTopic}/color`; // TODO: Handle temp with single value
-            payload.color_temp_value_template = "{{ value }}";
-            payload.color_temp_scale = 100;
+            payload.color_temp_command_topic = `${stateTopic}/color/set`;
+
+            // Homie values are 0...100
+            // HASS: The color temperature command slider has a range of 153 to 500 mireds (micro reciprocal degrees).
+            payload.color_temp_value_template = "{{ ((value | float / 100) * (500 - 153)) + 153  }}";
         }
         if (capabilities.hasOwnProperty('light_hue') || capabilities.hasOwnProperty('light_saturation')) {
             payload.hs_state_topic = `${stateTopic}/color/hsv`;
-            payload.hs_command_topic = `${stateTopic}/color`; // TODO: Handle HS color value
+            payload.hs_command_topic = `${stateTopic}/color/set`;
             payload.hs_value_template = `{{ value_json.h }},{{ value_json.s }}`;
         }
 
-        // TODO: handle colors by json scheme
         // TODO: light_mode
         // TODO: RGB color setting
         
@@ -721,7 +722,7 @@ class HomeAssistantDispatcher {
             state_topic: stateTopic
         };
 
-        if (capability.setable) {
+        if (capability.setable && ['alarm', 'binary_sensor', 'cover', 'fan', 'lock', 'switch', 'vacuum'].includes(type)) {
             payload.command_topic = `${stateTopic}/set`;
         }
 
@@ -747,17 +748,17 @@ class HomeAssistantDispatcher {
         if (typeof capability.id !== 'string') return undefined;
 
         // based on capability type from id (i.e. type_property)
-        switch (capability.id.split('_').shift()) {
-            case 'alarm':
-                return {
-                    type: 'alarm',
-                    payload: {
-                        payload_on: "true",
-                        payload_off: "false",
-                        device_class: 'alarm'
-                    }
-                };
-        }
+        //switch (capability.id.split('_').shift()) {
+        //    case 'alarm':
+        //        return {
+        //            type: 'alarm',
+        //            payload: {
+        //                payload_on: "true",
+        //                payload_off: "false",
+        //                device_class: 'alarm'
+        //            }
+        //        };
+        //}
 
         // TODO: icons
 

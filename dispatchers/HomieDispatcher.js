@@ -281,6 +281,7 @@ class HomieDispatcher {
                                     //Log.info('[SKIP] Device disabled');
                                     return;
                                 }
+                                
                                 this.setValue(device.id, capability, value, dataType)
                                     .then()
                                     .catch(e => {
