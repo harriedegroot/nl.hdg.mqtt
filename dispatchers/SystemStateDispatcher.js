@@ -122,7 +122,7 @@ class SystemStateDispatcher {
         }
 
         // loop
-        this.timeout = setTimeout(async () => await this.update(), DELAY);
+        this.timeout = setTimeout(() => this.update().catch(e => Log.error(e)), DELAY);
     }
 
     async destroy() {
