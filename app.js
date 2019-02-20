@@ -10,6 +10,7 @@ const Homey = require('homey');
 const { HomeyAPI } = require('athom-api');
 const MQTTClient = require('./mqtt/MQTTClient');
 const MessageQueue = require('./mqtt/MessageQueue');
+const Message = require('./mqtt/Message');
 
 // Services
 const Log = require("./Log.js");
@@ -23,6 +24,12 @@ const HomeAssistantDispatcher = require("./dispatchers/HomeAssistantDispatcher.j
 // Commands
 const CommandHandler = require("./commands/CommandHandler.js");
 
+// Birth & Last will
+const BIRTH_TOPIC = '{deviceId}/hub/status'; // NOTE: Empty to ommit
+const BIRTH_MESSAGE = 'online';
+const WILL_TOPIC = '{deviceId}/hub/status'; // NOTE: Empty to ommit
+const WILL_MESSAGE = 'offline';
+
 function getTopicRoot(settings) {
     return typeof settings === 'object' ? settings.deviceId : 'homey';
 }
@@ -32,6 +39,8 @@ class MQTTHub extends Homey.App {
     async onInit() {
         try {
             Log.info('MQTT Hub is running...');
+
+            Homey.on('unload', () => this.stop());
 
             this.settings = Homey.ManagerSettings.get('settings') || {};
 
@@ -83,7 +92,7 @@ class MQTTHub extends Homey.App {
         try {
             Log.info('app start');
             await this.mqttClient.connect();
-
+            this._sendBirthMessage();
             this._startCommands();
             this._startBroadcasters();
 
@@ -102,15 +111,19 @@ class MQTTHub extends Homey.App {
     }
 
     stop() {
+        this._sendLastWillMessage();
         Log.info('app stop');
         this.mqttClient.disconnect();
         this._stopCommands();
         this._stopBroadcasters();
         this._stopCommunicationProtocol();
         delete this.protocol;
+
+        // TODO: Unsubscribe all topics
+
         Log.info('app running: false');
     }
-
+    
     async _startCommunicationProtocol(protocol) {
         this.protocol = protocol || this.protocol;
         Log.info('start communication protocol: ' + this.protocol);
@@ -299,6 +312,21 @@ class MQTTHub extends Homey.App {
         } catch (e) {
             Log.error("Failed to update settings");
             Log.error(e);
+        }
+    }
+
+    _sendBirthMessage() {
+        if (this.mqttClient && BIRTH_TOPIC && BIRTH_MESSAGE) {
+            const deviceId = this.settings && this.settings.deviceId ? this.settings.deviceId : 'Homey';
+            const topic = BIRTH_TOPIC.replace('{deviceId}', deviceId);
+            this.mqttClient.publish(new Message(topic, BIRTH_MESSAGE, 1, true));
+        }
+    }
+    _sendLastWillMessage() {
+        if (this.mqttClient && WILL_TOPIC && WILL_MESSAGE) {
+            const deviceId = this.settings && this.settings.deviceId ? this.settings.deviceId : 'Homey';
+            const topic = WILL_TOPIC.replace('{deviceId}', deviceId);
+            this.mqttClient.publish(new Message(topic, WILL_MESSAGE, 1, true));
         }
     }
 }
