@@ -91,7 +91,7 @@ class MQTTHub extends Homey.App {
             if (this.protocol !== protocol) {
                 Log.info("Changing protocol from '" + this.protocol + "' to '" + protocol + "'");
                 this._stopCommunicationProtocol(this.protocol);
-                this._startCommunicationProtocol(protocol);
+                await this._startCommunicationProtocol(protocol);
             }
 
             Log.info('app running: true');
@@ -111,7 +111,7 @@ class MQTTHub extends Homey.App {
         Log.info('app running: false');
     }
 
-    _startCommunicationProtocol(protocol) {
+    async _startCommunicationProtocol(protocol) {
         this.protocol = protocol || this.protocol;
         Log.info('start communication protocol: ' + this.protocol);
 
@@ -121,6 +121,10 @@ class MQTTHub extends Homey.App {
         // Enable Home Assistant Discovery
         // TODO: Make HomeAssistantDispatcher configurable
         this.homeAssistantDispatcher = new HomeAssistantDispatcher(this);
+        await this.homeAssistantDispatcher.register();
+
+        // Register all devices & dispatch current state
+        this.homieDispatcher.register();
     }
 
     _stopCommunicationProtocol(protocol) {
@@ -256,12 +260,11 @@ class MQTTHub extends Homey.App {
      * */
     refresh() {
         Log.info('refresh');
-        if (this.homieDispatcher) {
-            this.homieDispatcher.dispatchState();
-        }
-
         if (this.homeAssistantDispatcher) {
             this.homeAssistantDispatcher.dispatchState();
+        }
+        if (this.homieDispatcher) {
+            this.homieDispatcher.dispatchState();
         }
     }
 

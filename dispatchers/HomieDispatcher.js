@@ -31,7 +31,8 @@ class HomieDispatcher {
 
     constructor({ api, mqttClient, deviceManager, system, settings, messageQueue }) {
         this.api = api;
-        this.mqttClient = new HomieMQTTClient(mqttClient, messageQueue);
+        this._mqttClient = mqttClient;
+        this.homieMQTTClient = new HomieMQTTClient(mqttClient, messageQueue);
         this.deviceManager = deviceManager;
         this.system = system;
         this.messageQueue = messageQueue;
@@ -41,12 +42,17 @@ class HomieDispatcher {
         this._nodes = new Map();
         this._capabilityInstances = new Map();
         this._deviceTopics = new Map();
+    }
+
+    register() {
+        if (this._registered) return;
+        this._registered = true;
 
         // Wait for the client to be connected, otherwise messages wont be send
-        if (mqttClient.isRegistered()) {
+        if (this._mqttClient.isRegistered()) {
             this._initHomieDevice();
         } else {
-            mqttClient.onRegistered.subscribe(() => this._initHomieDevice(), true);
+            this._mqttClient.onRegistered.subscribe(() => this._initHomieDevice(), true);
         }
     }
     
@@ -73,7 +79,7 @@ class HomieDispatcher {
 
         // NOTE: If the client is already connected, the 'connect' event won't be fired. 
         // Therefore we mannually dispatch the state if already connected/registered.
-        if (this.mqttClient.isRegistered()) {
+        if (this._mqttClient.isRegistered()) {
             this.dispatchState();
         }
     }
@@ -102,7 +108,7 @@ class HomieDispatcher {
                 username: null,
                 password: null
             },
-            mqttClient: this.mqttClient,
+            mqttClient: this.homieMQTTClient,
             settings: {
             },
             ip: null,
@@ -741,7 +747,7 @@ class HomieDispatcher {
         } else {
             Log.info("[Skip] Invalid broadcast");
             Log.info("HomieDevice initialized: " + !!this.homieDevice);
-            Log.info("MQTT Client registered: " + this.mqttClient.isRegistered());
+            Log.info("MQTT Client registered: " + this._mqttClient.isRegistered());
         }
     }
 

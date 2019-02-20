@@ -1,5 +1,6 @@
 === TODO ===
 
+- birth & last will messages
 - color values: round float values (int)
 - HASS: Color temperature (read & write)
 - Update correct HSV values when setting one of the values (color topic)
@@ -85,3 +86,5 @@ x test internal MQTT client ('socket hang up' fix? duplicate mem usage, config &
 - HASS Devices
 - HASS icons
 - HASS Enum & string values
+- broadcast on hass birth
+- put HASS discovery before Homie

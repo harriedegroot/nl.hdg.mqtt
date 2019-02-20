@@ -416,9 +416,12 @@ const coverClasses = new Set([
  */
 }
 
+// NOTE: Make configurable
 const DEFAULT_DEVICE_ID = 'homey';
 const DEFAULT_TOPIC_ROOT = 'homeassistant';
 const STATUS_TOPIC = 'hass/status';
+const STATUS_ONLINE = 'online';
+const STATUS_OFFLINE = 'offline';
 
 /**
  * Home Assistant Discovery
@@ -443,34 +446,45 @@ class HomeAssistantDispatcher {
         this._registered = new Set();
 
         this.updateSettings(settings);
+    }
 
-        this._init()
-            .then(() => Log.info("HomeAssistant Dispatcher initialized"))
-            .catch(error => Log.error(error));
+    async register() {
+        try {
+            await this._init();
+            Log.info("HomeAssistant Dispatcher initialized");
+        } catch (e) {
+            Log.error("Failed to initialize HomeAssistantDispatcher");
+            Log.error(error);
+        }
     }
     
     async _init() {
 
-        await this.mqttClient.subscribe(STATUS_TOPIC/*, CLIENT_OPTIONS*/);
+        // subscribe the HASS Birth & Last will messages
+        await this.mqttClient.subscribe(STATUS_TOPIC);
+        this._clientCallback = this._onMessage.bind(this);
+        this.mqttClient.onMessage.subscribe(this._clientCallback);
 
         // NOTE: If the client is already connected, the 'connect' event won't be fired. 
         // Therefore we mannually dispatch the state if already connected/registered.
-        if (this.mqttClient.isRegistered()) {
+        if (this.mqttClient.isRegistered())
             this.dispatchState();
-        } else {
+        else
             this.mqttClient.onRegistered.subscribe(() => this.dispatchState(), true);
-
-            this._clientCallback = this._onMessage.bind(this);
-            this.mqttClient.onMessage.subscribe(this._clientCallback);
-        }
     }
 
     async _onMessage(topic, message) {
 
         if (topic !== STATUS_TOPIC) return;
 
+        Log.info("Received HASS Birth message: " + message);
+
         try {
-            // TODO: implement
+            if (message === STATUS_ONLINE && this.mqttClient.isRegistered()) {
+                Log.info('Dispatch state');
+                this.dispatchState();
+                this.homieDispatcher.dispatchState();
+            }
         } catch (e) {
             Log.info('Error handling HASS status message');
             Log.debug(topic);
@@ -480,6 +494,7 @@ class HomeAssistantDispatcher {
     }
 
     dispatchState() {
+        this._registered = new Set();
         this.registerDevices();
     }
 
