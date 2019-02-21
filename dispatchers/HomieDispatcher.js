@@ -26,7 +26,7 @@ const PROPERTY_COMMANDS = ['$name', '$retained', '$settable', '$unit', '$datatyp
 class HomieDispatcher {
 
     get _topicRoot() {
-        return this.settings && this.settings.topicRoot ? this.settings.topicRoot : '';
+        return this.settings && this.settings.homieTopic ? this.settings.homieTopic : '';
     }
     get _deviceId() {
         return this.settings && this.settings.deviceId ? this.settings.deviceId : DEFAULT_DEVICE_ID;
@@ -126,7 +126,7 @@ class HomieDispatcher {
 
         this.broadcast = settings.broadcastDevices !== false;
 
-        this.settings.topicRoot = settings.topicRoot === undefined ? DEFAULT_TOPIC_ROOT : settings.topicRoot;
+        this.settings.homieTopic = settings.homieTopic === undefined ? DEFAULT_TOPIC_ROOT : settings.homieTopic;
         this.settings.deviceId = normalize(settings.deviceId || this.system.name || DEFAULT_DEVICE_ID);
         this.settings.topicIncludeClass = settings.topicIncludeClass === true;
         this.settings.topicIncludeZone = settings.topicIncludeZone === true;
