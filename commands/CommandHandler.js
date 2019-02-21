@@ -2,7 +2,7 @@
 
 const Log = require('../Log');
 
-const TOPIC = '$command'; // <root>/<device id>/$command
+const TOPIC = 'homey/$command'; // <root>/<device id>/$command
 
 /**
  * TODO: Create the ability to register seperate commands
