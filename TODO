@@ -13,6 +13,12 @@ Settings:
 ! settings restore app defaults button
 ! Check 'App' initilaized (prevent settings crash)
 ! Update Instructions
+! [CHECK] Load deviceId @ first load
+! [CHECK] initial settings @ clean install
+! Allow all chars for DeviceId, normalize for topics (based on setting)
+! Inject deviceId (normalized) in topics
+! [CHECK] broadcast on settings changes (if needed)
+! [CHECK] en.json translations
 - optional normalization for custom protocol
 - system info topic configurable
 - Enable/disable all devices
@@ -22,11 +28,14 @@ Settings:
 - Disable device capabilities
 - Show number of messages per device
 - Display number of messages in queue (fill 100% === number of devices)
+- Seperate call for device enable/disable
 
 HASS:
 ! Enable/disable (broadcast / clear messages)
 ! Color temperature (read & write)
 ! Update correct HSV values when setting one of the values (color topic)
+! Implement full reload @ settings change
+! Clear all HASS messages
 - Set numeric values? input_number: https://www.home-assistant.io/components/input_number/?
 - Remaining device types (Alarm control panels, Binary sensors, Cameras, Covers, Fans, HVACs, Lights, Locks, Sensors, Switches, Vacuums)
 - thermostat modes
@@ -40,11 +49,13 @@ Homie:
 - Check client availability processing
 - Publish device/$state disconnect message?
 - Device Aliasses (e.g. dim/brightness, light temperature, etc.)
+- Button-press & non-retained messages?
 
 App:
 - [Check] shutdown procedure
 - [Check] Refresh devices on device/zone changes + Broadcast
 - Uninstall app => unsubscribe from topics on MQTT lient
+- [CHECK] all code TODO's
 
 Homey:
 - Flow card for MQTT Device (i.e. to add scenes)

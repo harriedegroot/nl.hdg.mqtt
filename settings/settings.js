@@ -8,24 +8,48 @@ var log = '';
 var logTimeout = 0;
 var FETCH_LOG_DELAY = 5000;
 
+const STATUS_TOPIC = 'hass/status';
+const STATUS_ONLINE = 'online';
+const STATUS_OFFLINE = 'offline';
+
 const defaultSettings = {
+    "systemName": 'Homey',
+    "deviceId": '',
     "protocol": "homie3",
-    "topicRoot": "homie",
-    "deviceId": "homey",
+    "homieTopic": "homie/{deviceId}",
+
+    "customTopic": "homie/{deviceId}",
     "topicIncludeClass": false,
     "topicIncludeZone": false,
-    "percentageScale": "default",
+    "normalize": true,
+    "percentageScale": "int",
     "colorFormat": "hsv",
     "broadcastDevices": true,
-    "broadcastSystemState": false
+
+    "hass": false,
+    "hassTopic": "homeassistant",
+    "hassStatusTopic": "hass/status",
+    "hassOnlineMessage": "online",
+    "hassOfflineMessage": "offline",
+
+    "broadcastSystemState": false,
+    "systemStateTopic": "{deviceId}/system/info",
+
+    "commands": false,
+    "commandTopic": "{deviceId}/$command",
+
+    "birthWill": true,
+    "birthTopic": "{deviceId}/hub/status",
+    "birthMessage": "online",
+    "willTopic": "{deviceId}/hub/status",
+    "willMessage": "offline"
 };
 
 const homie3Settings = {
-    "topicIncludeClass": false,
-    "topicIncludeZone": false,
-    //"percentageScale": "int",
-    "colorFormat": "hsv",
-    "broadcastDevices": true
+    //"topicIncludeClass": false,
+    //"topicIncludeZone": false,
+    //"colorFormat": "hsv",
+    //"broadcastDevices": true
 };
 
 const haSettings = {
@@ -53,7 +77,17 @@ const customSettings = {
 //$(document).ready(function () {
 //    onHomeyReady({
 //        ready: () => { },
-//        get: (_, callback) => callback(null, defaultSettings),
+//        get: (_, callback) => callback(null, {
+//            ...defaultSettings, ...{
+//                systemName: 'Homey',
+//                deviceId: "Harrie",
+//                protocol: 'custom',
+//                hass: true,
+//                broadcastSystemState: true,
+//                commands: true,
+//                birthWill: true
+//            }
+//        }),
 //        api: (method, url, _, callback) => {
 //            switch (url) {
 //                case '/devices':
@@ -67,7 +101,7 @@ const customSettings = {
 //            }
 //        },
 //        getLanguage: (cb) => cb(null, 'en'),
-//        set: () => 'settings saved',
+//        set: (_, settings) => console.log(settings),
 //        alert: (...args) => alert(...args)
 //    })
 //});
@@ -77,38 +111,11 @@ const customSettings = {
 function onHomeyReady(homeyReady){
     Homey = homeyReady;
     Homey.ready();
-    hubSettings = defaultSettings;
+    hubSettings = { ...defaultSettings };
     
     Homey.api('GET', '/running', null, (err, result) => {
         $("#running").prop("disabled", false);
         running = !err && result;
-    });
-
-    Homey.get('settings', function (err, savedSettings) {
-
-        if (err) {
-            Homey.alert(err);
-        } else if (savedSettings) {
-            Object.assign(hubSettings, savedSettings);
-        }
-            
-        for (let key of Object.keys(defaultSettings)) {
-            if (defaultSettings.hasOwnProperty(key)) {
-                const el = document.getElementById(key);
-                if (el) {
-                    switch (typeof defaultSettings[key]) {
-                        case 'boolean':
-                            el.checked = hubSettings[key];
-                            break;
-                        default:
-                            el.value = hubSettings[key];
-                            break;
-                    }
-                }
-            }
-        }
-
-        lockProtocolSetttings(hubSettings.protocol || 'homie');
     });
         
     showTab(1);
@@ -163,10 +170,22 @@ function onHomeyReady(homeyReady){
                 setTimeout(() => {
                     Homey.api('GET', '/refresh', null, (err, result) => {
                         $("#refreshButton").prop("disabled", false);
-                        Homey.alert(err ? 'failed to refresh device states' : 'refreshed sucessfully');
+                        if (err) {
+                            Homey.alert('Failed to refresh device states');
+                        }
+                        //Homey.alert(err ? 'failed to refresh device states' : 'refreshed sucessfully');
                     });
-                }, 0)
+                }, 0);
                 
+            },
+            reset: function () {
+                // confirm?
+                //if(Homey.confirm("Reset default settings?")){
+                    hubSettings = { ...defaultSettings };
+                    hubSettings.deviceId = hubSettings.systemName;
+                    updateValues();
+                    _writeSettings();
+                //}
             }
         },
         async mounted() {
@@ -176,8 +195,8 @@ function onHomeyReady(homeyReady){
             } catch (e) {
                 // TODO: Log error;
             }
-
-            lockProtocolSetttings(hubSettings.protocol || 'homie');
+             
+            updateInterface();
         },
         computed: {
             devices() {
@@ -188,6 +207,72 @@ function onHomeyReady(homeyReady){
             }
         }
     });
+
+    Homey.get('settings', function (err, savedSettings) {
+
+        if (err) {
+            Homey.alert(err);
+        } else if (savedSettings) {
+            Object.assign(hubSettings, savedSettings);
+        }
+        updateValues();
+    });
+}
+
+const normalize = function (topic) {
+    if (typeof topic !== 'string') return undefined;
+
+    return topic
+        .split('/')
+        .map(name => name
+            .trim()
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[ _]/g, "-")
+            .replace(/[^a-z0-9-]/g, "")
+        )
+        .join('/');
+};
+
+function parseTopic(value) {
+
+    if (value && typeof value === 'string') {
+        if (hubSettings.deviceId) {
+            value = value.replace('{deviceId}', hubSettings.deviceId);
+        }
+        return value
+            .split('/')
+            .filter(x => x)
+            .map(v => hubSettings.normalize !== false ? normalize(v) : v)
+            .join('/');
+    }
+    return value;
+}
+
+function updateValues() {
+
+    for (let key of Object.keys(defaultSettings)) {
+        if (defaultSettings.hasOwnProperty(key)) {
+            const el = document.getElementById(key);
+            if (el) {
+                const value = hubSettings[key];
+                switch (typeof defaultSettings[key]) {
+                    case 'boolean':
+                        el.checked = value;
+                        break;
+                    default:
+                        el.value = key.indexOf('Topic') !== -1 ? parseTopic(value) : value;
+                        break;
+                }
+            }
+        }
+    }
+
+    if ($app) {
+        $app.$forceUpdate();
+    }
+
+    updateInterface();
 }
 
 function showTab(tab, log){
@@ -226,62 +311,31 @@ function getLanguage() {
 }
 
 function selectProtocol(protocol) {
-    lockProtocolSetttings(protocol);
     saveSettings();
 }
 
-function lockProtocolSetttings(protocol) {
-    let settings = {};
-    switch (protocol) {
-        case 'homie3':
-            settings = homie3Settings;
-            break;
-        case 'ha':
-            settings = haSettings;
-            break;
-        case 'custom':
-            settings = customSettings;
-            break;
-    }
-
-    lockSettings(settings);
+function updateInterface() {
+    $('#homieSettings').toggle(hubSettings.protocol === 'homie3');
+    $('#customSettings').toggle(hubSettings.protocol === 'custom');
+    $('#hassSettings').toggle(hubSettings.hass);
+    $('#systemStateSettings').toggle(hubSettings.broadcastSystemState);
+    $('#commandsSettings').toggle(hubSettings.commands);
+    $('#birthWillSettings').toggle(hubSettings.birthWill);
 }
 
-function lockSettings(settings) {
-    hubSettings = Object.assign(hubSettings, settings);
-    for (let key of Object.keys(defaultSettings)) {
-        if (defaultSettings.hasOwnProperty(key)) {
-            const disabled = settings.hasOwnProperty(key);
-            const el = document.getElementById(key);
-            
-            if (disabled) {
-                switch (typeof settings[key]) {
-                    case 'boolean':
-                        el.checked = settings[key];
-                        break;
-                    default:
-                        el.value = settings[key];
-                }
-            }   
-            el.disabled = disabled;
-            $('#' + key + '-container').toggle(!disabled);
-        }
-    }
-}
-
-function saveSettings(warning) {
-    if (warning) Homey.alert("Changes are being saved. Press 'Broadcast' to publish them to the broker");
-
+function saveSettings(broadcast, write) {
     for (let key in defaultSettings) {
         let el = document.getElementById(key);
         if (el) {
             hubSettings[key] = typeof defaultSettings[key] === 'boolean' ? el.checked : el.value;
         }
     }
-    _writeSettings(warning);
+
+    updateInterface();
+    _writeSettings();
 }
 
-function _writeSettings(warning) {
+function _writeSettings() {
     try {
         Homey.set('settings', hubSettings);
         Homey.api('GET', '/settings_changed', null, (err, result) => {

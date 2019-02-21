@@ -53,12 +53,8 @@ class MQTTHub extends Homey.App {
                 this.system = {};
             }
 
-            if (this.settings.deviceId === undefined) {
-                this.settings.deviceId = normalize(this.system.name || 'homey');
-                Log.debug("Settings initial deviceId: " + this.settings.deviceId);
-                Homey.ManagerSettings.set('settings', this.settings);
-                Log.debug("Settings updated");
-            }
+            Log.debug("Update settings");
+            this.updateSettings();
 
             Log.debug("Initialize MQTT Client & Message queue");
             this.mqttClient = new MQTTClient();
@@ -83,6 +79,24 @@ class MQTTHub extends Homey.App {
         catch (e) {
             Log.error('[boot] Failed to initialize app');
             Log.error(e);
+        }
+    }
+
+    updateSettings() {
+        const systemName = this.system.name || 'Homey';
+        if (this.settings.deviceId === undefined || this.settings.systemName !== systemName || this.settings.topicRoot) {
+
+            // Backwards compatibility
+            if (this.settings.topicRoot && !this.settings.homieTopic) {
+                this.settings.homieTopic = this.settings.topicRoot;
+                delete this.settings.topicRoot;
+            }
+
+            this.settings.systemName = systemName;
+            this.settings.deviceId = this.settings.deviceId || this.settings.systemName;
+            Log.debug("Settings initial deviceId: " + this.settings.deviceId);
+            Homey.ManagerSettings.set('settings', this.settings);
+            Log.debug("Settings updated");
         }
     }
 

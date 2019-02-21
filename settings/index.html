@@ -43,115 +43,261 @@
                     </div>
                 </div>
                 <div class="setting">
-                    <label class="settings-item-description" data-i18n="tab1.refresh">Broadcast the state of all devices</label>
+                    <label class="settings-item-description" data-i18n="tab1.refresh">Publish the state of all devices</label>
                     <button id="refreshButton" class="btn" @click="refresh()" data-i18n="tab1.broadcast">Broadcast</button>
                 </div>
+                <div class="setting">
+                    <label class="settings-item-description" data-i18n="tab1.deviceId">Device Id</label>
+                    <div class="settings-itemgroup">
+                        <input id="deviceId" type="text" onblur="saveSettings(true)">
+                    </div>
+                </div>
+
+                <!--PROTOCOL-->
                 <div class="setting">
                     <label class="settings-item-description" data-i18n="tab1.protocol">Communication protocol</label>
                     <div class="settings-itemgroup">
                         <select id="protocol" @change="selectProtocol($event.target.value)">
                             <option value="homie3" selected="selected">Homie Convention v3.0.1</option>
-                            <!--<option value="ha">Home Assistant Discovery</option>-->
                             <option value="custom">Custom</option>
                         </select>
                     </div>
                 </div>
+                <div id="homieSettings" style="display:none">
+                    <div data-i18n="tab1.protocolHeader" class="text-header">Homie Convention</div>
+                    <div class="setting">
+                        <label class="settings-item-description" data-i18n="tab1.topic">Topic</label>
+                        <div class="settings-itemgroup">
+                            <input id="homieTopic" type="text" onblur="saveSettings(true)">
+                        </div>
+                    </div>
+                </div>
+                <div id="customSettings" style="display:none">
+                    <div data-i18n="tab1.custom" class="text-header">CUSTOM</div>
+                    <div class="setting">
+                        <label class="settings-item-description" data-i18n="tab1.topic">Topic</label>
+                        <div class="settings-itemgroup">
+                            <input id="customTopic" type="text" onblur="saveSettings(true)">
+                        </div>
+                    </div>
+                    <div id="topicIncludeClass-container" class="setting">
+                        <label class="settings-item-description" data-i18n="tab1.topicIncludeClass">Include device class in topic</label>
+                        <div class="settings-itemgroup">
+                            <div class="settings-item-text">
+                                <span data-i18n="tab1.includeClass">Include class</span>
+                            </div>
+                            <div class="settings-item-last">
+                                <label class="form-switch">
+                                    <input id="topicIncludeClass" type="checkbox" onclick="saveSettings(true)">
+                                    <i></i>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="topicIncludeZone-container" class="setting">
+                        <label class="settings-item-description" data-i18n="tab1.topicIncludeZone">Include zone in topic</label>
+                        <div class="settings-itemgroup">
+                            <div class="settings-item-text">
+                                <span data-i18n="tab1.includeZone">Include zone</span>
+                            </div>
+                            <div class="settings-item-last">
+                                <label class="form-switch">
+                                    <input id="topicIncludeZone" type="checkbox" onclick="saveSettings(true)">
+                                    <i></i>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="topicNormalize-container" class="setting">
+                        <label class="settings-item-description" data-i18n="tab1.topicNormalize">Normalize topics (lowercase, remove characters, etc.)</label>
+                        <div class="settings-itemgroup">
+                            <div class="settings-item-text">
+                                <span data-i18n="tab1.normalize">Normalize</span>
+                            </div>
+                            <div class="settings-item-last">
+                                <label class="form-switch">
+                                    <input id="normalize" type="checkbox" onclick="saveSettings(true)">
+                                    <i></i>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="percentageScale-container" class="setting">
+                        <label class="settings-item-description" data-i18n="tab1.percentageScale">Percentage scale</label>
+                        <div class="settings-itemgroup">
+                            <select id="percentageScale" @change="saveSettings(true)">
+                                <option value="default" selected="selected">default (original value)</option>
+                                <option value="float">float (0...1)</option>
+                                <option value="int">int (0...100)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="setting">
+                        <label class="settings-item-description" data-i18n="tab1.colorFormat">Color format</label>
+                        <div class="settings-itemgroup">
+                            <select id="colorFormat" @change="saveSettings(true)">
+                                <option value="hsv" selected="selected">HSV (&quot;h,s,v&quot;)</option>
+                                <option value="rgb">RGB (&quot;r,g,b&quot;)</option>
+                                <option value="values">Single topic per HSV value (Device capabilities)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="broadcastDevices-container" class="setting">
+                        <label class="settings-item-description" data-i18n="tab1.broadcastDevicesChanges">Publish messages for all devices state changes</label>
+                        <div class="settings-itemgroup">
+                            <div class="settings-item-text">
+                                <span data-i18n="tab1.broadcastDevices">Broadcast device state changes</span>
+                            </div>
+                            <div class="settings-item-last">
+                                <label class="form-switch">
+                                    <input id="broadcastDevices" type="checkbox" onclick="saveSettings()">
+                                    <i></i>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                <div data-i18n="tab1.topic" class="text-header">TOPIC</div>
+                <!--Home Assistant -->
+                <div data-i18n="tab1.hass" class="text-header">Home Assistant Discovery</div>
                 <div class="setting">
-                    <label class="settings-item-description" data-i18n="tab1.topicRoot">Root topic (leave blank to discard)</label>
-                    <div class="settings-itemgroup">
-                        <input id="topicRoot" type="text" value="homie" onblur="saveSettings(true)">
-                    </div>
-                </div>
-                <div class="setting">
-                    <label class="settings-item-description" data-i18n="tab1.deviceId">DeviceId</label>
-                    <div class="settings-itemgroup">
-                        <input id="deviceId" type="text" value="homey" onblur="saveSettings(true)">
-                    </div>
-                </div>
-                <div id="topicIncludeClass-container" class="setting">
-                    <label class="settings-item-description" data-i18n="tab1.topicIncludeClass">Include device class in topic</label>
+                    <label class="settings-item-description" data-i18n="tab1.hassBroadcast">Broadcast device configurations</label>
                     <div class="settings-itemgroup">
                         <div class="settings-item-text">
-                            <span data-i18n="tab1.includeClass">Include class</span>
+                            <span data-i18n="tab1.hass">Home Assistant Discovery</span>
                         </div>
                         <div class="settings-item-last">
                             <label class="form-switch">
-                                <!-- https://www.cssscript.com/demo/realistic-ios-switch-pure-css/ -->
-                                <input id="topicIncludeClass" type="checkbox" onclick="saveSettings(true)">
+                                <input id="hass" type="checkbox" onclick="saveSettings(true)">
                                 <i></i>
                             </label>
                         </div>
                     </div>
                 </div>
-                <div id="topicIncludeZone-container" class="setting">
-                    <label class="settings-item-description" data-i18n="tab1.topicIncludeZone">Include zone in topic</label>
-                    <div class="settings-itemgroup">
-                        <div class="settings-item-text">
-                            <span data-i18n="tab1.includeZone">Include zone</span>
+                <div id="hassSettings" style="display:none">
+                    <div class="setting">
+                        <label class="settings-item-description" data-i18n="tab1.topic">Topic</label>
+                        <div class="settings-itemgroup">
+                            <input id="hassTopic" type="text" onblur="saveSettings(true)">
                         </div>
-                        <div class="settings-item-last">
-                            <label class="form-switch">
-                                <!-- https://www.cssscript.com/demo/realistic-ios-switch-pure-css/ -->
-                                <input id="topicIncludeZone" type="checkbox" onclick="saveSettings(true)">
-                                <i></i>
-                            </label>
+                    </div>
+                    <div class="setting">
+                        <label class="settings-item-description" data-i18n="tab1.hassStatusTopic">status topic</label>
+                        <div class="settings-itemgroup">
+                            <input id="hassStatusTopic" type="text" onblur="saveSettings()">
+                        </div>
+                    </div>
+                    <div class="setting">
+                        <label class="settings-item-description" data-i18n="tab1.hassOnlineMessage">Online message</label>
+                        <div class="settings-itemgroup">
+                            <input id="hassOnlineMessage" type="text" onblur="saveSettings()">
+                        </div>
+                    </div>
+                    <div class="setting">
+                        <label class="settings-item-description" data-i18n="tab1.hassOfflineMessage">Offline message</label>
+                        <div class="settings-itemgroup">
+                            <input id="hassOfflineMessage" type="text" onblur="saveSettings()">
                         </div>
                     </div>
                 </div>
 
-                <div data-i18n="tab1.messages" class="text-header">MESSAGES</div>
-                <div id="percentageScale-container" class="setting">
-                    <label class="settings-item-description" data-i18n="tab1.percentageScale">Percentage scale</label>
-                    <div class="settings-itemgroup">
-                        <select disabled="disabled" id="percentageScale" value="default" @change="saveSettings()">
-                            <option value="default" selected="selected">default (original value)</option>
-                            <option value="float">float (0...1)</option>
-                            <option value="int">int (0...100)</option>
-                        </select>
-                    </div>
-                </div>
+                <!-- System State -->
+                <div data-i18n="tab1.systemState" class="text-header">System State</div>
                 <div class="setting">
-                    <label class="settings-item-description" data-i18n="tab1.colorFormat">Color format</label>
-                    <div class="settings-itemgroup">
-                        <select id="colorFormat" value="default" @change="saveSettings()">
-                            <option value="hsv" selected="selected">HSV (&quot;h,s,v&quot;)</option>
-                            <option value="rgb">RGB (&quot;r,g,b&quot;)</option>
-                            <option value="values">Single topic per HSV value (Device capabilities)</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div data-i18n="tab1.publish" class="text-header">PUBLISH</div>
-                <div id="broadcastDevices-container" class="setting">
-                    <label class="settings-item-description" data-i18n="tab1.broadcastDevicesChanges">Devices state changes</label>
+                    <label class="settings-item-description" data-i18n="tab1.broadcastSystemState">Publish messages containing the current system state in a regular interval (30 sec.)</label>
                     <div class="settings-itemgroup">
                         <div class="settings-item-text">
-                            <span data-i18n="tab1.broadcastDevices">Devices</span>
+                            <span data-i18n="tab1.broadcastSystem">Broadcast system state</span>
                         </div>
                         <div class="settings-item-last">
                             <label class="form-switch">
-                                <input id="broadcastDevices" type="checkbox" onclick="saveSettings()">
-                                <i></i>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-                <div class="setting">
-                    <label class="settings-item-description" data-i18n="tab1.broadcastSystemState">System state</label>
-                    <div class="settings-itemgroup">
-                        <div class="settings-item-text">
-                            <span data-i18n="tab1.broadcastSystem">System</span>
-                        </div>
-                        <div class="settings-item-last">
-                            <label class="form-switch">
-                                <!-- https://www.cssscript.com/demo/realistic-ios-switch-pure-css/ -->
                                 <input id="broadcastSystemState" type="checkbox" onclick="saveSettings()">
                                 <i></i>
                             </label>
                         </div>
                     </div>
+                </div>
+                <div id="systemStateSettings" style="display:none">
+                    <div class="setting">
+                        <label class="settings-item-description" data-i18n="tab1.topic">Topic</label>
+                        <div class="settings-itemgroup">
+                            <input id="systemStateTopic" type="text" onblur="saveSettings(true)">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Commands -->
+                <div data-i18n="tab1.commands" class="text-header">Commands</div>
+                <div class="setting">
+                    <label class="settings-item-description" data-i18n="tab1.commandsListen">Listen to commands</label>
+                    <div class="settings-itemgroup">
+                        <div class="settings-item-text">
+                            <span data-i18n="tab1.commands">Commands</span>
+                        </div>
+                        <div class="settings-item-last">
+                            <label class="form-switch">
+                                <input id="commands" type="checkbox" onclick="saveSettings()">
+                                <i></i>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div id="commandsSettings" style="display:none">
+                    <div class="setting">
+                        <label class="settings-item-description" data-i18n="tab1.topic">Topic</label>
+                        <div class="settings-itemgroup">
+                            <input id="commandTopic" type="text" onblur="saveSettings()">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Birth & last will -->
+                <div data-i18n="tab1.birthWill" class="text-header">Birth & last will</div>
+                <div class="setting">
+                    <label class="settings-item-description" data-i18n="tab1.publish">Publish</label>
+                    <div class="settings-itemgroup">
+                        <div class="settings-item-text">
+                            <span data-i18n="tab1.birthWillMessages">Send birth & last will messages</span>
+                        </div>
+                        <div class="settings-item-last">
+                            <label class="form-switch">
+                                <input id="birthWill" type="checkbox" onclick="saveSettings()">
+                                <i></i>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div id="birthWillSettings" style="display:none">
+                    <div class="setting">
+                        <label class="settings-item-description" data-i18n="tab1.birthTopic">Birth topic</label>
+                        <div class="settings-itemgroup">
+                            <input id="birthTopic" type="text" onblur="saveSettings()">
+                        </div>
+                    </div>
+                    <div class="setting">
+                        <label class="settings-item-description" data-i18n="tab1.birthMessage">Birth message</label>
+                        <div class="settings-itemgroup">
+                            <input id="birthMessage" type="text" onblur="saveSettings()">
+                        </div>
+                    </div>
+                    <div class="setting">
+                        <label class="settings-item-description" data-i18n="tab1.willTopic">Last will topic</label>
+                        <div class="settings-itemgroup">
+                            <input id="willTopic" type="text" onblur="saveSettings()">
+                        </div>
+                    </div>
+                    <div class="setting">
+                        <label class="settings-item-description" data-i18n="tab1.willMessage">Last will message</label>
+                        <div class="settings-itemgroup">
+                            <input id="willMessage" type="text" onblur="saveSettings()">
+                        </div>
+                    </div>
+                </div>
+
+                <div data-i18n="tab1.reset" class="text-header">Reset</div>
+                <div class="setting">
+                    <label class="settings-item-description" data-i18n="tab1.defaultSettings"></label>
+                    <button id="resetButton" class="btn" @click="reset()" data-i18n="tab1.restoreSettings">Restore default settings</button>
                 </div>
 
             </div>
@@ -175,12 +321,10 @@
                         </div>
                         <div class="rTableCell line settings-item-last">
                             <label class="form-switch">
-                                <!-- https://www.cssscript.com/demo/realistic-ios-switch-pure-css/ -->
                                 <input type="checkbox" :checked="deviceEnabled(device)" @click="saveDevice(device, $event.target.checked)">
                                 <i></i>
                             </label>
                         </div>
-                        <!--<div class="rTableCell line"></div>-->
                     </div>
                 </div>
             </div>
