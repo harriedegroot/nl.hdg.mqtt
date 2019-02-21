@@ -227,111 +227,6 @@ const configurations = {
     //}
 };
 
-const NodeRed = { // Node RED
-    //switch (Dtype) {     // TODO check is settable & has name & properties
-    //    case "button": // not working in MQTT-Gateway
-    //        node.warn("button TOFIX");
-    //        newmsg = {
-    //            topic: "homeassistant/switch" + "/" + homey + "/" + device + "/config",
-    //            payload: {
-    //                "name": Dname,
-    //                "icon": "mdi:adjust",
-    //                "payload_off": "false",
-    //                "payload_on": "true",
-    //                "state_topic": "homie/" + homey + "/" + device + "/onoff",
-    //                "command_topic": "homie/" + homey + "/" + device + "/onoff" + "/set"
-    //            }
-    //        }
-    //        break;
-    //    case "switch":
-    //    case "socket":
-    //        //node.warn ("Adding socket: " + Dname)
-    //        newmsg = {
-    //            topic: "homeassistant/switch" + "/" + homey + "/" + device + "/config",
-    //            payload: {
-    //                "name": Dname,
-    //                "icon": "mdi:nature",
-    //                "payload_off": "false",
-    //                "payload_on": "true",
-    //                "state_topic": "homie/" + homey + "/" + device + "/onoff",
-    //                "command_topic": "homie/" + homey + "/" + device + "/onoff" + "/set"
-    //            }
-    //        };
-    //        break;
-    //    case "light":
-    //        //node.warn ("Adding light: " + Dname)
-    //        newmsg = {
-    //            topic: "homeassistant/light/" + homey + "/" + device + "/config",
-    //            payload: {
-    //                "name": Dname,
-    //                "icon": "mdi:nature",
-    //                "payload_off": "false",
-    //                "payload_on": "true",
-    //                "state_topic": "homie/" + homey + "/" + device + "/onoff",
-    //                "command_topic": "homie/" + homey + "/" + device + "/onoff" + "/set",
-    //                "brightness_state_topic": "homie/" + homey + "/" + device + "/dim*100",
-    //                "brightness_command_topic": "homie/" + homey + "/" + device + "/dim" + "/set*100", "brightness_scale": "100"
-    //            }
-    //        };
-    //        if (Colour) newmsg = {
-    //            topic: "homeassistant/light/" + homey + "/" + device + "/config",
-    //            payload: {
-    //                "name": Dname,
-    //                "icon": "mdi:nature",
-    //                "payload_off": "false",
-    //                "payload_on": "true",
-    //                "state_topic": "homie/" + homey + "/" + device + "/onoff",
-    //                "command_topic": "homie/" + homey + "/" + device + "/onoff" + "/set",
-    //                "brightness_state_topic": "homie/" + homey + "/" + device + "/dim*100",
-    //                "brightness_command_topic": "homie/" + homey + "/" + device + "/dim" + "/set*100",
-    //                "brightness_scale": "100",
-    //                "hs_state_topic": "homie/" + homey + "/" + device + "/color_hsv",
-    //                "hs_command_topic": "homie/" + homey + "/" + device + "/color/set_hs"
-    //            }
-    //        };
-    //        break;
-    //    case "thermostat":
-    //        //node.warn ("Adding thermostat: " + Dname)
-    //        newmsg = {
-    //            topic: "homeassistant/climate/" + homey + "/" + device + "/config",
-    //            payload: {
-    //                "name": Dname,
-    //                "curr_temp_t": "homie/" + homey + "/" + device + "/measure-temperature",
-    //                "temp_stat_t": "homie/" + homey + "/" + device + "/target-temperature",
-    //                "temp_cmd_t": "homie/" + homey + "/" + device + "/target-temperature/set",
-    //                "mode_stat_t": "homie/" + homey + "/" + device + "/custom-thermostat-mode",
-    //                "mode_stat_tpl": "{% set values = { 'schedule':'auto', 'manual':'heat',  'notused':'cool', 'off':'off'} %}{{ values[value] if value in values.keys() else 'off' }}",
-    //                "mode_cmd_t": "homie/" + homey + "/" + device + "/custom-thermostat-mode/set",
-    //                "min_temp": "5",
-    //                "max-temp": "30",
-    //                "temp_step": "0.5",
-    //                "unit_of_measurement": "°C"
-    //            }
-    //        };
-    //        break;
-    //    case "sensor":
-    //        //node.warn ("Adding sensor: " + Dname) 
-    //        //node.warn (device + "~" + Dname + "~" + sensor)
-    //        var Dunit = local[tpath + contents[3] + "/" + "$unit"];
-    //        if (Dunit === undefined) Dunit = "";
-    //        var xdevice = device + sensor;
-    //        Dname = Dname + " " + sensor;
-    //        newmsg = {
-    //            topic: "homeassistant/sensor/" + homey + "/" + device + Lsensor + "/config",
-    //            payload: {
-    //                "name": Dname,
-    //                "state_topic": "homie/" + homey + "/" + device + "/" + Lsensor,
-    //                "unit_of_measurement": Dunit
-    //            }
-    //        }; //"value_template": "{{ value_json.humidity }}"}}
-    //        //return [ newmsg1, newmsg2] 
-    //        break;
-    //    default:
-    //        node.error("## Unhandled type " + Dname + " " + Dtype + " ## PLEASE REPORT");
-    //        return null;
-    //}
-};
-
 const sensorClasses = new Set([
     'battery',
     'humidity',
@@ -373,48 +268,6 @@ const coverClasses = new Set([
     'garage',
     'window'
 ]);
-
-{
-/* device classes
-    SENSOR:
-        battery: Percentage of battery that is left.
-        humidity: Percentage of humidity in the air.
-        illuminance: The current light level in lx or lm.
-        temperature: Temperature in °C or °F.
-        pressure: Pressure in hPa or mbar.
-        timestamp: Datetime object or timestamp string.
-    
-    BINARY SENSOR:
-        battery: On means low, Off means normal
-        cold: On means cold, Off means normal
-        connectivity: On means connected, Off means disconnected
-        door: On means open, Off means closed
-        garage_door: On means open, Off means closed
-        gas: On means gas detected, Off means no gas (clear)
-        heat: On means hot, Off means normal
-        light: On means light detected, Off means no light
-        lock: On means open (unlocked), Off means closed (locked)
-        moisture: On means moisture detected (wet), Off means no moisture (dry)
-        motion: On means motion detected, Off means no motion (clear)
-        moving: On means moving, Off means not moving (stopped)
-        occupancy: On means occupied, Off means not occupied (clear)
-        opening: On means open, Off means closed
-        plug: On means device is plugged in, Off means device is unplugged
-        power: On means power detected, Off means no power
-        presence: On means home, Off means away
-        problem: On means problem detected, Off means no problem (OK)
-        safety: On means unsafe, Off means safe
-        smoke: On means smoke detected, Off means no smoke (clear)
-        sound: On means sound detected, Off means no sound (clear)
-        vibration: On means vibration detected, Off means no vibration (clear)
-        window: On means open, Off means closed
-    
-    COVER:
-        damper: Ventilation damper controller.
-        garage: Garage door controller.
-        window: Window controller.
- */
-}
 
 // NOTE: Make configurable
 const DEFAULT_DEVICE_ID = 'homey';
@@ -505,12 +358,9 @@ class HomeAssistantDispatcher {
         const current = this.settings ? JSON.stringify(this.settings) : null;
         this.settings = this.settings || {};
 
-        //this.settings.topicRoot = settings.topicRoot === undefined ? DEFAULT_TOPIC_ROOT : settings.topicRoot;
+        // TODO: Topic from settings
+        //this.settings.hassTopic = settings.hassTopic === undefined ? DEFAULT_TOPIC_ROOT : settings.hassTopic;
         this.settings.deviceId = normalize(settings.deviceId || this.system.name || DEFAULT_DEVICE_ID);
-        //this.settings.topicIncludeClass = settings.topicIncludeClass === true;
-        //this.settings.topicIncludeZone = settings.topicIncludeZone === true;
-        //this.settings.percentageScale = settings.percentageScale || DEFAULT_PROPERTY_SCALING;
-        //this.settings.colorFormat = settings.colorFormat || DEFAULT_COLOR_FORMAT;
 
         // Breaking changes? => Start a new HomieDevice (& destroy current)
         if (current && current !== JSON.stringify(this.settings)) {
