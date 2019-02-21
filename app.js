@@ -31,10 +31,6 @@ const BIRTH_MESSAGE = 'online';
 const WILL_TOPIC = '{deviceId}/hub/status'; // NOTE: Empty to ommit
 const WILL_MESSAGE = 'offline';
 
-function getTopicRoot(settings) {
-    return typeof settings === 'object' ? settings.deviceId : 'homey';
-}
-
 class MQTTHub extends Homey.App {
 
     async onInit() {
@@ -289,12 +285,7 @@ class MQTTHub extends Homey.App {
             this.settings = Homey.ManagerSettings.get('settings') || {};
             Log.debug(this.settings);
 
-            // deviceId
-            if (this.mqttClient) {
-                this.mqttClient.topicRoot = getTopicRoot(this.settings);
-            }
-
-            // devices, topicRoot
+            // devices
             let deviceChanges = null;
             if (this.deviceManager) {
                 deviceChanges = this.deviceManager.computeChanges(this.settings.devices);
