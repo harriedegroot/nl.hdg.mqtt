@@ -40,7 +40,7 @@ class MQTTHub extends Homey.App {
         try {
             Log.info('MQTT Hub is running...');
 
-            Homey.on('unload', () => this.stop());
+            Homey.on('unload', () => this.uninstall());
 
             this.settings = Homey.ManagerSettings.get('settings') || {};
 
@@ -327,6 +327,16 @@ class MQTTHub extends Homey.App {
             const deviceId = this.settings && this.settings.deviceId ? this.settings.deviceId : 'Homey';
             const topic = WILL_TOPIC.replace('{deviceId}', deviceId);
             this.mqttClient.publish(new Message(topic, WILL_MESSAGE, 1, true));
+        }
+    }
+
+    uninstall() {
+        try {
+            this._sendLastWillMessage();
+            this.mqttClient.disconnect();
+            // TODO: unregister topics from MQTTClient?
+        } catch(e) {
+            // nothing...
         }
     }
 }
