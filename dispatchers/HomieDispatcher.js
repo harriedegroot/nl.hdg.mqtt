@@ -13,7 +13,10 @@ const DEFAULT_DEVICE_ID = 'homey';
 const DEFAULT_ZONE = "home";
 const DEFAULT_CLASS = "other";
 const DEFAULT_PROPERTY_SCALING = "default";
-const DEFAULT_COLOR_FORMAT = "hasv";
+const DEFAULT_COLOR_FORMAT = "hsv";
+
+const NODE_COMMANDS = ['$type', '$name', '$properties'];
+const PROPERTY_COMMANDS = ['$name', '$retained', '$settable', '$unit', '$datatype', '$format'];
 
 /**
  * Homey Convention 3.0.1
@@ -29,19 +32,19 @@ class HomieDispatcher {
         return this.settings && this.settings.deviceId ? this.settings.deviceId : DEFAULT_DEVICE_ID;
     }
 
-    constructor({ api, mqttClient, deviceManager, system, settings, messageQueue }) {
+    constructor({ api, mqttClient, deviceManager, system, settings, messageQueue, topicsRegistry }) {
         this.api = api;
         this._mqttClient = mqttClient;
         this.homieMQTTClient = new HomieMQTTClient(mqttClient, messageQueue);
         this.deviceManager = deviceManager;
         this.system = system;
         this.messageQueue = messageQueue;
+        this.topicsRegistry = topicsRegistry;
 
         this.updateSettings(settings);
         
         this._nodes = new Map();
         this._capabilityInstances = new Map();
-        this._deviceTopics = new Map();
     }
 
     register() {
@@ -203,7 +206,7 @@ class HomieDispatcher {
         //    topic = t.homieNode.mqttTopic + '_' + t.rangeIndex + '/' + t.name;
         //}
 
-        this._registerDeviceTopic(deviceId, topic);
+        this.topicsRegistry.register(deviceId, topic);
         this.messageQueue.add(topic, value, { retain: retained !== false });
     }
 
@@ -256,6 +259,9 @@ class HomieDispatcher {
         let node = this.homieDevice.node(name, device.name, this._convertClass(device.class));
         this._nodes.set(device.id, node); // register
 
+        // register property topics
+        NODE_COMMANDS.forEach(command => this.topicsRegistry.register(device.id, node.mqttTopic + '/' + command));
+
         const capabilities = device.capabilitiesObj;
         if (capabilities) {
             for (let key in capabilities) {
@@ -297,8 +303,10 @@ class HomieDispatcher {
                             });
                         }
 
-                        // NOTE: Ranges not implemented
+                        // register property topics
+                        PROPERTY_COMMANDS.forEach(command => this.topicsRegistry.register(device.id, property.mqttTopicProperty + '/' + command));
 
+                        // NOTE: Ranges not implemented
                         if (this.broadcast) {
                             if (color) {
                                 this._sendColor(device, property, this._formatColor(capabilities));
@@ -377,11 +385,10 @@ class HomieDispatcher {
         } else {
             Log.error("Failed to register device: Device not found");
         }
+        this._updateNodesProperty();
     }
 
     disableDevice(deviceId) {
-
-        this.removeDeviceMessages(deviceId);
 
         if (!this._nodes.has(deviceId))
             return;
@@ -393,25 +400,12 @@ class HomieDispatcher {
         } else {
             Log.error("Failed to unregister device: Device not found");
         }
+        this._updateNodesProperty();
     }
 
-    _registerDeviceTopic(deviceId, topic) {
-        let topics = this._deviceTopics.get(deviceId);
-        if (!topics) {
-            topics = new Set();
-            this._deviceTopics.set(deviceId, topics);
-        }
-        topics.add(topic);
-    }
-
-    removeDeviceMessages(deviceId) {
-        const topics = this._deviceTopics.get(deviceId);
-        if (topics) {
-            this._deviceTopics.delete(deviceId);
-            for (let topic of topics) {
-                this.messageQueue.remove(topic);
-            }
-        }
+    _updateNodesProperty() {
+        const nodes = Array.from(this._nodes, ([id, node]) => node.name);
+        this.messageQueue.add(this.homieDevice.mqttTopic + '/$nodes', nodes.length ? nodes.join(',') : null, { retain: true });
     }
 
     _convertClass(deviceClass) {

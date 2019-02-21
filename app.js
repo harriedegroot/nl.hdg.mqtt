@@ -11,6 +11,7 @@ const { HomeyAPI } = require('athom-api');
 const MQTTClient = require('./mqtt/MQTTClient');
 const MessageQueue = require('./mqtt/MessageQueue');
 const Message = require('./mqtt/Message');
+const TopicsRegistry = require('./mqtt/TopicsRegistry');
 
 // Services
 const Log = require("./Log.js");
@@ -66,6 +67,7 @@ class MQTTHub extends Homey.App {
             Log.debug("Initialize MQTT Client & Message queue");
             this.mqttClient = new MQTTClient();
             this.messageQueue = new MessageQueue(this.mqttClient);
+            this.topicsRegistry = new TopicsRegistry(this.messageQueue);
 
             // Suppress memory leak warning
             Log.debug("Suppress memory leak warning");
@@ -305,6 +307,13 @@ class MQTTHub extends Homey.App {
 
             if (this.homeAssistantDispatcher) {
                 this.homeAssistantDispatcher.updateSettings(this.settings, deviceChanges);
+            }
+
+            // clean-up all messages for disabled devices
+            for (let deviceId of deviceChanges.disabled) {
+                if (typeof deviceId === 'string') {
+                    this.topicsRegistry.remove(deviceId, true);
+                }
             }
 
             // protocol, broadcasts

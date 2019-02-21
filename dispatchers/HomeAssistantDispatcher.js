@@ -435,15 +435,17 @@ class HomeAssistantDispatcher {
         return this.settings && this.settings.deviceId ? this.settings.deviceId : DEFAULT_DEVICE_ID;
     }
 
-    constructor({ api, mqttClient, deviceManager, system, settings, homieDispatcher, messageQueue }) {
+    constructor({ api, mqttClient, deviceManager, system, settings, homieDispatcher, messageQueue, topicsRegistry }) {
         this.api = api;
         this.mqttClient = mqttClient;
         this.deviceManager = deviceManager;
         this.system = system;
         this.homieDispatcher = homieDispatcher;
         this.messageQueue = messageQueue;
+        this.topicsRegistry = topicsRegistry;
 
         this._registered = new Set();
+        this._deviceTopics = new Map();
 
         this.updateSettings(settings);
     }
@@ -454,7 +456,7 @@ class HomeAssistantDispatcher {
             Log.info("HomeAssistant Dispatcher initialized");
         } catch (e) {
             Log.error("Failed to initialize HomeAssistantDispatcher");
-            Log.error(error);
+            Log.error(e);
         }
     }
     
@@ -835,16 +837,18 @@ class HomeAssistantDispatcher {
             config.value_template = config.value_template || '{{ value }}';
         }
 
-        this.publish(topic, config);
+        this.publish(device.id, topic, config);
     }
 
-    publish(topic, payload, retained) {
+    publish(deviceId, topic, payload, retained) {
+        this.topicsRegistry.register(deviceId, topic);
         this.messageQueue.add(topic, payload, { qos:0, retained: retained !== false });
     }
 
     _unregisterDevice(device) {
-
-        // TODO: Implement
+        if (typeof device === 'object' && device.id) {
+            this._registered.delete(device.id);
+        }
     }
 
     enableDevice(deviceId) {
@@ -854,17 +858,15 @@ class HomeAssistantDispatcher {
         const device = this.deviceManager.devices[deviceId];
         if (device) {
             Log.info("Enable device: " + device.name);
-
-            // TODO: Implement
-
+            this._registerDevice(device);
         } else {
             Log.error("Failed to register device: Device not found");
         }
     }
 
     disableDevice(deviceId) {
-        //if (!this._nodes.has(deviceId))
-        //    return;
+        if (this._registered.has(deviceId))
+            return;
 
         const device = this.deviceManager.devices[deviceId];
         if (device) {
