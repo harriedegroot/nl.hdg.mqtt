@@ -1,42 +1,73 @@
 === TODO ===
 
-- Settings for seperate root topics (homie, HASS, system state, custom, etc.)
-- HASS settings (enable disable discovery + topic root)
-- HASS Make class constants configurable
-- color values: round float values (int)
-- HASS: Color temperature (read & write)
-- Update correct HSV values when setting one of the values (color topic)
-- HASS set numeric values? input_number: https://www.home-assistant.io/components/input_number/?
-- HASS Remaining device types (Alarm control panels, Binary sensors, Cameras, Covers, Fans, HVACs, Lights, Locks, Sensors, Switches, Vacuums)
-- HASS thermostat modes
-- Split hiding of controls & applying default (protocol) settings
-- settings default vs disabled controls
-- settings restore app defaults button
+BUGS:
 - [BUG] enabling virtual devices breaks the hub
-- Check client availability processing
-- profile client & hub
-- display broadcast progress (loader)
-- Enable/disable all devices
-- fix system info topic
+- [BUG] client/hub registration?
+
+Settings:
+! HASS settings (enable disable discovery + topic root)
+! seperate root topics (homie, HASS, system state, custom, etc.)
+! Make class constants configurable
+! Split hiding of controls & applying default (protocol) settings
+! settings default vs disabled controls
+! settings restore app defaults button
+! Check 'App' initilaized (prevent settings crash)
+! Update Instructions
 - optional normalization for custom protocol
-- Send empty (non-retained) message to clear device
-- Publish device/$state disconnect message
-- implement scalable property 0-1 (float) | 0-100 (int)
-- Flow card for MQTT Device
-- Settings Birth & Last will topics + messages
-- HASS configure additional properties for the remaining capabilities (e.g. icon, device class, etc.)
-- Create virtual devices from MQTT discovery
-- Setting to enable/disable set command handler
+- system info topic configurable
+- Enable/disable all devices
+- display broadcast progress (loader)
+- Birth & Last will topics + messages
+- enable/disable set command handler
+- Disable device capabilities
+- Show number of messages per device
+- Display number of messages in queue (fill 100% === number of devices)
+
+HASS:
+! Enable/disable (broadcast / clear messages)
+! Color temperature (read & write)
+! Update correct HSV values when setting one of the values (color topic)
+- Set numeric values? input_number: https://www.home-assistant.io/components/input_number/?
+- Remaining device types (Alarm control panels, Binary sensors, Cameras, Covers, Fans, HVACs, Lights, Locks, Sensors, Switches, Vacuums)
+- thermostat modes
+- configure additional properties for the remaining capabilities (e.g. icon, device class, etc.)
+- [REFACTOR] De-couple parse & format logic. Refactor data processing. Create handlers per type?
+
+Homie:
+! color values: round float values (int)
+! Scale 0...100 round float values (int)
+- Introduce queue for updating device state (use brightness slider ha app)
+- Check client availability processing
+- Publish device/$state disconnect message?
+- Device Aliasses (e.g. dim/brightness, light temperature, etc.)
+
+App:
+- [Check] shutdown procedure
 - [Check] Refresh devices on device/zone changes + Broadcast
+- Uninstall app => unsubscribe from topics on MQTT lient
+
+Homey:
+- Flow card for MQTT Device (i.e. to add scenes)
+- profiling/optimzations
+
+Discovery (auto discover external devices):
+- Implement Homie discovery
+- Implement HASS Discovery
+- Create virtual devices from MQTT discovery
+
+Commands:
+- Updating state for multiple devices (e.g. all devices in a room)
 - Info requests:
   * System
   * Device classes
   * Zones
-- Updating state for multiple devices (e.g. all devices in a room)
-- Publish system info on seperate topics (i.s.o. json)
-- Trigger flow command
+  * ...
+- Trigger flow
 - Listen to scene flow triggers
-- Uninstall app => unsubscribe from topics
+
+System info:
+- Publish system info on seperate topics (i.s.o. json)
+
 
 
 ======= DONE =======
@@ -86,7 +117,9 @@ x test internal MQTT client ('socket hang up' fix? duplicate mem usage, config &
 - put HASS discovery before Homie
 - birth & last will messages
 - CHECK: MQTT Client handling 0 values
+- implement scalable property 0-1 (float) | 0-100 (int)
 - HASS Broadcast
 - HASS disable devices
 - HASS enable device => send discover config
 - HASS Keep track of device topics & remove messages from queue when disabling device
+- Send empty messages to clear devices
