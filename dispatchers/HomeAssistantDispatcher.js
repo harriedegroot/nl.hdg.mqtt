@@ -457,7 +457,6 @@ class HomeAssistantDispatcher {
 
         const capabilities = { ...device.capabilitiesObj };
 
-
         switch (device.class) {
             case 'light':
                 this._registerLight(device).forEach(id => delete capabilities[id]);
@@ -514,6 +513,10 @@ class HomeAssistantDispatcher {
             //on_command_type: 'first' // send 'onoff' before sending state (dim, color, etc.)
             on_command_type: 'brightness' // skip 'on' command
         };
+
+        if (device.class !== 'light') {
+            payload.icon = 'mdi:toggle-switch-off-outline';
+        }
 
         if (capabilities.hasOwnProperty('dim')) {
             payload.brightness_state_topic = `${stateTopic}/dim`;
