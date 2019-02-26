@@ -6,18 +6,17 @@ BUGS:
 
 Settings:
 ! Update Instructions
-! [CHECK] en.json translations
 - Enable/disable all devices
+- Seperate call for device enable/disable
 - display broadcast progress (loader)
 - Display number of messages in queue (fill 100% === number of devices)
 - Show number of messages per device
+- CHECK en.json translations
 - Disable device capabilities
-- Seperate call for device enable/disable
 
 HASS:
-! Clear all HASS messages (Register all topics &clear @ settings topic change)
-! Color temperature (read & write)
-! Update correct HSV values when setting one of the values (color topic)
+- Color temperature (read & write)
+- Update correct HSV values when setting one of the values (color topic)
 - Set numeric values? input_number: https://www.home-assistant.io/components/input_number/?
 - Remaining device types (Alarm control panels, Binary sensors, Cameras, Covers, Fans, HVACs, Lights, Locks, Sensors, Switches, Vacuums)
 - thermostat modes
@@ -139,3 +138,4 @@ x Settings: Split hiding of devices & applying default (protocol) settings
 - Check 'App' initilaized (prevent settings crash)
 - Add additional boolean checks
 - Clear command & system state topics when changing topic
+- Clear all HASS messages (Register all topics &clear @ settings topic change)

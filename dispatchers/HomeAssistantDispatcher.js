@@ -3,6 +3,7 @@
 const _ = require('lodash');
 const Log = require('../Log');
 const normalize = require('../normalize');
+const TopicsRegistry = require('../mqtt/TopicsRegistry');
 
 // Capability overrides
 const configurations = {
@@ -291,7 +292,7 @@ class HomeAssistantDispatcher {
         this.topicsRegistry = topicsRegistry;
 
         this._registered = new Set();
-        this._topics = new Set(); // TODO: Register all topics &clear @ settings topic change
+        this._topics = new TopicsRegistry(messageQueue);
 
         if (mqttClient) {
             this._clientCallback = this._onMessage.bind(this);
@@ -310,14 +311,17 @@ class HomeAssistantDispatcher {
         return changed;
     }
 
+    //clearTopic(topic) {
+    //    this.messageQueue.add(topic, null, { retain: true });
+    //}
+
     async init(settings, deviceChanges) {
         if (!this.mqttClient) return;
             
         try {
             this.enabled = settings.hass;
             if (!this.enabled) {
-                // TODO: CLear all topics
-                //await this.clearTopics();
+                this._topics.clear();
                 return;
             }
 
@@ -334,7 +338,7 @@ class HomeAssistantDispatcher {
             if (this.breakingChanges(settings)) {
 
                 if (this.topic !== topic) {
-                    //await this.clearTopics();// TODO: clear all previous topics
+                    this._topics.clear();
                 }
                 this.topic = topic;
 
@@ -740,12 +744,15 @@ class HomeAssistantDispatcher {
 
     publish(deviceId, topic, payload, retained) {
         this.topicsRegistry.register(deviceId, topic);
+        this._topics.register(deviceId, topic);
+        
         this.messageQueue.add(topic, payload, { qos:0, retained: retained !== false });
     }
 
     _unregisterDevice(device) {
         if (typeof device === 'object' && device.id) {
             this._registered.delete(device.id);
+            this._topics.remove(device.id, true);
         }
     }
 
@@ -778,6 +785,7 @@ class HomeAssistantDispatcher {
     destroy() {
         if (this.mqttClient) {
             this.mqttClient.onMessage.unsubscribe(this._clientCallback);
+            this._topics.clear();
         }
         Log.info('Destroy HomeAssistantDispatcher');
     }
