@@ -5,16 +5,14 @@ BUGS:
 - [BUG] client/hub registration?
 
 Settings:
-! [CHECK] initial settings @ clean install
-! Clear command & system state topics when changeing topic
-! Check 'App' initilaized (prevent settings crash)
+! Clear command & system state topics when changing topic
 ! Update Instructions
 ! [CHECK] en.json translations
 - Enable/disable all devices
 - display broadcast progress (loader)
-- Disable device capabilities
-- Show number of messages per device
 - Display number of messages in queue (fill 100% === number of devices)
+- Show number of messages per device
+- Disable device capabilities
 - Seperate call for device enable/disable
 
 HASS:
@@ -40,7 +38,7 @@ App:
 ! Adjust documentation for HA Discovery & changed settings (readme)
 - [Check] shutdown procedure
 - [Check] Refresh devices on device/zone changes + Broadcast
-- Uninstall app => unsubscribe from topics on MQTT lient
+- unsubscribe from topics on MQTT Client (e.g. Uninstall app / topic switch)
 - [CHECK] all code TODO's
 
 Homey:
@@ -138,3 +136,6 @@ x test internal MQTT client ('socket hang up' fix? duplicate mem usage, config &
 - HASS: Enable/disable
 x Settings: Split hiding of devices & applying default (protocol) settings
 - [CHECK] broadcast on settings changes (if needed)
+- [CHECK] initial settings @ clean install
+- Check 'App' initilaized (prevent settings crash)
+- Add additional boolean checks

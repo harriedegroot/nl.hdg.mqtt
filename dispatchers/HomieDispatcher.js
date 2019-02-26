@@ -752,7 +752,10 @@ class HomieDispatcher {
         // by data type
         switch (dataType) {
             case 'boolean':
-                return value === true || value === 'true' || value === 1 || value === '1';
+                if (typeof value === 'string') {
+                    value = value.toLowerCase();
+                }
+                return value === true || value === 'true' || value === 1 || value === '1' || value === 'on' || value === 'yes';
             case 'number':
             case 'float':
                 return typeof value === 'number' ? value : typeof value === 'string' ? Number(value) || 0 : 0;
