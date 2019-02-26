@@ -93,7 +93,7 @@ class SystemStateDispatcher {
         try {
             this.registered = true;
 
-            const topic = (settings.systemStateTopic || TOPIC).replace('{deviceId}', settings.deviceId);
+            const topic = (this.settings.systemStateTopic || TOPIC).replace('{deviceId}', this.settings.deviceId);
             if (this.topic && this.topic !== topic) {
                 this.mqttClient.clear(this.topic);
             }
