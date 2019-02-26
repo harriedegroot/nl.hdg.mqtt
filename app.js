@@ -11,6 +11,7 @@ const MQTTClient = require('./mqtt/MQTTClient');
 const MessageQueue = require('./mqtt/MessageQueue');
 const Message = require('./mqtt/Message');
 const TopicsRegistry = require('./mqtt/TopicsRegistry');
+const normalize = require('./normalize');
 
 // Services
 const Log = require("./Log.js");
@@ -362,25 +363,35 @@ class MQTTHub extends Homey.App {
         }
     }
 
+    get _birthTopic() {
+        let topic = (this.settings.birthTopic || BIRTH_TOPIC).replace('{deviceId}', this.settings.deviceId);
+        if (this.settings.normalize !== false) {
+            topic = normalize(topic);
+        }
+        return topic;
+    }
+    get _willTopic() {
+        const topic = (this.settings.willTopic || WILL_TOPIC).replace('{deviceId}', this.settings.deviceId);
+        if (this.settings.normalize !== false) {
+            topic = normalize(topic);
+        }
+        return topic;
+    }
     _sendBirthMessage() {
         if (this.mqttClient && this.settings.birthWill !== false) {
-            const topic = this.settings.birthTopic || BIRTH_TOPIC.replace('{deviceId}', this.settings.deviceId);
             const msg = this.settings.birthMessage || BIRTH_MESSAGE;
-            this.mqttClient.publish(new Message(topic, msg, 1, true));
+            this.mqttClient.publish(new Message(this._birthTopic, msg, 1, true));
         }
     }
     _sendLastWillMessage() {
         if (this.mqttClient && this.settings.birthWill !== false) {
-            const topic = this.settings.willTopic || WILL_TOPIC.replace('{deviceId}', this.settings.deviceId);
             const msg = this.settings.willMessage || WILL_MESSAGE;
-            this.mqttClient.publish(new Message(topic, msg, 1, true));
+            this.mqttClient.publish(new Message(this._willTopic, msg, 1, true));
         }
     }
     _clearBirthWill() {
-        const birthTopic = this.settings.birthTopic || BIRTH_TOPIC.replace('{deviceId}', this.settings.deviceId);
-        const willTopic = this.settings.willTopic || BIRTH_TOPIC.replace('{deviceId}', this.settings.deviceId);
-        this.mqttClient.publish(new Message(birthTopic, null, 1, true));
-        this.mqttClient.publish(new Message(willTopic, null, 1, true));
+        this.mqttClient.publish(new Message(this._birthTopic, null, 1, true));
+        this.mqttClient.publish(new Message(this._willTopic, null, 1, true));
     }
 
     uninstall() {
