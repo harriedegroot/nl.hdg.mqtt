@@ -5,7 +5,6 @@ if (DEBUG) {
     require('inspector').open(9229, '0.0.0.0', false);
 }
 
-const normalize = require('./normalize');
 const Homey = require('homey');
 const { HomeyAPI } = require('athom-api');
 const MQTTClient = require('./mqtt/MQTTClient');
@@ -26,9 +25,9 @@ const HomeAssistantDispatcher = require("./dispatchers/HomeAssistantDispatcher.j
 const CommandHandler = require("./commands/CommandHandler.js");
 
 // Birth & Last will
-const BIRTH_TOPIC = '{deviceId}/hub/status'; // NOTE: Empty to ommit
+const BIRTH_TOPIC = '{deviceId}/hub/status';
 const BIRTH_MESSAGE = 'online';
-const WILL_TOPIC = '{deviceId}/hub/status'; // NOTE: Empty to ommit
+const WILL_TOPIC = '{deviceId}/hub/status';
 const WILL_MESSAGE = 'offline';
 
 class MQTTHub extends Homey.App {
@@ -40,6 +39,7 @@ class MQTTHub extends Homey.App {
             Homey.on('unload', () => this.uninstall());
 
             this.settings = Homey.ManagerSettings.get('settings') || {};
+            this.birthWill = this.settings.birthWill !== false;
 
             Log.debug(this.settings, false, false);
 
@@ -54,7 +54,7 @@ class MQTTHub extends Homey.App {
             }
 
             Log.debug("Update settings");
-            this.updateSettings();
+            this.initSettings();
 
             Log.debug("Initialize MQTT Client & Message queue");
             this.mqttClient = new MQTTClient();
@@ -82,13 +82,13 @@ class MQTTHub extends Homey.App {
         }
     }
 
-    updateSettings() {
+    initSettings() {
         const systemName = this.system.name || 'Homey';
         if (this.settings.deviceId === undefined || this.settings.systemName !== systemName || this.settings.topicRoot) {
 
             // Backwards compatibility
             if (this.settings.topicRoot && !this.settings.homieTopic) {
-                this.settings.homieTopic = this.settings.topicRoot;
+                this.settings.homieTopic = this.settings.topicRoot + '/' + (this.settings.deviceId || systemName);
                 delete this.settings.topicRoot;
             }
 
@@ -100,128 +100,154 @@ class MQTTHub extends Homey.App {
         }
     }
 
+    /**
+     * Start Hub
+     * */
     async start() {
+        if (this._running) return;
+        this._running = true;
+
         try {
-            Log.info('app start');
+            Log.info('start Hub');
             await this.mqttClient.connect();
             this._sendBirthMessage();
-            this._startCommands();
-            this._startBroadcasters();
 
-            const protocol = this.settings.protocol || 'homie3';
-            if (this.protocol !== protocol) {
-                Log.info("Changing protocol from '" + this.protocol + "' to '" + protocol + "'");
-                this._stopCommunicationProtocol(this.protocol);
-                await this._startCommunicationProtocol(protocol);
-            }
-
+            await this.run();
+            
             Log.info('app running: true');
         } catch (e) {
-            Log.error('Failed to start app');
+            Log.error('Failed to start Hub');
             Log.error(e);
         }
     }
 
+    /**
+     * Stop Hub
+     * */
     stop() {
+        if (!this._running) return;
+        this._running = false;
+
+        Log.info('stop Hub');
         this._sendLastWillMessage();
-        Log.info('app stop');
         this.mqttClient.disconnect();
-        this._stopCommands();
-        this._stopBroadcasters();
+
         this._stopCommunicationProtocol();
+        this._stopBroadcasters();
+        this._stopCommands();
         delete this.protocol;
 
-        // TODO: Unsubscribe all topics
+        this.messageQueue.stop();
+        this.messageQueue.clear();
 
         Log.info('app running: false');
     }
-    
-    async _startCommunicationProtocol(protocol) {
-        this.protocol = protocol || this.protocol;
-        Log.info('start communication protocol: ' + this.protocol);
+
+    /**
+     * Load configuration & run
+     * Note: Called from start & settings changed
+     * */
+    async run() {
+        
+        this._initProtocol();
+
+        await this._startCommands();
+        await this._startBroadcasters();
+        await this._startHomeAssistantDiscovery();
+        await this._startCommunicationProtocol();
+    }
+
+    _initProtocol() {
+        this.protocol = this.settings.protocol || 'homie3';
+        Log.info('Initialize communication protocol: ' + this.protocol);
+
+        switch (this.protocol) {
+            case "custom":
+                this.settings.homieTopic = this.settings.customTopic;
+                break;
+            case "homie3":
+            default:
+                this.settings.topicIncludeClass = false;
+                this.settings.topicIncludeZone = false;
+                this.settings.normalize = true;
+                this.settings.percentageScale = "int";
+                this.settings.colorFormat = "hsv";
+                this.settings.broadcastDevices = true;
+                break;
+        }
 
         // NOTE: All communication is based on the (configurable) Homie Convention...
-        this.homieDispatcher = new HomieDispatcher(this);
-
-        // Enable Home Assistant Discovery
-        // TODO: Make HomeAssistantDispatcher configurable
-        this.homeAssistantDispatcher = new HomeAssistantDispatcher(this);
-        await this.homeAssistantDispatcher.register();
-
-        // Register all devices & dispatch current state
-        this.homieDispatcher.register();
+        Log.info("Initialize HomieDispatcher");
+        this.homieDispatcher = this.homieDispatcher || new HomieDispatcher(this);
+        this.homieDispatcher.applySettings(this.settings);
     }
 
-    _stopCommunicationProtocol(protocol) {
-        protocol = protocol || this.protocol;
-
-        if (protocol) {
-
-            Log.info('stop communication protocol: ' + this.protocol);
-
-            // NOTE: All communication is based on the (configurable) Homie Convention...
-            if (this.homieDispatcher) {
-                this.homieDispatcher.destroy();
-                delete this.homieDispatcher;
-            }
-
-            // Disable Home Assistant Discovery
-            if (this.homeAssistantDispatcher) {
-                this.homeAssistantDispatcher.destroy();
-                delete this.homeAssistantDispatcher;
-            }
+    async _startCommands() {
+        if (this.settings.commands) {
+            Log.info("start commands");
+            // TODO: Refactor command handler with the abillity to register commands
+            this.commandHandler = this.commandHandler || new CommandHandler(this);
+            await this.commandHandler.init(this.settings); 
+        } else {
+            this._stopCommands();
         }
-    }
-
-    _startCommands() {
-        this._stopCommands();
-        this.commandHandler = new CommandHandler(this); // TODO: Refactor command handler with the abillity to register commands
     }
     _stopCommands() {
         if (this.commandHandler) {
+            Log.info("stop command handler");
             this.commandHandler.destroy();
             delete this.commandHandler;
         }
     }
 
-    _startBroadcasters() {
-        Log.info("start broadcasters");
-        if (this.homieDispatcher) {
-            const broadcast = this.settings.broadcastDevices !== false;
-            Log.info("homie dispatcher broadcast: " + broadcast);
-            this.homieDispatcher.broadcast = broadcast;
-        }
-
-        if (this.homeAssistantDispatcher) {
-            const broadcast = this.settings.broadcastDevices !== false;
-            Log.info("Home Assistant dispatcher broadcast: " + broadcast);
-            this.homeAssistantDispatcher.broadcast = broadcast;
-        }
-
-        if (!this.systemStateDispatcher && this.settings.broadcastSystemState) {
-            Log.info("start system dispatcher");
-            this.systemStateDispatcher = new SystemStateDispatcher(this);
+    async _startBroadcasters() {
+        if (this.settings.broadcastSystemState) {
+            Log.info("start system state broadcaster");
+            this.systemStateDispatcher = this.systemStateDispatcher || new SystemStateDispatcher(this);
+            await this.systemStateDispatcher.init(this.settings);
+        } else {
+            this._stopBroadcasters();
         }
     }
-
     _stopBroadcasters() {
-        Log.info("stop broadcasters");
-        if (this.homieDispatcher) {
-            Log.info("stop homie dispatcher");
-            this.homieDispatcher.broadcast = false;
-        }
-
-        if (this.homeAssistantDispatcher) {
-            Log.info("stop Home Assistant dispatcher");
-            this.systemStateDispatcher.broadcast = false;
-        }
-
         if (this.systemStateDispatcher) {
-            Log.info("stop system dispatcher");
+            Log.info("stop system state broadcaster");
             this.systemStateDispatcher.destroy()
                 .then(() => Log.info("Failed to destroy SystemState Dispatcher"))
                 .catch(error => Log.error(error));
             delete this.systemStateDispatcher;
+        }
+    }
+    
+    async _startHomeAssistantDiscovery() {
+        if (this.settings.hass) {
+            Log.info("start Home Assistant Discovery");
+            this.homeAssistantDispatcher = this.homeAssistantDispatcher || new HomeAssistantDispatcher(this);
+            await this.homeAssistantDispatcher.init(this.settings, this.deviceChanges);
+        } else {
+            Log.info("stop Home Assistant Discovery");
+            this._stopHomeAssistantDiscovery();
+        }
+    }
+    _stopHomeAssistantDiscovery() {
+        if (this.homeAssistantDispatcher) {
+            Log.info("stop Home Assistant Discovery");
+            this.homeAssistantDispatcher.destroy();
+            delete this.homeAssistantDispatcher;
+        }
+    }
+
+    async _startCommunicationProtocol() {
+        // Register all devices & dispatch current state
+        Log.info('Start communication protocol: ' + this.protocol);
+        await this.homieDispatcher.init(this.settings, this.deviceChanges);
+    }
+    _stopCommunicationProtocol() {
+        // NOTE: All communication is based on the (configurable) Homie Convention...
+        if (this.homieDispatcher) {
+            Log.info('stop communication protocol: ' + this.protocol);
+            this.homieDispatcher.destroy();
+            delete this.homieDispatcher;
         }
     }
 
@@ -263,7 +289,8 @@ class MQTTHub extends Homey.App {
     }
 
     isRunning() {
-        return this.mqttClient && this.mqttClient.isRegistered() && !this.pause;
+        return this._running;
+        //return this.mqttClient && this.mqttClient.isRegistered() && !this.pause;
     }
 
     setRunning(running) {
@@ -299,30 +326,36 @@ class MQTTHub extends Homey.App {
             this.settings = Homey.ManagerSettings.get('settings') || {};
             Log.debug(this.settings);
 
+            // birth & last will
+            if (this.settings.birthWill) {
+                if (this.birthWill !== this.settings.birthWill) {
+                    this._sendBirthMessage();
+                }
+            } else {
+                if (this.birthWill) {
+                    this._clearBirthWill();
+                }
+            }
+            this.birthWill = this.settings.birthWill;
+
             // devices
-            let deviceChanges = null;
             if (this.deviceManager) {
-                deviceChanges = this.deviceManager.computeChanges(this.settings.devices);
+                this.deviceChanges = this.deviceManager.computeChanges(this.settings.devices);
                 this.deviceManager.setEnabledDevices(this.settings.devices);
             }
 
-            if (this.homieDispatcher) {
-                this.homieDispatcher.updateSettings(this.settings, deviceChanges);
-            }
-
-            if (this.homeAssistantDispatcher) {
-                this.homeAssistantDispatcher.updateSettings(this.settings, deviceChanges);
-            }
+            await this.run();
 
             // clean-up all messages for disabled devices
-            for (let deviceId of deviceChanges.disabled) {
+            for (let deviceId of this.deviceChanges.disabled) {
                 if (typeof deviceId === 'string') {
                     this.topicsRegistry.remove(deviceId, true);
                 }
             }
 
-            // protocol, broadcasts
-            await this.start(); // NOTE: Changes are detected in the start method(s)
+            // clean-up
+            delete this.deviceChanges; 
+
         } catch (e) {
             Log.error("Failed to update settings");
             Log.error(e);
@@ -330,18 +363,24 @@ class MQTTHub extends Homey.App {
     }
 
     _sendBirthMessage() {
-        if (this.mqttClient && BIRTH_TOPIC && BIRTH_MESSAGE) {
-            const deviceId = this.settings && this.settings.deviceId ? this.settings.deviceId : 'Homey';
-            const topic = BIRTH_TOPIC.replace('{deviceId}', deviceId);
-            this.mqttClient.publish(new Message(topic, BIRTH_MESSAGE, 1, true));
+        if (this.mqttClient && this.settings.birthWill !== false) {
+            const topic = this.settings.birthTopic || BIRTH_TOPIC.replace('{deviceId}', this.settings.deviceId);
+            const msg = this.settings.birthMessage || BIRTH_MESSAGE;
+            this.mqttClient.publish(new Message(topic, msg, 1, true));
         }
     }
     _sendLastWillMessage() {
-        if (this.mqttClient && WILL_TOPIC && WILL_MESSAGE) {
-            const deviceId = this.settings && this.settings.deviceId ? this.settings.deviceId : 'Homey';
-            const topic = WILL_TOPIC.replace('{deviceId}', deviceId);
-            this.mqttClient.publish(new Message(topic, WILL_MESSAGE, 1, true));
+        if (this.mqttClient && this.settings.birthWill !== false) {
+            const topic = this.settings.willTopic || WILL_TOPIC.replace('{deviceId}', this.settings.deviceId);
+            const msg = this.settings.willMessage || WILL_MESSAGE;
+            this.mqttClient.publish(new Message(topic, msg, 1, true));
         }
+    }
+    _clearBirthWill() {
+        const birthTopic = this.settings.birthTopic || BIRTH_TOPIC.replace('{deviceId}', this.settings.deviceId);
+        const willTopic = this.settings.willTopic || BIRTH_TOPIC.replace('{deviceId}', this.settings.deviceId);
+        this.mqttClient.publish(new Message(birthTopic, null, 1, true));
+        this.mqttClient.publish(new Message(willTopic, null, 1, true));
     }
 
     uninstall() {

@@ -20,6 +20,7 @@ class EventHandler {
         }
     }
 
+    unsubscribe(callback) { return this.remove(callback); }
     remove(callback) {
         this._listeners = this._listeners.filter(c => c !== callback);
     }

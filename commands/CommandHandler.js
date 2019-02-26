@@ -9,26 +9,32 @@ const TOPIC = 'homey/$command'; // <root>/<device id>/$command
  * */
 class CommandHandler {
 
-    constructor({ api, mqttClient, deviceManager, settings }) {
-
+    constructor({ api, mqttClient, deviceManager }) {
         this.api = api;
         this.mqttClient = mqttClient;
         this.deviceManager = deviceManager;
 
-        this._init()
-            .then(() => Log.info("CommandHandler initialized"))
-            .catch(error => Log.error(error));
+        if (this.mqttClient) {
+            this._clientCallback = this._onMessage.bind(this);
+            this.mqttClient.onMessage.subscribe(this._clientCallback);
+        }
     }
 
-    async _init() {
+    async init(settings) {
+        if (!this.mqttClient) return;
         try {
-            if (this.mqttClient) {
-                Log.info("Starting set command handler");
-                this._clientCallback = this._onMessage.bind(this);
-                this.mqttClient.onMessage.subscribe(this._clientCallback);
-
-                await this.mqttClient.subscribe(TOPIC);
+            Log.info("Initializing set command handler");
+            const topic = (settings.commandTopic || TOPIC).replace('{deviceId}', settings.deviceId);
+            if (this.topic !== topic) {
+                if (this.topic) {
+                    await this.mqttClient.unsubscribe(this.topic);
+                }
+                this.topic = topic;
+                if (this.topic) {
+                    await this.mqttClient.subscribe(this.topic);
+                }
             }
+            Log.info("CommandHandler initialized");
         } catch (e) {
             Log.error('Failed to initialize CommandHandler');
             Log.debug(e);
@@ -37,7 +43,7 @@ class CommandHandler {
 
     async _onMessage(topic, message) {
 
-        if (topic !== TOPIC) return;
+        if (topic !== this.topic) return;
 
         try {
             Log.debug('SetCommendHandler.onMessage:');

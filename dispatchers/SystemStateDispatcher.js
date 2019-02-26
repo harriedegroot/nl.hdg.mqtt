@@ -60,24 +60,34 @@ class SystemStateDispatcher {
         this.mqttClient = mqttClient;
         this.messageQueue = messageQueue;
 
-        this.topic = TOPIC;
-
-        this._init()
-            .then(() => Log.info("SystemStateDispatcher initialized"))
-            .catch(error => Log.error(error));
-    }
-
-    async _init() {
         this._registerCallback = this.register.bind(this);
         this._unregisterCallback = this.unregister.bind(this);
         this.mqttClient.onRegistered.subscribe(this._registerCallback);
         this.mqttClient.onUnRegistered.subscribe(this._unregisterCallback);
-        if (this.mqttClient.isRegistered())
-            await this.register();
+    }
+
+    async init(settings) {
+        try {
+            this.enabled = settings.broadcastSystemState;
+            this.topic = (settings.systemStateTopic || TOPIC).replace('{deviceId}', settings.deviceId);
+
+            if (this.mqttClient.isRegistered())
+                await this.register();
+
+            Log.info("SystemStateDispatcher initialized");
+        } catch (e) {
+            Log.error('Failed to initialize SystemStateDispatcher');
+            Log.debug(e);
+        }
     }
 
     // Get all devices and add them
     async register() {
+
+        if (!this.enabled) {
+            await this.unregister();
+            return;
+        }
 
         try {
             this.registered = true;
@@ -93,6 +103,7 @@ class SystemStateDispatcher {
     async unregister() {
         this.registered = false;
         this._resetTimeout();
+        Log.debug('System info dispatcher unregistered');
     }
 
     _resetTimeout() {
@@ -104,7 +115,7 @@ class SystemStateDispatcher {
 
     async update() {
         this._resetTimeout();
-        if (!this.registered) return;
+        if (!this.enabled || !this.registered) return;
 
         try {
             // TODO: Create state value messages for each value of interest

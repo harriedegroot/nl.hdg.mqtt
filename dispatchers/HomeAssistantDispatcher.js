@@ -271,7 +271,7 @@ const coverClasses = new Set([
 
 // NOTE: Make configurable
 const DEFAULT_DEVICE_ID = 'homey';
-const DEFAULT_TOPIC_ROOT = 'homeassistant';
+const DEFAULT_TOPIC = 'homeassistant';
 const STATUS_TOPIC = 'hass/status';
 const STATUS_ONLINE = 'online';
 const STATUS_OFFLINE = 'offline';
@@ -281,14 +281,7 @@ const STATUS_OFFLINE = 'offline';
  * */
 class HomeAssistantDispatcher {
 
-    get _topicRoot() {
-        return this.settings && this.settings.haRoot ? this.settings.haRoot : DEFAULT_TOPIC_ROOT; // TODO: add haRoot property to settings
-    }
-    get _deviceId() {
-        return this.settings && this.settings.deviceId ? this.settings.deviceId : DEFAULT_DEVICE_ID;
-    }
-
-    constructor({ api, mqttClient, deviceManager, system, settings, homieDispatcher, messageQueue, topicsRegistry }) {
+    constructor({ api, mqttClient, deviceManager, system, homieDispatcher, messageQueue, topicsRegistry }) {
         this.api = api;
         this.mqttClient = mqttClient;
         this.deviceManager = deviceManager;
@@ -298,50 +291,115 @@ class HomeAssistantDispatcher {
         this.topicsRegistry = topicsRegistry;
 
         this._registered = new Set();
-        this._deviceTopics = new Map();
+        this._topics = new Set(); // TODO: Register all topics &clear @ settings topic change
 
-        this.updateSettings(settings);
+        if (mqttClient) {
+            this._clientCallback = this._onMessage.bind(this);
+            this.mqttClient.onMessage.subscribe(this._clientCallback);
+        }
     }
 
-    async register() {
+    breakingChanges(settings) {
+        const hash = JSON.stringify({
+            hassTopic: settings.hassTopic,
+            normalize: settings.normalize,
+            deviceId: settings.deviceId
+        });
+        const changed = this._settingsHash !== hash;
+        this._settingsHash = hash;
+        return changed;
+    }
+
+    async init(settings, deviceChanges) {
+        if (!this.mqttClient) return;
+            
         try {
-            await this._init();
+            this.enabled = settings.hass;
+            if (!this.enabled) {
+                // TODO: CLear all topics
+                //await this.clearTopics();
+                return;
+            }
+
+            this.normalize = settings.normalize;
+            this.deviceId = normalize(settings.deviceId || DEFAULT_DEVICE_ID); 
+
+            await this.registerHassStatus(settings);
+
+            let topic = (settings.hassTopic || DEFAULT_TOPIC).replace('{deviceId}', settings.deviceId);
+            if (settings.normalize) {
+                topic = normalize(topic);
+            }
+
+            if (this.breakingChanges(settings)) {
+
+                if (this.topic !== topic) {
+                    //await this.clearTopics();// TODO: clear all previous topics
+                }
+                this.topic = topic;
+
+                if (this.enabled) {
+                    // NOTE: If the client is already connected, the 'connect' event won't be fired. 
+                    // Therefore we mannually dispatch the state if already connected/registered.
+                    if (this.mqttClient.isRegistered()) {
+                        this.dispatchState();
+                    } else {
+                        this.mqttClient.onRegistered.subscribe(() => this.dispatchState(), true);
+                    }
+                }
+            } else if (deviceChanges) { // update changed devices only
+                Log.info("Update settings for changed devices only");
+                if (this.enabled) {
+                    for (let deviceId of deviceChanges.enabled) {
+                        if (typeof deviceId === 'string') {
+                            this.enableDevice(deviceId);
+                        }
+                    }
+                }
+                for (let deviceId of deviceChanges.disabled) {
+                    if (typeof deviceId === 'string') {
+                        this.disableDevice(deviceId);
+                    }
+                }
+            }
+
             Log.info("HomeAssistant Dispatcher initialized");
         } catch (e) {
             Log.error("Failed to initialize HomeAssistantDispatcher");
             Log.error(e);
         }
     }
-    
-    async _init() {
 
-        // subscribe the HASS Birth & Last will messages
-        await this.mqttClient.subscribe(STATUS_TOPIC);
-        this._clientCallback = this._onMessage.bind(this);
-        this.mqttClient.onMessage.subscribe(this._clientCallback);
-
-        // NOTE: If the client is already connected, the 'connect' event won't be fired. 
-        // Therefore we mannually dispatch the state if already connected/registered.
-        if (this.mqttClient.isRegistered())
-            this.dispatchState();
-        else
-            this.mqttClient.onRegistered.subscribe(() => this.dispatchState(), true);
+    async registerHassStatus(settings) {
+        const statusTopic = settings.hassStatusTopic || STATUS_TOPIC;
+        this.hassOnlineMessage = settings.hassOnlineMessage || STATUS_ONLINE;
+        this.hassOfflineMessage = settings.hassOfflineMessage || STATUS_OFFLINE;
+        if (this.statusTopic !== statusTopic) {
+            if (this.statusTopic) {
+                await this.mqttClient.unsubscribe(this.statusTopic);
+            }
+            this.statusTopic = statusTopic;
+            if (this.statusTopic) {
+                await this.mqttClient.subscribe(this.statusTopic);
+            }
+        }
     }
 
     async _onMessage(topic, message) {
 
-        if (topic !== STATUS_TOPIC) return;
+        if (topic !== this.hassStatusTopic) return;
 
-        Log.info("Received HASS Birth message: " + message);
+        Log.info("Received HomeAssistant status message: " + message);
 
         try {
-            if (message === STATUS_ONLINE && this.mqttClient.isRegistered()) {
+            if (message === this.hassOnlineMessage && this.mqttClient.isRegistered()) {
                 Log.info('Dispatch state');
                 this.dispatchState();
                 this.homieDispatcher.dispatchState();
             }
+            // Note: Hass offline message is discarded
         } catch (e) {
-            Log.info('Error handling HASS status message');
+            Log.info('Error handling HomeAssistant status message');
             Log.debug(topic);
             Log.debug(message);
             Log.error(e);
@@ -351,33 +409,6 @@ class HomeAssistantDispatcher {
     dispatchState() {
         this._registered = new Set();
         this.registerDevices();
-    }
-
-    updateSettings(settings, deviceChanges) {
-        settings = settings || {};
-        const current = this.settings ? JSON.stringify(this.settings) : null;
-        this.settings = this.settings || {};
-
-        // TODO: Topic from settings
-        //this.settings.hassTopic = settings.hassTopic === undefined ? DEFAULT_TOPIC_ROOT : settings.hassTopic;
-        this.settings.deviceId = normalize(settings.deviceId || this.system.name || DEFAULT_DEVICE_ID);
-
-        // Breaking changes? => Start a new HomieDevice (& destroy current)
-        if (current && current !== JSON.stringify(this.settings)) {
-            // TODO: Implement
-        } else if (deviceChanges) { // update changed devices only
-            Log.info("Update settings for changed devices only");
-            for (let deviceId of deviceChanges.enabled) {
-                if (typeof deviceId === 'string') {
-                    this.enableDevice(deviceId);
-                }
-            }
-            for (let deviceId of deviceChanges.disabled) {
-                if (typeof deviceId === 'string') {
-                    this.disableDevice(deviceId);
-                }
-            }
-        }
     }
 
     // Get all devices and add them
@@ -416,7 +447,7 @@ class HomeAssistantDispatcher {
         }
         this._registered.add(device.id);
 
-        Log.info("Home Assistant discover: " + device.name);
+        Log.info("HASS discover: " + device.name);
 
         const remainingCapabilities = this._registerDeviceClass(device);
         this._registerCapabilities(device, remainingCapabilities);
@@ -500,7 +531,10 @@ class HomeAssistantDispatcher {
         // TODO: light_mode
         // TODO: RGB color setting
         
-        const topic = [this._topicRoot, type, normalize(device.name), 'config'].join('/');
+        let topic = [...this.topic.split('/'), type, device.name, 'config'].filter(x => x).join('/');
+        if (this.normalize) {
+            topic = normalize(topic);
+        }
         this._registerConfig(device, type, topic, payload);
 
         return ['onoff', 'dim', 'light_hue', 'light_saturation', 'light_temperature', 'color', 'rgb', 'hsv'];
@@ -547,7 +581,10 @@ class HomeAssistantDispatcher {
             payload.mode_state_template = "{% set values = { 'schedule':'auto', 'manual':'heat', 'notused':'cool', 'off':'off'} %}{{ values[value] if value in values.keys() else 'off' }}";
         }
 
-        const topic = [this._topicRoot, type, normalize(device.name), 'config'].join('/');
+        let topic = [...this.topic.split('/'), type, device.name, 'config'].filter(x => x).join('/');
+        if (this.normalize) {
+            topic = normalize(topic);
+        }
         this._registerConfig(device, type, topic, payload);
 
         return ['onoff', 'measure-temperature', 'target-temperature', 'custom-thermostat-mode'];
@@ -576,8 +613,6 @@ class HomeAssistantDispatcher {
             return undefined;
         }
 
-        const deviceId = normalize(device.name);
-        const capabilityId = normalize(capability.id);
         const capabilityTitle = capability.title && typeof capability.title === 'object' ? capability.title['en'] : capability.title;
         const capabilityName = capabilityTitle || capability.desc || capability.id;
         const type = config.type;
@@ -607,7 +642,10 @@ class HomeAssistantDispatcher {
         //}
 
         // final payload = above payload with added & overidden values from config
-        const topic = [this._topicRoot, type, deviceId, capabilityId, 'config'].join('/');
+        let topic = [...this.topic.split('/'), type, device.name, capability.id, 'config'].filter(x => x).join('/');
+        if (this.normalize) {
+            topic = normalize(topic);
+        }
         this._registerConfig(device, type, topic, { ...payload, ...config.payload });
     }
 
@@ -679,7 +717,7 @@ class HomeAssistantDispatcher {
 
         // Include device info
         config.device = {
-            identifiers: `${this._deviceId}_${device.id}`,
+            identifiers: `${this.deviceId}_${device.id}`,
             name: device.name
         };
 
@@ -728,6 +766,9 @@ class HomeAssistantDispatcher {
     }
 
     destroy() {
+        if (this.mqttClient) {
+            this.mqttClient.onMessage.unsubscribe(this._clientCallback);
+        }
         Log.info('Destroy HomeAssistantDispatcher');
     }
 }

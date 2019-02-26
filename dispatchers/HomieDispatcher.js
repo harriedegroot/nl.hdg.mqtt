@@ -7,9 +7,8 @@ const HomieDevice = require('../homie/homieDevice');
 const HomieMQTTClient = require('../homie/HomieMQTTClient');
 const Color = require('../Color');
 
-const DEFAULT_TOPIC_ROOT = 'homie';
+const DEFAULT_TOPIC_ROOT = 'homie/homey';
 const DEFAULT_DEVICE_NAME = 'Homey';
-const DEFAULT_DEVICE_ID = 'homey';
 const DEFAULT_ZONE = "home";
 const DEFAULT_CLASS = "other";
 const DEFAULT_PROPERTY_SCALING = "default";
@@ -25,14 +24,7 @@ const PROPERTY_COMMANDS = ['$name', '$retained', '$settable', '$unit', '$datatyp
  * */
 class HomieDispatcher {
 
-    get _topicRoot() {
-        return this.settings && this.settings.homieTopic ? this.settings.homieTopic : '';
-    }
-    get _deviceId() {
-        return this.settings && this.settings.deviceId ? this.settings.deviceId : DEFAULT_DEVICE_ID;
-    }
-
-    constructor({ api, mqttClient, deviceManager, system, settings, messageQueue, topicsRegistry }) {
+    constructor({ api, mqttClient, deviceManager, settings, system, messageQueue, topicsRegistry }) {
         this.api = api;
         this._mqttClient = mqttClient;
         this.homieMQTTClient = new HomieMQTTClient(mqttClient, messageQueue);
@@ -40,25 +32,90 @@ class HomieDispatcher {
         this.system = system;
         this.messageQueue = messageQueue;
         this.topicsRegistry = topicsRegistry;
-
-        this.updateSettings(settings);
         
         this._nodes = new Map();
         this._capabilityInstances = new Map();
     }
 
-    register() {
-        if (this._registered) return;
-        this._registered = true;
+    applySettings(settings) {
+        this.settings = settings;
 
-        // Wait for the client to be connected, otherwise messages wont be send
-        if (this._mqttClient.isRegistered()) {
-            this._initHomieDevice();
-        } else {
-            this._mqttClient.onRegistered.subscribe(() => this._initHomieDevice(), true);
+        // read config
+        this.broadcast = settings.broadcastDevices !== false;
+        this.topic = (settings.homieTopic || DEFAULT_TOPIC_ROOT).replace('{deviceId}', settings.deviceId);
+        this.topicIncludeClass = settings.topicIncludeClass === true;
+        this.topicIncludeZone = settings.topicIncludeZone === true;
+        this.percentageScale = settings.percentageScale || DEFAULT_PROPERTY_SCALING;
+        this.colorFormat = settings.colorFormat || DEFAULT_COLOR_FORMAT;
+        this.normalize = !!settings.normalize;
+
+        if (this.normalize) {
+            this.topic = normalize(this.topic);
+        }
+
+        // parse topic
+        const parts = this.topic.split('/');
+        this._rootTopicParts = parts.length;
+        if (this.topicIncludeClass) this._rootTopicParts++;
+        if (this.topicIncludeZone) this._rootTopicParts++;
+        this.deviceId = parts.pop();
+        this.topicRoot = parts.join('/');
+    }
+
+    breakingChanges(settings) {
+        const hash = JSON.stringify({
+            homieTopic: settings.homieTopic,
+            normalize: settings.normalize,
+            topicIncludeClass: settings.topicIncludeClass,
+            topicIncludeZone: settings.topicIncludeZone,
+            percentageScale: settings.percentageScale,
+            colorFormat: settings.colorFormat,
+            broadcastDevices: settings.broadcastDevices
+        });
+        const changed = this._settingsHash !== hash;
+        this._settingsHash = hash;
+        return changed;
+    }
+
+    init(settings, deviceChanges) {
+
+        this.applySettings(settings);
+            
+
+        // Breaking changes? => Start a new HomieDevice (& destroy current)
+        if (this.breakingChanges(settings)) {
+
+            Log.info("Recreate HomieDevice with new settings");
+
+            // Wait for the client to be connected, otherwise messages wont be send
+            if (this._mqttClient.isRegistered()) {
+                this._initHomieDevice(); // reboot HomieDevice with new settings
+            } else {
+                this._mqttClient.onRegistered.subscribe(() => this._initHomieDevice(), true);
+            }
+        } else if (deviceChanges) { // update changed devices only
+            Log.info("Update settings for changed devices only");
+            for (let deviceId of deviceChanges.enabled) {
+                if (typeof deviceId === 'string') {
+                    this.enableDevice(deviceId);
+                }
+            }
+            for (let deviceId of deviceChanges.disabled) {
+                if (typeof deviceId === 'string') {
+                    this.disableDevice(deviceId);
+                }
+            }
         }
     }
-    
+
+    formatTopic(topic) {
+        if (topic && topic.substr(0, this.topic.length) === this.topic) {
+            let parts = topic.split('/').slice(this._rootTopicParts);
+            topic = [this.topicRoot, this.deviceId, ...parts].join('/');
+        }
+        return topic;
+    }
+  
     _initHomieDevice() {
         if (this.homieDevice) {
             this._destroyHomieDevice();
@@ -66,7 +123,7 @@ class HomieDispatcher {
 
         Log.info("Create HomieDevice");
         this.homieDevice = new HomieDevice(this.deviceConfig);
-        this.homieDevice.setFirmware(this.system.homeyModelName || 'Homey', this.system.homeyVersion || '2+');
+        this.homieDevice.setFirmware(this.settings.deviceId || this.system.homeyModelName || 'Homey', this.system.homeyVersion || '2+');
 
         this._messageCallback = function (topic, value) {
             Log.info('message: ' + topic + ' with value: ' + value);
@@ -76,6 +133,12 @@ class HomieDispatcher {
         };
         this.homieDevice.on('message', this._messageCallback);
         this.homieDevice.on('broadcast', this._broadcastCallback);
+
+        // format custom topics
+        const onMessage = this.homieDevice.onMessage;
+        this.homieDevice.onMessage = (topic, message) => {
+            onMessage.call(this.homieDevice, this.formatTopic(topic), message);
+        };
 
         this.registerDevices();
         this.homieDevice.setup(true);
@@ -102,54 +165,20 @@ class HomieDispatcher {
     get deviceConfig() {
         return {
             name: this.system.name || DEFAULT_DEVICE_NAME,
-            device_id: this._deviceId,
+            device_id: this.deviceId,
             mqtt: {
                 host: "localhost",
                 port: 1883,
-                base_topic: this._topicRoot + '/',
+                base_topic: this.topicRoot ? this.topicRoot + '/' : '',
                 auth: false,
                 username: null,
                 password: null
             },
             mqttClient: this.homieMQTTClient,
-            settings: {
-            },
+            settings: {},
             ip: null,
             mac: null
         };
-    }
-
-    updateSettings(settings, deviceChanges) {
-        settings = settings || {};
-        const current = this.settings ? JSON.stringify(this.settings) : null;
-        this.settings = this.settings || {};
-
-        this.broadcast = settings.broadcastDevices !== false;
-
-        this.settings.homieTopic = settings.homieTopic === undefined ? DEFAULT_TOPIC_ROOT : settings.homieTopic;
-        this.settings.deviceId = normalize(settings.deviceId || this.system.name || DEFAULT_DEVICE_ID);
-        this.settings.topicIncludeClass = settings.topicIncludeClass === true;
-        this.settings.topicIncludeZone = settings.topicIncludeZone === true;
-        this.settings.percentageScale = settings.percentageScale || DEFAULT_PROPERTY_SCALING;
-        this.settings.colorFormat = settings.colorFormat || DEFAULT_COLOR_FORMAT;
-
-        // Breaking changes? => Start a new HomieDevice (& destroy current)
-        if (current && current !== JSON.stringify(this.settings)) {
-            Log.info("Recreate HomieDevice with new settings");
-            this._initHomieDevice(); // reboot HomieDevice with new settings
-        } else if (deviceChanges) { // update changed devices only
-            Log.info("Update settings for changed devices only");
-            for (let deviceId of deviceChanges.enabled) {
-                if (typeof deviceId === 'string') {
-                    this.enableDevice(deviceId);
-                }
-            }
-            for (let deviceId of deviceChanges.disabled) {
-                if (typeof deviceId === 'string') {
-                    this.disableDevice(deviceId);
-                }
-            }
-        }
     }
 
     // Get all devices and add them
@@ -179,23 +208,26 @@ class HomieDispatcher {
     }
 
     getTopic(device, capability) {
-        return [
-            this._topicRoot,
-            this._deviceId,
+        // TODO: some caching?
+        const topic = [
+            ...this.topic.split('/'),
             ...this.getNodeName(device).split('/'),
-            capability ? normalize(typeof capability === 'string' ? capability : capability.id) : undefined
+            capability ? (typeof capability === 'string' ? capability : capability.id) : undefined
         ].filter(x => x).join('/');
+
+        return this.normalize ? normalize(topic) : topic;
     }
 
     getNodeName(device) {
-        let path = [normalize(device.name)];
-        if (this.settings.topicIncludeZone) {
-            path.unshift(device.zone && device.zone.name ? normalize(device.zone.name) : DEFAULT_ZONE);
+        let path = [device.name];
+        if (this.topicIncludeZone) {
+            path.unshift(device.zone && device.zone.name ? device.zone.name : DEFAULT_ZONE);
         }
-        if (this.settings.topicIncludeClass) {
-            path.unshift(normalize(device.class) || DEFAULT_CLASS);
+        if (this.topicIncludeClass) {
+            path.unshift(device.class || DEFAULT_CLASS);
         }
-        return path.join('/');
+        path = path.filter(x => x).join('/');
+        return this.normalize ? normalize(path) : path;
     }
 
     _send(deviceId, propertyOrTopic, value, retained) {
@@ -213,7 +245,7 @@ class HomieDispatcher {
     _sendColor(device, property, { hsv, rgb }, retained) {
 
         // Send color for property
-        switch (this.settings.colorFormat) {
+        switch (this.colorFormat) {
             case 'hsv':
                 this._send(device.id, property, `${hsv.h},${hsv.s},${hsv.v}`, retained);
                 break;
@@ -255,8 +287,10 @@ class HomieDispatcher {
 
         Log.info("Register device: " + device.name);
 
-        const name = this.getNodeName(device);
+        const topic = this.getNodeName(device);
+        const name = topic.split('/').pop();
         let node = this.homieDevice.node(name, device.name, this._convertClass(device.class));
+        node.mqttTopic = this.homieDevice.mqttTopic + '/' + topic; // Note: override
         this._nodes.set(device.id, node); // register
 
         // register property topics
@@ -268,7 +302,7 @@ class HomieDispatcher {
                 if (capabilities.hasOwnProperty(key)) {
                     const capability = capabilities[key];
                     const id = capability.id;
-                    const color = (this.settings.colorFormat !== 'values' && id === 'light_hue') ? 'color' : null;
+                    const color = (this.colorFormat !== 'values' && id === 'light_hue') ? 'color' : null;
                     const value = capability.value;
                     const capabilityTitle = color ? 'Color' : (capability.title && typeof capability.title === 'object') ? capability.title['en'] : capability.title;
                     const capabilityName = capabilityTitle || capability.desc || id;
@@ -276,7 +310,7 @@ class HomieDispatcher {
                     const dataType = this._convertDataType(capability);
 
                     if (dataType) { // NOTE: undefined for filtered color formats
-                        const property = node.advertise(color || normalize(id))
+                        const property = node.advertise(color || (this.normalize ? normalize(id) : id))
                             .setName(name)
                             .setUnit(this._convertUnit(capability))
                             .setDatatype(dataType)
@@ -418,7 +452,7 @@ class HomieDispatcher {
             case 'light_hue':
             case 'light_saturation':
             case 'light_temperature':
-                return this.settings.colorFormat === 'values' ? capability.id : this.settings.colorFormat;
+                return this.colorFormat === 'values' ? capability.id : this.colorFormat;
             default:
                 const units = capability.units;
                 return units && typeof units === 'object' ? units['en'] : units;
@@ -429,7 +463,7 @@ class HomieDispatcher {
 
         // percentage
         if (capability.units === '%') {
-            switch (this.settings.percentageScale) {
+            switch (this.percentageScale) {
                 case 'int':
                     if (capability.min === 0 && capability.max === 1)
                         return 'int';
@@ -446,7 +480,7 @@ class HomieDispatcher {
         }
 
         // color
-        if (this.settings.colorFormat !== 'values') {
+        if (this.colorFormat !== 'values') {
             switch (capability.id) {
                 case 'light_hue':
                     return 'color';         // Catch 'color' type
@@ -475,12 +509,12 @@ class HomieDispatcher {
         */
 
         // Catch 'color' format
-        if (this.settings.colorFormat !== 'values') {
+        if (this.colorFormat !== 'values') {
             switch (capability.id) {
                 case 'light_hue':
                 case 'light_saturation':
                 case 'light_temperature':
-                    return this.settings.colorFormat;
+                    return this.colorFormat;
             }
         }
 
@@ -488,7 +522,7 @@ class HomieDispatcher {
 
             // catch percentage
             if (capability.units === '%') {
-                switch (this.settings.percentageScale) {
+                switch (this.percentageScale) {
                     case 'int':
                         if (capability.min === 0 && capability.max === 1)
                             return '0:100';
@@ -539,7 +573,7 @@ class HomieDispatcher {
         }
 
         // Catch colors
-        //if (this.settings.colorFormat !== 'values') {
+        //if (this.colorFormat !== 'values') {
             if (capability.id === 'light_hue') {
                 capability.id = 'color';
                 let device = await this.api.devices.getDevice({ id: deviceId });
@@ -556,7 +590,8 @@ class HomieDispatcher {
         //}
 
         try {
-            const property = node.setProperty(normalize(capability.id));
+            const propertyId = this.normalize ? normalize(capability.id) : capability.id;
+            const property = node.setProperty(propertyId);
             if (property) {
                 if (this.broadcast) {
                     this._send(deviceId, property, this._formatValue(value, capability));
@@ -604,7 +639,7 @@ class HomieDispatcher {
 
         if (split.length === 3) {
             try {
-                let color = this.settings.colorFormat === 'rgb' ? Color.RGBtoHSV(...split) : { h: split[0], s: split[1], v: split[2] };
+                let color = this.colorFormat === 'rgb' ? Color.RGBtoHSV(...split) : { h: split[0], s: split[1], v: split[2] };
                 Log.debug("color: " + JSON.stringify(color));
 
                 // Note: Homey values are rang 0...1
@@ -675,7 +710,7 @@ class HomieDispatcher {
         }
 
         if (capability.units === '%') {
-            switch (this.settings.percentageScale) {
+            switch (this.percentageScale) {
                 case 'int':
                     if (capability.min === 0 && capability.max === 1)
                         return value * 100;
@@ -698,7 +733,7 @@ class HomieDispatcher {
 
         // Handle percentage scaling
         if (capability && capability.units === '%') {
-            switch (this.settings.percentageScale) {
+            switch (this.percentageScale) {
                 case 'int':
                     if (capability.min === 0 && capability.max === 1)
                         return this._parseValue(value, 'int') / 100.0;

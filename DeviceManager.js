@@ -25,16 +25,16 @@ class DeviceManager {
                     return device;
                 if (this.deviceNames && this.deviceNames.has(device))
                     return this.deviceNames.get(device);
-                if (this.deviceTopics && this.deviceTopics.has(device))
-                    return this.deviceTopics.get(device);
+                if (this.deviceTopics && this.deviceTopics.has(normalize(device)))
+                    return this.deviceTopics.get(normalize(device));
             } else if (typeof device === 'object') {
                 if (device.id)
                     return device.id;
                 if (device.name) {
                     if (this.deviceNames && this.deviceNames.has(device.name))
                         return this.deviceNames.get(device.name);
-                    if (this.deviceTopics && this.deviceTopics.has(device.name))
-                        return this.deviceTopics.get(device.name);
+                    if (this.deviceTopics && this.deviceTopics.has(normalize(device.name)))
+                        return this.deviceTopics.get(normalize(device.name));
                 }
             }
         }

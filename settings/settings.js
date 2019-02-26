@@ -117,7 +117,7 @@ function onHomeyReady(homeyReady){
         $("#running").prop("disabled", false);
         running = !err && result;
     });
-        
+    
     showTab(1);
     getLanguage();
 
@@ -181,8 +181,9 @@ function onHomeyReady(homeyReady){
             reset: function () {
                 // confirm?
                 //if(Homey.confirm("Reset default settings?")){
+                    const deviceId = hubSettings.systemName;
                     hubSettings = { ...defaultSettings };
-                    hubSettings.deviceId = hubSettings.systemName;
+                    hubSettings.deviceId = deviceId || 'Homey';
                     updateValues();
                     _writeSettings();
                 //}

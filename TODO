@@ -5,37 +5,22 @@ BUGS:
 - [BUG] client/hub registration?
 
 Settings:
-! HASS settings (enable disable discovery + topic root)
-! seperate root topics (homie, HASS, system state, custom, etc.)
-! Make class constants configurable
-! Split hiding of controls & applying default (protocol) settings
-! settings default vs disabled controls
-! settings restore app defaults button
+! [CHECK] initial settings @ clean install
+! Clear command & system state topics when changeing topic
 ! Check 'App' initilaized (prevent settings crash)
 ! Update Instructions
-! [CHECK] Load deviceId @ first load
-! [CHECK] initial settings @ clean install
-! Allow all chars for DeviceId, normalize for topics (based on setting)
-! Inject deviceId (normalized) in topics
-! [CHECK] broadcast on settings changes (if needed)
 ! [CHECK] en.json translations
-- optional normalization for custom protocol
-- system info topic configurable
 - Enable/disable all devices
 - display broadcast progress (loader)
-- Birth & Last will topics + messages
-- enable/disable set command handler
 - Disable device capabilities
 - Show number of messages per device
 - Display number of messages in queue (fill 100% === number of devices)
 - Seperate call for device enable/disable
 
 HASS:
-! Enable/disable (broadcast / clear messages)
+! Clear all HASS messages (Register all topics &clear @ settings topic change)
 ! Color temperature (read & write)
 ! Update correct HSV values when setting one of the values (color topic)
-! Implement full reload @ settings change
-! Clear all HASS messages
 - Set numeric values? input_number: https://www.home-assistant.io/components/input_number/?
 - Remaining device types (Alarm control panels, Binary sensors, Cameras, Covers, Fans, HVACs, Lights, Locks, Sensors, Switches, Vacuums)
 - thermostat modes
@@ -52,6 +37,7 @@ Homie:
 - Button-press & non-retained messages?
 
 App:
+! Adjust documentation for HA Discovery & changed settings (readme)
 - [Check] shutdown procedure
 - [Check] Refresh devices on device/zone changes + Broadcast
 - Uninstall app => unsubscribe from topics on MQTT lient
@@ -63,7 +49,7 @@ Homey:
 
 Discovery (auto discover external devices):
 - Implement Homie discovery
-- Implement HASS Discovery
+- Implement HA discovery
 - Create virtual devices from MQTT discovery
 
 Commands:
@@ -78,13 +64,13 @@ Commands:
 
 System info:
 - Publish system info on seperate topics (i.s.o. json)
-
+- (All) Prometheus functionality
 
 
 ======= DONE =======
 - Normalize device name
 - Fix getDeviceName for homey 1.5.13
-- MQTT discovery (see OpenHAB / Domiticz)
+- MQTT discovery (see OpenHAB / Domoticz)
 - Implement Homie convention (Homey v1.5.13)
 - Homie Convention for Homey v2.0
 - Normalization BUG
@@ -134,3 +120,21 @@ x test internal MQTT client ('socket hang up' fix? duplicate mem usage, config &
 - HASS enable device => send discover config
 - HASS Keep track of device topics & remove messages from queue when disabling device
 - Send empty messages to clear devices
+- [BUG] set command not working when deviceId or topic root is empty
+- HASS settings (enable disable discovery + topic root)
+- seperate root topics (homie, HASS, system state, custom, etc.)
+- Make class constants configurable
+- Re-factor settings
+- settings restore app defaults button
+- [CHECK] Load deviceId @ first load
+- Allow all chars for DeviceId, normalize for topics (based on setting)
+- Inject deviceId (normalized) in topics
+- Skip reloading when changing birth & last will messages
+- HASS: Implement full reload @ settings change
+- optional normalization for custom protocol
+- system info topic configurable
+- Birth & Last will topics + messages
+- enable/disable set command handler
+- HASS: Enable/disable
+x Settings: Split hiding of devices & applying default (protocol) settings
+- [CHECK] broadcast on settings changes (if needed)
