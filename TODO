@@ -24,13 +24,13 @@ HASS:
 - [REFACTOR] De-couple parse & format logic. Refactor data processing. Create handlers per type?
 
 Homie:
-! color values: round float values (int)
-! Scale 0...100 round float values (int)
+- Fix RGB
 - Introduce queue for updating device state (use brightness slider ha app)
 - Check client availability processing
 - Publish device/$state disconnect message?
 - Device Aliasses (e.g. dim/brightness, light temperature, etc.)
 - Button-press & non-retained messages?
+- Zone depth > 1 (folder structure)
 
 App:
 ! Adjust documentation for HA Discovery & changed settings (readme)
@@ -139,3 +139,6 @@ x Settings: Split hiding of devices & applying default (protocol) settings
 - Add additional boolean checks
 - Clear command & system state topics when changing topic
 - Clear all HASS messages (Register all topics &clear @ settings topic change)
+- color values: round float values (int)
+- Scale 0...100 round float values (int)
+- set value decimals => toFixed(capability.decimals)

@@ -17,6 +17,19 @@ const DEFAULT_COLOR_FORMAT = "hsv";
 const NODE_COMMANDS = ['$type', '$name', '$properties'];
 const PROPERTY_COMMANDS = ['$name', '$retained', '$settable', '$unit', '$datatype', '$format'];
 
+const round = function (value, min, max) {
+    if (typeof value !== 'number') return value;
+
+    value = Math.round(value);
+    if (min !== undefined) {
+        value = Math.max(min, value);
+    }
+    if (max !== undefined) {
+        value = Math.min(max, value);
+    }
+    return value;
+};
+
 /**
  * Homey Convention 3.0.1
  * Based on modified version of: https://github.com/marcus-garvey/homie-device
@@ -241,12 +254,15 @@ class HomieDispatcher {
         this.topicsRegistry.register(deviceId, topic);
         this.messageQueue.add(topic, value, { retain: retained !== false });
     }
-
+    
     _sendColor(device, property, { hsv, rgb }, retained) {
-
+        
         // Send color for property
         switch (this.colorFormat) {
             case 'hsv':
+                const h = round(hsv.h, 0, 360);
+                const s = round(hsv.s, 0, 100);
+                const v = round(hsv.v, 0, 100);
                 this._send(device.id, property, `${hsv.h},${hsv.s},${hsv.v}`, retained);
                 break;
             case 'rgb':
@@ -643,9 +659,9 @@ class HomieDispatcher {
                 Log.debug("color: " + JSON.stringify(color));
 
                 // Note: Homey values are rang 0...1
-                color.h /= 360;
-                color.s /= 100;
-                color.v /= 100;
+                color.h = (color.h / 360.0).toFixed(2);
+                color.s = (color.s / 100.0).toFixed(2);
+                color.v = (color.v / 100.0).toFixed(2);
 
                 await this.api.devices.setCapabilityValue({ deviceId: deviceId, capabilityId: 'light_saturation', value: color.s });
                 await this.api.devices.setCapabilityValue({ deviceId: deviceId, capabilityId: 'light_temperature', value: color.v });
@@ -661,8 +677,8 @@ class HomieDispatcher {
                 Log.debug("color: " + JSON.stringify(color));
 
                 // Note: Homey values are rang 0...1
-                color.h /= 360;
-                color.s /= 100;
+                color.h = (color.h / 360.0).toFixed(2);
+                color.s = (color.s / 100.0).toFixed(2);
                 
                 await this.api.devices.setCapabilityValue({ deviceId: deviceId, capabilityId: 'light_saturation', value: color.s });
                 await this.api.devices.setCapabilityValue({ deviceId: deviceId, capabilityId: 'light_hue', value: color.h }); // NOTE: Executed last because 'hue' triggers the update
@@ -678,7 +694,7 @@ class HomieDispatcher {
                 let temperature = (split[0] - 153) / (500 - 153);
                 Log.debug("light_temperature: " + temperature);
 
-                await this.api.devices.setCapabilityValue({ deviceId: deviceId, capabilityId: 'light_temperature', value: temperature });
+                await this.api.devices.setCapabilityValue({ deviceId: deviceId, capabilityId: 'light_temperature', value: temperature.toFixed(2) });
             } catch (e) {
                 Log.info("Homie: Failed to update color value");
                 Log.error(e);
@@ -694,13 +710,20 @@ class HomieDispatcher {
         const hue = (capabilities['light_hue'] || {}).value || 0;
         const saturation = (capabilities['light_saturation'] || {}).value || 0;
         const temp = (capabilities['light_temperature'] || {}).value || 0;
-
+       
         const hsv = {
-            h: hue * 360,
-            s: saturation * 100,
-            v: temp * 100
-        }
+            h: round(hue * 360, 0, 360),
+            s: round(saturation * 100, 0, 100),
+            v: round(temp * 100, 0, 100)
+        };
+
         const rgb = Color.HSVtoRGB(hsv);
+        if (rgb) {
+            rgb.r = round(rgb.r, 0, 255);
+            rgb.g = round(rgb.g, 0, 255);
+            rgb.b = round(rgb.b, 0, 255);
+        }
+
         return { hsv, rgb };
     }
 
@@ -740,7 +763,7 @@ class HomieDispatcher {
                     break;
                 case 'float':
                     if (capability.min === 0 && capability.max === 100)
-                        return this._parseValue(value, 'float') * 100;
+                        return round(this._parseValue(value, 'float') * 100, 0, 100);
                     break;
                 case 'default':
                 default:
@@ -758,7 +781,8 @@ class HomieDispatcher {
                 return value === true || value === 'true' || value === 1 || value === '1' || value === 'on' || value === 'yes';
             case 'number':
             case 'float':
-                return typeof value === 'number' ? value : typeof value === 'string' ? Number(value) || 0 : 0;
+                value = typeof value === 'number' ? value : typeof value === 'string' ? Number(value) || 0 : 0;
+                return capability.decimals >= 0 ? value.toFixed(capability.decimals) : value;
             case 'integer':
                 return typeof value === 'number' ? value : typeof value === 'string' ? parseInt(value) || 0 : 0;
             case 'string':
