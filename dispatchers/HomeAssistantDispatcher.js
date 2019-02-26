@@ -458,13 +458,13 @@ class HomeAssistantDispatcher {
         const capabilities = { ...device.capabilitiesObj };
 
         switch (device.class) {
+            case 'socket':
             case 'light':
                 this._registerLight(device).forEach(id => delete capabilities[id]);
                 break;
             case 'thermostat':
                 this._registerThermostat(device).forEach(id => delete capabilities[id]);
                 break;
-            case 'socket':
             case 'vacuumcleaner':
             case 'fan':
             case 'heater':
