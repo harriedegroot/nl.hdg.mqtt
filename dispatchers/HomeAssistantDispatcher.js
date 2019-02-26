@@ -457,20 +457,15 @@ class HomeAssistantDispatcher {
 
         const capabilities = { ...device.capabilitiesObj };
 
-        // capture all devices with onoff & dim capabilities and create a light device for it
-        if (capabilities.hasOwnProperty('onoff') && capabilities.hasOwnProperty('dim')) {
-            this._registerLight(device).forEach(id => delete capabilities[id]);
-            return;
-        }
 
         switch (device.class) {
-            case 'socket':
             case 'light':
                 this._registerLight(device).forEach(id => delete capabilities[id]);
                 break;
             case 'thermostat':
                 this._registerThermostat(device).forEach(id => delete capabilities[id]);
                 break;
+            case 'socket':
             case 'vacuumcleaner':
             case 'fan':
             case 'heater':
@@ -491,6 +486,11 @@ class HomeAssistantDispatcher {
             case 'remote':
             case 'other':
             default:
+                // capture all other devices with onoff & dim capabilities and create a light device for it
+                if (capabilities && capabilities.hasOwnProperty('onoff') && capabilities.hasOwnProperty('dim')) {
+                    this._registerLight(device).forEach(id => delete capabilities[id]);
+                    return;
+                }
                 // nothing
                 break;
         }
