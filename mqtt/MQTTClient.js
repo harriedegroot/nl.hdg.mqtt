@@ -3,6 +3,7 @@
 const Homey = require('homey');
 const Log = require("../Log.js");
 const EventHandler = require('../EventHandler');
+const Message = require('./Message');
 
 class MQTTClient  {
 
@@ -111,6 +112,28 @@ class MQTTClient  {
             Log.debug(msg);
             Log.error(error);
         }
+    }
+
+    /**
+     * Just a Publish, but with seperate arguments
+     * @param {string} topic topic
+     * @param {any} payload message payload
+     * @param {number} qos qos
+     * @param {boolean} retain retain
+     * @returns {Promise} Promise
+     */
+    async send(topic, payload, qos, retain) {
+        return await this.publish(new Message(topic, payload, qos, retain));
+    }
+
+    /**
+     * Clear a (retained) topic
+     * @param {string} topic topic
+     * @param {number} qos qos
+     * @returns {Promise} Promise
+     */
+    async clear(topic, qos) {
+        return await this.publish(new Message(topic, null, qos || 0, true));
     }
 
     _onClientAppInstalled(installed) {

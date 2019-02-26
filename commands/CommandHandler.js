@@ -27,6 +27,7 @@ class CommandHandler {
             const topic = (settings.commandTopic || TOPIC).replace('{deviceId}', settings.deviceId);
             if (this.topic !== topic) {
                 if (this.topic) {
+                    await this.mqttClient.clear(this.topic);
                     await this.mqttClient.unsubscribe(this.topic);
                 }
                 this.topic = topic;

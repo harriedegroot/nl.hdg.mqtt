@@ -55,10 +55,11 @@ const DELAY = 30000;
 
 class SystemStateDispatcher {
 
-    constructor({ api, mqttClient, messageQueue }) {
+    constructor({ api, mqttClient, messageQueue, settings }) {
         this.api = api;
         this.mqttClient = mqttClient;
         this.messageQueue = messageQueue;
+        this.settings = settings;
 
         this._registerCallback = this.register.bind(this);
         this._unregisterCallback = this.unregister.bind(this);
@@ -68,8 +69,8 @@ class SystemStateDispatcher {
 
     async init(settings) {
         try {
+            this.settings = settings;
             this.enabled = settings.broadcastSystemState;
-            this.topic = (settings.systemStateTopic || TOPIC).replace('{deviceId}', settings.deviceId);
 
             if (this.mqttClient.isRegistered())
                 await this.register();
@@ -91,6 +92,13 @@ class SystemStateDispatcher {
 
         try {
             this.registered = true;
+
+            const topic = (settings.systemStateTopic || TOPIC).replace('{deviceId}', settings.deviceId);
+            if (this.topic && this.topic !== topic) {
+                this.mqttClient.clear(this.topic);
+            }
+            this.topic = topic;
+
             await this.update();
 
             Log.debug('System info dispatcher registered');
