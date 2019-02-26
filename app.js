@@ -371,7 +371,7 @@ class MQTTHub extends Homey.App {
         return topic;
     }
     get _willTopic() {
-        const topic = (this.settings.willTopic || WILL_TOPIC).replace('{deviceId}', this.settings.deviceId);
+        let topic = (this.settings.willTopic || WILL_TOPIC).replace('{deviceId}', this.settings.deviceId);
         if (this.settings.normalize !== false) {
             topic = normalize(topic);
         }
