@@ -662,6 +662,16 @@ class HomieDispatcher {
             ? [value]
             : (value || '').toString().split(',').map(v => parseFloat(v.trim()));
 
+        const device = this.deviceManager.devices[deviceId];
+        if (!device) return;
+
+        const capabilities = device.capabilitiesObj;
+        if (!capabilities) return;
+
+        const lightSaturation = capabilities['light_saturation'];
+        const lightTemperature = capabilities['light_temperature'];
+        const lightHue = capabilities['light_hue'];
+
         if (split.length === 3) {
             try {
                 let color = this.colorFormat === 'rgb' ? Color.RGBtoHSV(...split) : { h: split[0], s: split[1], v: split[2] };
@@ -672,9 +682,15 @@ class HomieDispatcher {
                 color.s = decimals(color.s / 100.0, 2);
                 color.v = decimals(color.v / 100.0, 2);
 
-                await this.api.devices.setCapabilityValue({ deviceId: deviceId, capabilityId: 'light_saturation', value: color.s });
-                await this.api.devices.setCapabilityValue({ deviceId: deviceId, capabilityId: 'light_temperature', value: color.v });
-                await this.api.devices.setCapabilityValue({ deviceId: deviceId, capabilityId: 'light_hue', value: color.h }); // NOTE: Executed last because 'hue' triggers the update
+                if (lightSaturation && lightSaturation.setable) {
+                    await this.api.devices.setCapabilityValue({ deviceId: deviceId, capabilityId: 'light_saturation', value: color.s });
+                }
+                if (lightTemperature && lightTemperature.setable) {
+                    await this.api.devices.setCapabilityValue({ deviceId: deviceId, capabilityId: 'light_temperature', value: color.v });
+                }
+                if (lightHue && lightHue.setable) {
+                    await this.api.devices.setCapabilityValue({ deviceId: deviceId, capabilityId: 'light_hue', value: color.h }); // NOTE: Executed last because 'hue' triggers the update
+                }
             } catch (e) {
                 Log.info("Homie: Failed to update color value");
                 Log.error(e);
@@ -688,9 +704,13 @@ class HomieDispatcher {
                 // Note: Homey values are rang 0...1
                 color.h = decimals(color.h / 360.0, 2);
                 color.s = decimals(color.s / 100.0, 2);
-                
-                await this.api.devices.setCapabilityValue({ deviceId: deviceId, capabilityId: 'light_saturation', value: color.s });
-                await this.api.devices.setCapabilityValue({ deviceId: deviceId, capabilityId: 'light_hue', value: color.h }); // NOTE: Executed last because 'hue' triggers the update
+
+                if (lightSaturation && lightSaturation.setable) {
+                    await this.api.devices.setCapabilityValue({ deviceId: deviceId, capabilityId: 'light_saturation', value: color.s });
+                }
+                if (lightHue && lightHue.setable) {
+                    await this.api.devices.setCapabilityValue({ deviceId: deviceId, capabilityId: 'light_hue', value: color.h }); // NOTE: Executed last because 'hue' triggers the update
+                }
             } catch (e) {
                 Log.info("Homie: Failed to update color value");
                 Log.error(e);
@@ -702,8 +722,9 @@ class HomieDispatcher {
                 // HASS: The color temperature command slider has a range of 153 to 500 mireds (micro reciprocal degrees).
                 let temperature = (split[0] - 153) / (500 - 153);
                 Log.debug("light_temperature: " + temperature);
-
-                await this.api.devices.setCapabilityValue({ deviceId: deviceId, capabilityId: 'light_temperature', value: decimals(temperature, 2) });
+                if (lightTemperature && lightTemperature.setable) {
+                    await this.api.devices.setCapabilityValue({ deviceId: deviceId, capabilityId: 'light_temperature', value: decimals(temperature, 2) });
+                }
             } catch (e) {
                 Log.info("Homie: Failed to update color value");
                 Log.error(e);
