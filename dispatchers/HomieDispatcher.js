@@ -596,13 +596,11 @@ class HomieDispatcher {
         // Catch colors
         //if (this.colorFormat !== 'values') {
             if (capability.id === 'light_hue') {
-                capability.id = 'color';
                 let device = await this.api.devices.getDevice({ id: deviceId });
                 if (device) {
                     if (this.broadcast) {
-                        const propertyId = this.normalize ? normalize(capability.id) : capability.id;
-                        const property = node.setProperty(propertyId);
                         if (property) {
+                            const property = node.setProperty('color');
                             this._sendColor(device, property, this._formatColor(device.capabilitiesObj));
                         }
                     }
