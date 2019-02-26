@@ -30,6 +30,11 @@ const round = function (value, min, max) {
     return value;
 };
 
+const decimals = function (value, x, base) {
+    var pow = Math.pow(base || 10, x);
+    return Math.round(value * pow) / pow;
+};
+
 /**
  * Homey Convention 3.0.1
  * Based on modified version of: https://github.com/marcus-garvey/homie-device
@@ -595,7 +600,11 @@ class HomieDispatcher {
                 let device = await this.api.devices.getDevice({ id: deviceId });
                 if (device) {
                     if (this.broadcast) {
-                        this._sendColor(device, property, this._formatColor(device.capabilitiesObj));
+                        const propertyId = this.normalize ? normalize(capability.id) : capability.id;
+                        const property = node.setProperty(propertyId);
+                        if (property) {
+                            this._sendColor(device, property, this._formatColor(device.capabilitiesObj));
+                        }
                     }
                 }
                 return;
@@ -659,9 +668,9 @@ class HomieDispatcher {
                 Log.debug("color: " + JSON.stringify(color));
 
                 // Note: Homey values are rang 0...1
-                color.h = (color.h / 360.0).toFixed(2);
-                color.s = (color.s / 100.0).toFixed(2);
-                color.v = (color.v / 100.0).toFixed(2);
+                color.h = decimals(color.h / 360.0, 2);
+                color.s = decimals(color.s / 100.0, 2);
+                color.v = decimals(color.v / 100.0, 2);
 
                 await this.api.devices.setCapabilityValue({ deviceId: deviceId, capabilityId: 'light_saturation', value: color.s });
                 await this.api.devices.setCapabilityValue({ deviceId: deviceId, capabilityId: 'light_temperature', value: color.v });
@@ -677,8 +686,8 @@ class HomieDispatcher {
                 Log.debug("color: " + JSON.stringify(color));
 
                 // Note: Homey values are rang 0...1
-                color.h = (color.h / 360.0).toFixed(2);
-                color.s = (color.s / 100.0).toFixed(2);
+                color.h = decimals(color.h / 360.0, 2);
+                color.s = decimals(color.s / 100.0, 2);
                 
                 await this.api.devices.setCapabilityValue({ deviceId: deviceId, capabilityId: 'light_saturation', value: color.s });
                 await this.api.devices.setCapabilityValue({ deviceId: deviceId, capabilityId: 'light_hue', value: color.h }); // NOTE: Executed last because 'hue' triggers the update
@@ -694,7 +703,7 @@ class HomieDispatcher {
                 let temperature = (split[0] - 153) / (500 - 153);
                 Log.debug("light_temperature: " + temperature);
 
-                await this.api.devices.setCapabilityValue({ deviceId: deviceId, capabilityId: 'light_temperature', value: temperature.toFixed(2) });
+                await this.api.devices.setCapabilityValue({ deviceId: deviceId, capabilityId: 'light_temperature', value: decimals(temperature, 2) });
             } catch (e) {
                 Log.info("Homie: Failed to update color value");
                 Log.error(e);
@@ -782,7 +791,7 @@ class HomieDispatcher {
             case 'number':
             case 'float':
                 value = typeof value === 'number' ? value : typeof value === 'string' ? Number(value) || 0 : 0;
-                return capability.decimals >= 0 ? value.toFixed(capability.decimals) : value;
+                return capability.decimals >= 0 ? decimals(value, capability.decimals) : value;
             case 'integer':
                 return typeof value === 'number' ? value : typeof value === 'string' ? parseInt(value) || 0 : 0;
             case 'string':
