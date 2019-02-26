@@ -511,7 +511,8 @@ class HomeAssistantDispatcher {
             state_topic: `${stateTopic}/onoff`,
             state_value_template: '{{ value }}',
             command_topic: `${stateTopic}/onoff/set`,
-            on_command_type: 'first' // send 'onoff' before sending state (dim, color, etc.)
+            //on_command_type: 'first' // send 'onoff' before sending state (dim, color, etc.)
+            on_command_type: 'brightness' // skip 'on' command
         };
 
         if (capabilities.hasOwnProperty('dim')) {
