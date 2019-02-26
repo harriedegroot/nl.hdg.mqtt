@@ -235,17 +235,16 @@ const normalize = function (topic) {
         .join('/');
 };
 
-function parseTopic(value) {
+function parseTopic(key, value) {
 
     if (value && typeof value === 'string') {
         if (hubSettings.deviceId) {
-            value = value.replace('{deviceId}', hubSettings.deviceId);
+            value = value.replace('{deviceId}', normalize(hubSettings.deviceId));
         }
-        return value
-            .split('/')
-            .filter(x => x)
-            .map(v => hubSettings.normalize !== false ? normalize(v) : v)
-            .join('/');
+
+        return hubSettings.normalize !== false && ['homieTopic', 'customTopic'].includes(key)
+            ? normalize(value)
+            : value;
     }
     return value;
 }
@@ -262,7 +261,7 @@ function updateValues() {
                         el.checked = value;
                         break;
                     default:
-                        el.value = key.indexOf('Topic') !== -1 ? parseTopic(value) : value;
+                        el.value = key.indexOf('Topic') !== -1 ? parseTopic(key, value) : value;
                         break;
                 }
             }
