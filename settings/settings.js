@@ -45,20 +45,6 @@ const defaultSettings = {
     "willMessage": "offline"
 };
 
-const homie3Settings = {
-    //"topicIncludeClass": false,
-    //"topicIncludeZone": false,
-    //"colorFormat": "hsv",
-    //"broadcastDevices": true
-};
-
-const haSettings = {
-    //"percentageScale": "int"
-};
-const customSettings = {
-    //"percentageScale": "default"
-};
-
 //////////////////////////////////////////////
 
 //const testDevices = {

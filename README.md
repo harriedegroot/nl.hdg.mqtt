@@ -5,8 +5,9 @@ Turn your Homey into a HUB and let external applications discover & control all 
 ## Introduction
 With this app you can communicate with all your devices connected to Homey using MQTT.  
 The MQTT Hub automatically broadcasts all your devices and their capabilities. 
-It will setup a communication channel per device, so external apps can control each one of them.
-Furthermore it provides an interface to read the full system state & and allows advanced control of your Homey, without the need to write your own app.
+It will setup a communication channel per device, so external apps can find and control each one of them.
+Furthermore it provides an interface to read the full system state & and allows advanced control of your Homey, without the need to write your own app.  
+Auto discovery protocols are implemented to simplify the setup and connection with external apps.
   
 ## What can it be used for?
 Some of the many possibilities:
@@ -14,6 +15,8 @@ Some of the many possibilities:
 - Create custom dashboards: [TileBoard](https://community.home-assistant.io/t/tileboard-new-dashboard-for-homeassistant/57173), [HABPanel](https://www.openhab.org/docs/configuration/habpanel.html), [Node RED Dashboard](https://flows.nodered.org/node/node-red-dashboard), etc.
 - Create advanced flows and logic: [Node RED](https://nodered.org/), etc.
 - Use native mobile apps (3rd party): [MQTT Dash](https://play.google.com/store/apps/details?id=net.routix.mqttdash), etc.
+- Connect to virtual assistants (Google Home/Assistant): [gBridge](https://gBridge.io), etc.
+- Insights: [Prometheus](https://prometheus.io), etc.
 - ...
   
 ## Functionality
@@ -21,6 +24,7 @@ The functionality of the MQTT Hub:
 - Broadcast all available devices.
 - Create a communication channel for each device.
 - Dispatch device state changes for all connected devices.
+- Auto discovery of your Homey devices within external apps.
 - Add the ability to remotely update the state of any device (set capability).
 - Dispatch system info (memory, cpu, etc.) on a regular basis.
 - Request info (system, zone, device, capability, etc.).
@@ -34,16 +38,16 @@ All can be configured via app settings (e.g. topic structure, enable/disable dev
 If this meets your expectations and none of the above applies to you: Have fun!  
   
 ## MQTT?
-[MQTT](http://mqtt.org/) is a lightweight communication protocol and it's (becoming) the industry standard for IoT messaging (Internet of Things).
-The [Homie Convention](https://homieiot.github.io/) (v3.0.1) is implemented to provide a communication standard.
+[MQTT](http://mqtt.org/) is a lightweight communication protocol on top of TCP/IP and it's (becoming) the industry standard for IoT messaging (Internet of Things).
+The [Homie Convention](https://homieiot.github.io/) (v3.0.1) is implemented to streamline the communication with external platforms by applying a communication standard.
  
 #### MQTT client & broker
-This app uses the [MQTT Client app](https://apps.athom.com/app/nl.scanno.mqtt) (beta version required) to communicate with a MQTT broker.
+This app uses the [MQTT Client app](https://apps.athom.com/app/nl.scanno.mqtt) to communicate with a MQTT broker.
 You can connect with any broker (e.g. [CloudMQTT](https://www.cloudmqtt.com/), [Mosquitto](https://mosquitto.org/) or [HiveMQ](https://www.hivemq.com/)). There is also a [MQTT broker app](https://apps.athom.com/app/nl.scanno.mqttbroker) available for Homey.
   
 ## Installation
-1. Install a MQTT broker of your liking.
-2. Install the MQTT Client beta app from the store and connect to your broker.
+1. Install an MQTT broker of your liking.
+2. Install the MQTT Client app from the store and connect to your broker.
 3. Install the MQTT Hub and let it discover & broadcast your devices.
 4. Install any external application supporting MQTT and connect it to your broker.
 5. Let your app discover Homeys devices (if it supports the Homie Convention). 
@@ -57,7 +61,9 @@ The hub allows several ways of communication.
 The default communication protocol is based on the [Homie Convention](https://homieiot.github.io/) (v3.0.1), for details see the [specification](https://homieiot.github.io/specification/).  
 From their website: *The Homie convention defines a standardized way of how IoT devices and services announce themselves and their data on the MQTT broker*.
   
-Aditional protocols (e.g. [HA Discovery](https://www.home-assistant.io/docs/mqtt/discovery/)) are in the pipeline (*not implemented yet...*).  
+#### Auto discovery
+External apps can automatically discover your devices connected to Homey by auto discovery.
+The Homie Convention supports this by design. Additionally [HA Discovery](https://www.home-assistant.io/docs/mqtt/discovery/) is implemented.  
   
 #### MQTT Topic
 The following message format is used for communication:  
@@ -72,9 +78,8 @@ The MQTT Hub also allows a `custom` communication protocol with the ability to c
 - topic structure (e.g. inject device class and/or zone)
 - color format (HSV, RGB, channels)
 - enable/disable dispatching of device states
-- disable topic normalization (*coming soon...*)
-- dimensions & value scaling (*coming soon...*)  
-  
+- disable topic normalization
+- dimensions & value scaling
   
 #### Commands
 The hub provides two ways of controlling your devices over MQTT.  
@@ -97,27 +102,39 @@ E.g. These two messages will both dim the tv light to 30%:
   "capability": "dim"
   "value": 0.3
 }
-```
+```  
      
-  
 When using the command structure:
 - Device id's will automatically be resolved from the device id, name or topic (in this order).
-- The device name may contain either de original name or the normalized version.
+- The device name may contain either de original name or the normalized version.  
+  
+#### Birth & Last Will  
+The MQTT Hub is able to broadcast a 'birth' message on startup and a 'last will' message on shutdown.
+This can be used by external applications to act on the Hub availability (online/offline).
   
 ## Homey firmware v1.5 and v2
 Starting from app version 2.0.0, this app can only run on Homey's v2 firmware. The reason for this is that this firmware has introduced backward incompatible changes that don't work on older versions of the firmware.
   
-Some, features that will be introduced in this version will be backported to a separate `v1.5` [branch](https://github.com/harriedegroot/nl.hdg.mqtt/tree/homie). This branch can be manually installed on Homey using [`athom-cli`](https://www.npmjs.com/package/athom-cli).
+The `v1.5` [branch](https://github.com/harriedegroot/nl.hdg.mqtt/tree/version1.5) will remain and can be manually installed on Homey using [`athom-cli`](https://www.npmjs.com/package/athom-cli).
     
 ## Future
-- HA Discovery
 - Additional installation info, tutorials & how-to's.
-- Virtual buttons support
 - Trigger flows.
 - Create the abillity to listen to app flow triggers.
+- Discover devices from external apps (& create virtual devices?)
+- Expand the insights / device state broadcaster
+- Additional commands for advanced control
 - ...
   
 ## Change Log
+  
+#### 2.1.0  
+- HA Discovery (beta)
+- Simplified settings page + added many options
+- App performance & stability (introduction of a MessageQueue)
+- Birth & Last Will messages
+- Topic clean-up (remove retained messages from the broker when disabling devices)
+- Many BUG fixes
   
 #### 2.0.6  
 - Fixed a BUG in the Homie protocol regarding device state broadcasts  
