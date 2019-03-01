@@ -1,17 +1,19 @@
 "use strict";
 
-const Topic = require('./mqtt/Topic.js');
-const Log = require('./Log.js');
-const EventHandler = require('./EventHandler.js');
+const normalize = require('./normalize');
+const Log = require('./Log');
+const EventHandler = require('./EventHandler');
 
 class DeviceManager {
 
-    constructor({ api }) {
+    constructor({ api, settings }) {
         this.api = api;
 
         this.onAdd = new EventHandler('Device.add');
         this.onRemove = new EventHandler('Device.remove');
         this.onUpdate = new EventHandler('Device.update');
+
+        this.setEnabledDevices((settings || {}).devices);
     }
 
     getDeviceId(device) {
@@ -23,16 +25,16 @@ class DeviceManager {
                     return device;
                 if (this.deviceNames && this.deviceNames.has(device))
                     return this.deviceNames.get(device);
-                if (this.deviceTopics && this.deviceTopics.has(device))
-                    return this.deviceTopics.get(device);
+                if (this.deviceTopics && this.deviceTopics.has(normalize(device)))
+                    return this.deviceTopics.get(normalize(device));
             } else if (typeof device === 'object') {
                 if (device.id)
                     return device.id;
                 if (device.name) {
                     if (this.deviceNames && this.deviceNames.has(device.name))
                         return this.deviceNames.get(device.name);
-                    if (this.deviceTopics && this.deviceTopics.has(device.name))
-                        return this.deviceTopics.get(device.name);
+                    if (this.deviceTopics && this.deviceTopics.has(normalize(device.name)))
+                        return this.deviceTopics.get(normalize(device.name));
                 }
             }
         }
@@ -46,7 +48,7 @@ class DeviceManager {
     getDeviceName(device) {
         // from device info
         if (typeof device === 'object' && device.name) {
-            return Topic.normalize(device.name);
+            return normalize(device.name);
         }
 
         // from mapping
@@ -103,11 +105,26 @@ class DeviceManager {
         this.api.devices.on('device.delete', this._removeDevice.bind(this));
         this.api.devices.on('device.update', this._updateDevice.bind(this));
 
+        this.api.zones.on('zones.create', this._addZone.bind(this));
+        this.api.zones.on('zones.delete', this._removeZone.bind(this));
+        this.api.zones.on('zones.update', this._updateZone.bind(this));
+
         this.devices = await this.api.devices.getDevices();
+        this.zones = await this.api.zones.getZones();
+
         if (this.devices) {
             for (let key in this.devices) {
                 if (Array.isArray(this.devices) || this.devices.hasOwnProperty(key)) {
-                    await this.registerDevice(this.devices[key]);
+
+                    const device = this.devices[key];
+
+                    // inject zone
+                    if (this.zones && device.zone) {
+                        device.zone = this.zones[device.zone];
+                    }
+
+                    // register
+                    await this.registerDevice(device);
                 }
             }
         }
@@ -139,7 +156,7 @@ class DeviceManager {
             this.deviceTopicIds = this.deviceTopicIds || new Map(); // id => topic
             this.deviceTopics = this.deviceTopics || new Map();     // topic => id
 
-            const deviceTopic = Topic.normalize(deviceName);
+            const deviceTopic = normalize(deviceName);
             Log.info(deviceName + ': ' + deviceTopic);
 
             this.deviceIds.set(device.id, deviceName);
@@ -189,6 +206,27 @@ class DeviceManager {
         await this.onUpdate.emit(id);
     }
 
+    async _addZone(id) {
+        Log.info('New zone found!');
+        if (id) {
+            this.zones = this.zones || {};
+            const zone = await this.api.zones.getZone({ id });
+            if (zone) {
+                this.zones[id] = zone;
+            }
+        }
+    }
+
+    async _removeZone(id) {
+        if (id && this.zones && this.zones.hasOwnProperty(id)) {
+            delete this.zones[id];
+        }
+    }
+
+    async _updateZone(id) {
+        await this._addZone(id);
+    }
+
     async getCapabilities(device) {
         device = await this.getDevice(device);
         return device ? device.capabilitiesObj || device.capabilities : undefined; // 1.5.13 vs 2.0
@@ -197,6 +235,49 @@ class DeviceManager {
     async getCapability(device, capabilityId) {
         const capabilities = this.getCapabilities(device);
         return capabilities ? capabilities[capabilityId] : undefined;
+    }
+
+    computeChanges(devices) {
+        let changes = {
+            enabled: [],
+            disabled: [],
+            untouched: []
+        };
+        if (devices) {
+            for (let id in devices) {
+                if (devices.hasOwnProperty(id)) {
+                    const enabled = devices[id] !== false;
+                    if (enabled !== this.isDeviceEnabled(id)) {
+                        if (enabled) {
+                            if (this.devices) {
+                                Log.debug("Enabled device: " + (this.devices[id] || {}).name);
+                            }
+                            changes.enabled.push(id);
+                        } else {
+                            if (this.devices) {
+                                Log.debug("Disabled device: " + (this.devices[id] || {}).name);
+                            }
+                            changes.disabled.push(id);
+                        }
+                    } else {
+                        changes.untouched.push(id);
+                    }
+                }
+            }
+        }
+        return changes;
+    }
+
+    setEnabledDevices(devices) {
+        this._enabledDevices = devices;
+    }
+
+    isDeviceEnabled(device) {
+        const enabledDevices = this._enabledDevices;
+        if (!enabledDevices) return true;
+        const deviceId = typeof device === 'object' ? device.id : device;
+        if (!deviceId) return false;
+        return enabledDevices.hasOwnProperty(deviceId) ? enabledDevices[deviceId] : true;
     }
 }
 

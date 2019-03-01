@@ -1,0 +1,3 @@
+﻿Modiefied version of: https://github.com/marcus-garvey/homie-device
+- Created custom HomieMQTTClient wrapped around MQTTClient
+- Modified homieDevice to work with a custom HomieMQTTClient

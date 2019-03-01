@@ -1,38 +1,142 @@
 === TODO ===
-- MQTT discovery (see OpenHAB / Domiticz)
-- Implement Homie convention?
+
+BUGS:
+- [BUG] enabling virtual devices breaks the hub
+- [BUG] client/hub registration?
+
+Settings:
+- Enable/disable all devices
+- Seperate call for device enable/disable
+- display broadcast progress (loader)
+- Display number of messages in queue (fill 100% === number of devices)
+- Show number of messages per device
+- CHECK en.json translations
+- Disable device capabilities
+
+HASS:
+- Color temperature (read & write)
+- Update correct HSV values when setting one of the values (color topic)
+- Set numeric values? input_number: https://www.home-assistant.io/components/input_number/?
+- Remaining device types (Alarm control panels, Binary sensors, Cameras, Covers, Fans, HVACs, Lights, Locks, Sensors, Switches, Vacuums)
+- thermostat modes
+- configure additional properties for the remaining capabilities (e.g. icon, device class, etc.)
+- [REFACTOR] De-couple parse & format logic. Refactor data processing. Create handlers per type?
+
+Homie:
+- Fix RGB
+- Introduce queue for updating device state (use brightness slider ha app)
+- Check client availability processing
+- Publish device/$state disconnect message?
+- Device Aliasses (e.g. dim/brightness, light temperature, etc.)
+- Button-press & non-retained messages?
+- Zone depth > 1 (folder structure)
+
+App:
+- [Check] shutdown procedure
+- [Check] Refresh devices on device/zone changes + Broadcast
+- unsubscribe from topics on MQTT Client (e.g. Uninstall app / topic switch)
+- [CHECK] all code TODO's
+- profiling/optimizations
+- Flow card for MQTT Device (i.e. to add scenes)
+
+Discovery (auto discover external devices):
+- Implement Homie discovery
+- Implement HA discovery
+- Create virtual devices from MQTT discovery
+
+Commands:
+- Updating state for multiple devices (e.g. all devices in a room)
 - Info requests:
   * System
-  * Zone
-  * Devices
-  * Capabilities
-  * Capability
-- Update value parsing (based on capability description)
-- Updating state for multiple devices (e.g. all devices in a room)
+  * Device classes
+  * Zones
+  * ...
+- Trigger flow
+- Listen to scene flow triggers
+
+System info:
 - Publish system info on seperate topics (i.s.o. json)
-- Trigger flow command
-- Implement Flow trigger dispatcher
-- Settings page
-   * Enable/Disable triggers & commands
-   * Configure root topic
-   * Include/Exclude devices & capabilities for dispatchers
-   * ...
-- Uninstall app => unsubscribe from topics
-- Handle Socket hang up exceptions:
-{ Error: socket hang up
-    at Object.<anonymous> (/opt/homey-client/system/manager/ManagerApps/jsonfns.js:1:1103)
-    at JSON.parse (<anonymous>)
-    at Object.jsonToObject (/opt/homey-client/system/manager/ManagerApps/jsonfns.js:1:1001)
-    at function.e.apply.s.args.map.s (/opt/homey-client/system/manager/ManagerApps/bootstrap/sdk/v2/lib/HomeyClient.js:1:1401)
-    at Array.map (<anonymous>)
-    at HomeyClient._onMessage (/opt/homey-client/system/manager/ManagerApps/bootstrap/sdk/v2/lib/HomeyClient.js:1:1386)
-    at emitTwo (events.js:126:13)
-    at process.emit (events.js:214:7)
-    at emit (internal/child_process.js:762:12)
-    at _combinedTickCallback (internal/process/next_tick.js:142:11) message: 'socket hang up', code: 'ECONNRESET' }
+- (All) Prometheus functionality
 
 
-
-=== DONE ===
+======= DONE =======
 - Normalize device name
 - Fix getDeviceName for homey 1.5.13
+- MQTT discovery (see OpenHAB / Domoticz)
+- Implement Homie convention (Homey v1.5.13)
+- Homie Convention for Homey v2.0
+- Normalization BUG
+- Handle device & zone name changes in HomieDispatcher
+- Try to combine the old topic format with the Homie Convention (&Ditch the old topic format?)
+- Fix on/off button
+- Disable settings running button (show loader) untill state active state is received
+- Settings page
+	* Select communication protocol (Homie | Homey)
+	* Homie color format (HSV | RGB)
+	* Configure root topic
+	* Configure Homie topic
+	* Enable/disable system state dispatcher
+	* Enable/Disable triggers & commands
+	* Include/Exclude devices & capabilities for dispatchers
+	* refresh/resend state
+	* Inject device id
+	* Update settings on save
+	* Display current status
+	* Log stream
+- Rename to 'MQTT Hub'
+- Fix app icon
+- App images
+- BUG: Initial settings (root topic undefined)
+- BUG: Normalize injected device class & zone
+- Custom protocal & disable non-protocol options
+- Activate & update command + rename to 'set'
+- Settings Instructions tab
+- Register & cleanup device topics when disabling devices
+- fix non-awaited promises
+- Catch Renaming zones / devices
+- Check: dispatched firmWare version
+x test internal MQTT client ('socket hang up' fix? duplicate mem usage, config & maintenance...)
+- [fixed] some $set commands don't work (false|null|undefie|'' messages)
+- [fixed] all devices are shown off @ first load (dispatch state @ registering devices)
+- HASS Discovery setup
+- HASS Devices
+- HASS icons
+- HASS Enum & string values
+- broadcast on hass birth
+- put HASS discovery before Homie
+- birth & last will messages
+- CHECK: MQTT Client handling 0 values
+- implement scalable property 0-1 (float) | 0-100 (int)
+- HASS Broadcast
+- HASS disable devices
+- HASS enable device => send discover config
+- HASS Keep track of device topics & remove messages from queue when disabling device
+- Send empty messages to clear devices
+- [BUG] set command not working when deviceId or topic root is empty
+- HASS settings (enable disable discovery + topic root)
+- seperate root topics (homie, HASS, system state, custom, etc.)
+- Make class constants configurable
+- Re-factor settings
+- settings restore app defaults button
+- [CHECK] Load deviceId @ first load
+- Allow all chars for DeviceId, normalize for topics (based on setting)
+- Inject deviceId (normalized) in topics
+- Skip reloading when changing birth & last will messages
+- HASS: Implement full reload @ settings change
+- optional normalization for custom protocol
+- system info topic configurable
+- Birth & Last will topics + messages
+- enable/disable set command handler
+- HASS: Enable/disable
+x Settings: Split hiding of devices & applying default (protocol) settings
+- [CHECK] broadcast on settings changes (if needed)
+- [CHECK] initial settings @ clean install
+- Check 'App' initilaized (prevent settings crash)
+- Add additional boolean checks
+- Clear command & system state topics when changing topic
+- Clear all HASS messages (Register all topics &clear @ settings topic change)
+- color values: round float values (int)
+- Scale 0...100 round float values (int)
+- set value decimals => toFixed(capability.decimals)
+- Update Instructions
+- Adjust documentation for HA Discovery & changed settings (readme)

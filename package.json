@@ -1,13 +1,16 @@
 {
   "name": "nl.hdg.mqtt",
-  "version": "0.0.1",
-  "description": "MQTT Gateway",
+  "version": "2.1.0",
+  "description": "MQTT Hub",
   "author": {
     "name": "Harrie de Groot"
   },
   "license": "ISC",
-  "devDependencies": {},
+  "devDependencies": {
+    "inspector": "^0.5.0"
+  },
   "dependencies": {
-    "athom-api": "^2.0.148"
+    "lodash": "^4.17.11",
+    "athom-api": "2.1.156"
   }
 }

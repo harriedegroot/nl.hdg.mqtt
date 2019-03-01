@@ -1,8 +1,11 @@
 "use strict";
 
-const Log = require('./Log.js');
-const Topic = require('./mqtt/Topic.js');
+const Log = require('./Log');
+const Topic = require('./mqtt/Topic');
 
+/**
+ * @deprecated [DEPRECATED] Left for future reference
+ * */
 class MessageHandler {
 
     constructor({ api, mqttClient, deviceManager }) {
@@ -56,14 +59,14 @@ class MessageHandler {
 
             const command = this.getCommand(topic, message);
             if (command) {
-                //Log.debug('Command: ' + command);
+                Log.debug('Command: ' + command);
                 await this._processCommandHandlers(command, topic, message);
             }
         } catch (e) {
             Log.info('Error handling message');
             Log.debug(topic);
             Log.debug(message);
-            Log.error(e, false); // prevent notification spamming
+            Log.error(e);
         }
     }
 
@@ -77,7 +80,7 @@ class MessageHandler {
 
     getCommand(topic, message) {
         const command = typeof message === 'object' ? message.command : undefined;
-        Log.debug("Message command: " + command);
+        //Log.debug("Message command: " + command);
         return command || topic.getCommand();
     }
 
@@ -95,11 +98,15 @@ class MessageHandler {
                         await handler.process({ command, topic, message, deviceId });
                     } catch (e) {
                         Log.info('Error processing command: ' + command);
-                        Log.error(e, false); // note prevent notification spamming
+                        Log.error(e);
                     }
                 }
             }
         }
+    }
+
+    destroy() {
+        // TODO: implement
     }
 }
 

@@ -1,18 +1,19 @@
 {
   "id": "nl.hdg.mqtt",
-  "version": "1.0.2",
-  "compatibility": ">=1.5.0",
+  "version": "2.1.0",
+  "compatibility": ">=2.0.0",
   "sdk": 2,
   "name": {
-    "en": "MQTT Gateway",
-    "nl": "MQTT Gateway"
+    "en": "MQTT Hub",
+    "nl": "MQTT Hub"
   },
   "description": {
-    "en": "Communicate with Homey using MQTT messages",
-    "nl": "Communiceer met Homey via MQTT messages"
+    "en":  "Turn your Homey into a HUB and let external applications discover & control all your connected devices.",
+    "nl": "Maak van je Homey een HUB. Geef externe applicaties de mogelijkheid om al je apparaten te vinden en er mee te communiceren."
   },
   "category": [
-    "tools"
+    "tools",
+    "internet"
   ],
   "permissions": [ "homey:manager:api", "homey:app:nl.scanno.mqtt" ],
   "images": {
@@ -28,6 +29,10 @@
       {
         "name": "Harrie de Groot",
         "email": "harriedegroot@gmail.com"
+      },
+      {
+        "name": "Menno van Grinsven",
+        "email": "mgrinsven@gmail.com"
       }
     ]
   },

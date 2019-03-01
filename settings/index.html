@@ -1,0 +1,669 @@
+<!doctype html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="styles.css" />
+    
+    <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
+    <script type="text/javascript" src="/manager/webserver/assets/js/jquery.js"></script>
+    <!--<script src="https://code.jquery.com/jquery-3.3.1.min.js"
+            integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+            crossorigin="anonymous"></script>-->
+
+    <script type="text/javascript" src="vue.min.js" data-origin="settings"></script>
+    <script type="text/javascript" src="settings.js" data-origin="settings"></script>
+</head>
+<body>
+    <div id="app">
+        <p data-i18n="settings.benefit" class="benefit">Turn your Homey into a Hub</p>
+
+        <div class="rTable tabs">
+            <div class="rTableRow">
+                <div id="tabb1" class="tab tab-active" onclick="showTab(1)" data-i18n="tab1.title">Settings</div>
+                <div id="tabb2" class="tab tab-inactive" onclick="showTab(2)" data-i18n="tab2.title">Devices</div>
+                <div id="tabb3" class="tab tab-inactive" onclick="showTab(3)" data-i18n="tab3.title">Instructions</div>
+                <div id="tabb4" class="tab tab-inactive" onclick="showTab(4, true)" data-i18n="tab4.title">Log</div>
+            </div>
+        </div>
+        <div class="tab-content">
+            <div style="height:8px" class="panel"></div>
+            <div id="tab1" class="panel">
+                <!--<div data-i18n="tab1.general" class="text-header">-GENERAL-</div>-->
+                <div class="setting">
+                    <label class="settings-item-description" data-i18n="tab1.active">Hub on/off</label>
+                    <div class="settings-itemgroup">
+                        <div class="settings-item-text">
+                            <span data-i18n="tab1.running">Running</span>
+                        </div>
+                        <div class="settings-item-last">
+                            <label class="form-switch">
+                                <input id="running" disabled="disabled" v-model="running" type="checkbox" @click="setRunning($event.target.checked)">
+                                <i></i>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="setting">
+                    <label class="settings-item-description" data-i18n="tab1.refresh">Publish the state of all devices</label>
+                    <button id="refreshButton" class="btn" @click="refresh()" data-i18n="tab1.broadcast">Broadcast</button>
+                </div>
+                <!--<div class="setting">
+                    <label class="settings-item-description" data-i18n="tab1.deviceId">Device Id</label>
+                    <div class="settings-itemgroup">
+                        <input id="deviceId" type="text" onblur="saveSettings(true)">
+                    </div>
+                </div>-->
+
+                <!--PROTOCOL-->
+                <div class="setting">
+                    <label class="settings-item-description" data-i18n="tab1.protocol">Communication protocol</label>
+                    <div class="settings-itemgroup">
+                        <select id="protocol" @change="selectProtocol($event.target.value)">
+                            <option value="homie3" selected="selected">Homie Convention v3.0.1</option>
+                            <option value="custom">Custom</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="homieSettings" style="display:none">
+                    <div data-i18n="tab1.protocolHeader" class="text-header">Homie Convention</div>
+                    <div class="setting">
+                        <label class="settings-item-description" data-i18n="tab1.topic">Topic</label>
+                        <div class="settings-itemgroup">
+                            <input id="homieTopic" type="text" onblur="saveSettings(true)">
+                        </div>
+                    </div>
+                </div>
+                <div id="customSettings" style="display:none">
+                    <div data-i18n="tab1.custom" class="text-header">CUSTOM</div>
+                    <div class="setting">
+                        <label class="settings-item-description" data-i18n="tab1.topic">Topic</label>
+                        <div class="settings-itemgroup">
+                            <input id="customTopic" type="text" onblur="saveSettings(true)">
+                        </div>
+                    </div>
+                    <div id="topicIncludeClass-container" class="setting">
+                        <label class="settings-item-description" data-i18n="tab1.topicIncludeClass">Include device class in topic</label>
+                        <div class="settings-itemgroup">
+                            <div class="settings-item-text">
+                                <span data-i18n="tab1.includeClass">Include class</span>
+                            </div>
+                            <div class="settings-item-last">
+                                <label class="form-switch">
+                                    <input id="topicIncludeClass" type="checkbox" onclick="saveSettings(true)">
+                                    <i></i>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="topicIncludeZone-container" class="setting">
+                        <label class="settings-item-description" data-i18n="tab1.topicIncludeZone">Include zone in topic</label>
+                        <div class="settings-itemgroup">
+                            <div class="settings-item-text">
+                                <span data-i18n="tab1.includeZone">Include zone</span>
+                            </div>
+                            <div class="settings-item-last">
+                                <label class="form-switch">
+                                    <input id="topicIncludeZone" type="checkbox" onclick="saveSettings(true)">
+                                    <i></i>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="topicNormalize-container" class="setting">
+                        <label class="settings-item-description" data-i18n="tab1.topicNormalize">Normalize topics (lowercase, remove characters, etc.)</label>
+                        <div class="settings-itemgroup">
+                            <div class="settings-item-text">
+                                <span data-i18n="tab1.normalize">Normalize</span>
+                            </div>
+                            <div class="settings-item-last">
+                                <label class="form-switch">
+                                    <input id="normalize" type="checkbox" onclick="saveSettings(true)">
+                                    <i></i>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="percentageScale-container" class="setting">
+                        <label class="settings-item-description" data-i18n="tab1.percentageScale">Percentage scale</label>
+                        <div class="settings-itemgroup">
+                            <select id="percentageScale" @change="saveSettings(true)">
+                                <option value="default" selected="selected">default (original value)</option>
+                                <option value="float">float (0...1)</option>
+                                <option value="int">int (0...100)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="setting">
+                        <label class="settings-item-description" data-i18n="tab1.colorFormat">Color format</label>
+                        <div class="settings-itemgroup">
+                            <select id="colorFormat" @change="saveSettings(true)">
+                                <option value="hsv" selected="selected">HSV (&quot;h,s,v&quot;)</option>
+                                <option value="rgb">RGB (&quot;r,g,b&quot;)</option>
+                                <option value="values">Single topic per HSV value (Device capabilities)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="broadcastDevices-container" class="setting">
+                        <label class="settings-item-description" data-i18n="tab1.broadcastDevicesChanges">Publish messages for all devices state changes</label>
+                        <div class="settings-itemgroup">
+                            <div class="settings-item-text">
+                                <span data-i18n="tab1.broadcastDevices">Broadcast device state changes</span>
+                            </div>
+                            <div class="settings-item-last">
+                                <label class="form-switch">
+                                    <input id="broadcastDevices" type="checkbox" onclick="saveSettings()">
+                                    <i></i>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!--Home Assistant -->
+                <div data-i18n="tab1.hass" class="text-header">Home Assistant Discovery</div>
+                <div class="setting">
+                    <label class="settings-item-description" data-i18n="tab1.hassBroadcast">Broadcast device configurations</label>
+                    <div class="settings-itemgroup">
+                        <div class="settings-item-text">
+                            <span data-i18n="tab1.hass">Home Assistant Discovery (beta)</span>
+                        </div>
+                        <div class="settings-item-last">
+                            <label class="form-switch">
+                                <input id="hass" type="checkbox" onclick="saveSettings(true)">
+                                <i></i>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div id="hassSettings" style="display:none">
+                    <div class="setting">
+                        <label class="settings-item-description" data-i18n="tab1.topic">Topic</label>
+                        <div class="settings-itemgroup">
+                            <input id="hassTopic" type="text" onblur="saveSettings(true)">
+                        </div>
+                    </div>
+                    <div class="setting">
+                        <label class="settings-item-description" data-i18n="tab1.hassStatusTopic">Status topic</label>
+                        <div class="settings-itemgroup">
+                            <input id="hassStatusTopic" type="text" onblur="saveSettings()">
+                        </div>
+                    </div>
+                    <div class="setting">
+                        <label class="settings-item-description" data-i18n="tab1.hassOnlineMessage">Online message</label>
+                        <div class="settings-itemgroup">
+                            <input id="hassOnlineMessage" type="text" onblur="saveSettings()">
+                        </div>
+                    </div>
+                    <div class="setting">
+                        <label class="settings-item-description" data-i18n="tab1.hassOfflineMessage">Offline message</label>
+                        <div class="settings-itemgroup">
+                            <input id="hassOfflineMessage" type="text" onblur="saveSettings()">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System State -->
+                <div data-i18n="tab1.systemState" class="text-header">System State</div>
+                <div class="setting">
+                    <label class="settings-item-description" data-i18n="tab1.broadcastSystemState">Publish messages containing the current system state in a regular interval (30 sec.)</label>
+                    <div class="settings-itemgroup">
+                        <div class="settings-item-text">
+                            <span data-i18n="tab1.broadcastSystem">Broadcast system state</span>
+                        </div>
+                        <div class="settings-item-last">
+                            <label class="form-switch">
+                                <input id="broadcastSystemState" type="checkbox" onclick="saveSettings()">
+                                <i></i>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div id="systemStateSettings" style="display:none">
+                    <div class="setting">
+                        <label class="settings-item-description" data-i18n="tab1.topic">Topic</label>
+                        <div class="settings-itemgroup">
+                            <input id="systemStateTopic" type="text" onblur="saveSettings(true)">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Commands -->
+                <div data-i18n="tab1.commands" class="text-header">Commands</div>
+                <div class="setting">
+                    <label class="settings-item-description" data-i18n="tab1.commandsListen">Listen to commands</label>
+                    <div class="settings-itemgroup">
+                        <div class="settings-item-text">
+                            <span data-i18n="tab1.commands">Commands</span>
+                        </div>
+                        <div class="settings-item-last">
+                            <label class="form-switch">
+                                <input id="commands" type="checkbox" onclick="saveSettings()">
+                                <i></i>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div id="commandsSettings" style="display:none">
+                    <div class="setting">
+                        <label class="settings-item-description" data-i18n="tab1.topic">Topic</label>
+                        <div class="settings-itemgroup">
+                            <input id="commandTopic" type="text" onblur="saveSettings()">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Birth & last will -->
+                <div data-i18n="tab1.birthWill" class="text-header">Birth & last will</div>
+                <div class="setting">
+                    <label class="settings-item-description" data-i18n="tab1.publish">Publish</label>
+                    <div class="settings-itemgroup">
+                        <div class="settings-item-text">
+                            <span data-i18n="tab1.birthWillMessages">Send birth & last will messages</span>
+                        </div>
+                        <div class="settings-item-last">
+                            <label class="form-switch">
+                                <input id="birthWill" type="checkbox" onclick="saveSettings()">
+                                <i></i>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div id="birthWillSettings" style="display:none">
+                    <div class="setting">
+                        <label class="settings-item-description" data-i18n="tab1.birthTopic">Birth topic</label>
+                        <div class="settings-itemgroup">
+                            <input id="birthTopic" type="text" onblur="saveSettings()">
+                        </div>
+                    </div>
+                    <div class="setting">
+                        <label class="settings-item-description" data-i18n="tab1.birthMessage">Birth message</label>
+                        <div class="settings-itemgroup">
+                            <input id="birthMessage" type="text" onblur="saveSettings()">
+                        </div>
+                    </div>
+                    <div class="setting">
+                        <label class="settings-item-description" data-i18n="tab1.willTopic">Last will topic</label>
+                        <div class="settings-itemgroup">
+                            <input id="willTopic" type="text" onblur="saveSettings()">
+                        </div>
+                    </div>
+                    <div class="setting">
+                        <label class="settings-item-description" data-i18n="tab1.willMessage">Last will message</label>
+                        <div class="settings-itemgroup">
+                            <input id="willMessage" type="text" onblur="saveSettings()">
+                        </div>
+                    </div>
+                </div>
+
+                <div data-i18n="tab1.reset" class="text-header">Reset</div>
+                <div class="setting">
+                    <label class="settings-item-description" data-i18n="tab1.defaultSettings"></label>
+                    <button id="resetButton" class="btn" @click="reset()" data-i18n="tab1.restoreSettings">Restore default settings</button>
+                </div>
+
+            </div>
+            <div id="tab2" class="panel" style="display: none;">
+                <div class="loader" v-if="loading">
+                    <svg version="1.1" id="loader-1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="40px" height="40px" viewBox="0 0 40 40" enable-background="new 0 0 40 40" xml:space="preserve">
+                    <path opacity="0.2" fill="#000" d="M20.201,5.169c-8.254,0-14.946,6.692-14.946,14.946c0,8.255,6.692,14.946,14.946,14.946 s14.946-6.691,14.946-14.946C35.146,11.861,28.455,5.169,20.201,5.169z M20.201,31.749c-6.425,0-11.634-5.208-11.634-11.634 c0-6.425,5.209-11.634,11.634-11.634c6.425,0,11.633,5.209,11.633,11.634C31.834,26.541,26.626,31.749,20.201,31.749z" />
+                    <path fill="#000" d="M26.013,10.047l1.654-2.866c-2.198-1.272-4.743-2.012-7.466-2.012h0v3.312h0 C22.32,8.481,24.301,9.057,26.013,10.047z">
+                        <animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 20 20" to="360 20 20" dur="0.5s" repeatCount="indefinite" />
+                    </path>
+                </div>
+                <div class="rTable">
+                    <div class="rTableRow devices" v-for="device in devices">
+
+                        <div class="rTableCell line">
+                            <div class="icon-cell" v-html="getIcon(device)"></div>
+                        </div>
+                        <div class="rTableCell line scrollable-text">
+                            {{ getZone(device) }}<br />
+                            <b>{{device.name}}</b>
+                        </div>
+                        <div class="rTableCell line settings-item-last">
+                            <label class="form-switch">
+                                <input type="checkbox" :checked="deviceEnabled(device)" @click="saveDevice(device, $event.target.checked)">
+                                <i></i>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab3" class="panel" style="display:none;">
+                <div id="instructionsen" style="display:none;">
+                    <p>
+                        <br />With this app you can communicate with all your devices connected to Homey. A communication channel per device will be created, so external apps can find and control each one of them.
+                    </p>
+
+                    <div class="text-header">INSTALLATION</div>
+                    <p>
+                        <br />To configure the MQTT Hub you have to do the following:
+                    </p>
+                    <ol class="main-list">
+                        <li><b>Configure an MQTT broker</b></li>
+                        <ul>
+                            <li>
+                                The MQTT broker is the central server handling all MQTT messages.
+                            </li>
+                            <li>
+                                Use the MQTT broker app from Homey the app store or configure an external broker (e.g. CloudMQTT, Mosquitto or HiveMQ).
+                            </li>
+                        </ul>
+                        <li><b>Install & configure the Homey MQTT Client app</b></li>
+                        <ul>
+                            <li>
+                                Install the MQTT Client app from the Homey app store.
+                            </li>
+                            <li>
+                                Connect the MQTT Client to your MQTT broker.
+                            </li>
+                        </ul>
+                        <li><b>Install the MQTT Hub (you already did) and let it discover & broadcast all your connected devices</b></li>
+                        <ul>
+                            <li>
+                                The Hub will automatically discover all your devices.
+                            </li>
+                            <li>
+                                The availability & state of each device will be broadcasted.
+                            </li>
+                        </ul>
+                        <li><b>Configure the MQTT Hub</b></li>
+                        <ul>
+                            <li>
+                                Adjust the Hub settings where needed.
+                            </li>
+                        </ul>
+                        <li><b>Install any external application supporting MQTT</b></li>
+                        <ul>
+                            <li>
+                                There are many applications supporting MQTT, pick one.
+                            </li>
+                            <li>
+                                Connect your external app to the MQTT broker.
+                            </li>
+                            <li>
+                                Let your app discover all connected devices.
+                            </li>
+                            <li>
+                                If Homey is reported 'offline' or datatypes are not discovered correctly, try pressing the 'broadcast' button to re-start the device initialization process and be patience.
+                            </li>
+                            <li>
+                                Configure your communication channels by observing & dispatching messages on the available MQTT topics.
+                            </li>
+                        </ul>
+                        <li><b>Start communicating with Homey</b></li>
+                        <ul>
+                            <li>
+                                Have fun!
+                            </li>
+                        </ul>
+                    </ol>
+
+
+                    <div class="text-header">CONFIGURATION</div>
+                    <p>
+                        <br />General MQTT Hub configuration.
+                    </p>
+                    <ul class="main-list">
+                        <li><b>Running</b></li>
+                        <ul>
+                            <li>
+                                Turn on/off the MQTT Hub service.
+                            </li>
+                        </ul>
+                        <li><b>Broadcast</b></li>
+                        <ul>
+                            <li>
+                                Press the button to force a broadcast of all available devices and their current state, so external applications can discover/update them.
+                            </li>
+                            <li>
+                                Can be useful to (re-)discover your devices in HA, get the OpenHAB MQTT device online or update the channel datatypes if 'dummy' is displayed.
+                            </li>
+                        </ul>
+                        <li><b>Communication protocol</b></li>
+                        <ul>
+                            <li>
+                                Choose a default communication protocol or select 'custom' to adjust the MQTT communication to your needs.
+                            </li>
+                        </ul>
+                    </ul>
+                    <div class="text-header">Homie Convention</div>
+                    <p>
+                        <br />Configure the communication via the Homie Convention (v3.0.1).
+                    </p>
+                    <ul class="main-list">
+                        <li><b>Topic</b></li>
+                        <ul>
+                            <li>
+                                The topic used to broadcast all device messages (default: homie/device name).
+                            </li>
+                        </ul>
+                    </ul>
+
+                    <div class="text-header">CUSTOM</div>
+                    <p>
+                        <br />Configure the MQTT communication to your needs.
+                    </p>
+                    <ul class="main-list">
+                        <li><b>Topic</b></li>
+                        <ul>
+                            <li>
+                                The topic used to broadcast all device messages.
+                            </li>
+                        </ul>
+                        <li><b>Include device class in topic</b></li>
+                        <ul>
+                            <li>
+                                Optionally inject the device class (e.g. light) into the MQTT topic structure.
+                            </li>
+                            <li>
+                                This can be useful to communicate by using topic wildcards.
+                            </li>
+                        </ul>
+                        <li><b>Include device zone in topic</b></li>
+                        <ul>
+                            <li>
+                                Optionally inject the device zone (e.g. kitchen) into the MQTT topic structure.
+                            </li>
+                            <li>
+                                This can be useful to communicate by using topic wildcards.
+                            </li>
+                        </ul>
+                        <li><b>Normalize topics</b></li>
+                        <ul>
+                            <li>
+                                Turn topic normalization on/off.
+                            </li>
+                            <li>
+                                By Homie Convention (default) topics are all lowercase, special characters are removed, etc.
+                            </li>
+                        </ul>
+                        <li><b>Percentage scale</b></li>
+                        <ul>
+                            <li>
+                                The default Homey scaling for percentages is a floating point number between 0 and 1.
+                            </li>
+                            <li>
+                                Many apps require a scaling between 0...100 (e.g. Home Assistant, gBridge, etc.).
+                            </li>
+                        </ul>
+                        <li><b>Color format</b></li>
+                        <ul>
+                            <li>
+                                Adjust the way color values are formatted.
+                            </li>
+                            <li>
+                                By default a color is formatted as a HSV string "H,S,V".
+                            </li>
+                            <li>
+                                Optionally format color values as a RGB string "R,G,B" or publish each color value on a separate channel (capabilities).
+                            </li>
+                        </ul>
+                        <li><b>Publish device state changes</b></li>
+                        <ul>
+                            <li>
+                                By default all device state changes (of the enabled devices) are broadcasted. This functionality can be disabled to reduce the workload.
+                            </li>
+                            <li>
+                                When disabled your external interface will NOT be notified about device changes, but you can still communicate with the devices (i.e. set capability values).
+                            </li>
+                        </ul>
+                    </ul>
+
+                    <div class="text-header">HOME ASSISTANT DISCOVERY</div>
+                    <p>
+                        <br />Discovery can be enabled to ease integration with Home Assistant. All your devices will automatically become available within HA.
+                    </p>
+                    <ul class="main-list">
+                        <li><b>Home Assistant Discovery</b></li>
+                        <ul>
+                            <li>
+                                Turn HA MQTT Discovery on/off (beta).
+                            </li>
+                            <li>
+                                NOTE: This is still in beta. Not all device types are supported yet.
+                            </li>
+                            <li>
+                                Only a sub-set of HA devices is configurable for HA MQTT Discovery.
+                            </li>
+                        </ul>
+
+                        <li><b>Topic</b></li>
+                        <ul>
+                            <li>
+                                Configure the topic on which to publish the Home Assistant configuration.
+                            </li>
+                        </ul>
+                        <li><b>Status topic</b></li>
+                        <ul>
+                            <li>
+                                The topic configured in Home Assistant to send 'birth' and 'last will' messages.
+                            </li>
+                            <li>
+                                This topic is used to automatically broadcast when HA becomes online.
+                            </li>
+                        </ul>
+                        <li><b>On-/Offline messages</b></li>
+                        <ul>
+                            <li>
+                                The messages send by HA on the status topic.
+                            </li>
+                        </ul>
+                    </ul>
+
+                    <div class="text-header">SYSTEM STATE</div>
+                    <p>
+                        <br />The system state broadcaster publishes the current state (CPU, memory, workload, etc.) of your Homey in a regular interval of 30 sec.
+                    </p>
+                    <ul class="main-list">
+                        <li><b>Dispatch system state</b></li>
+                        <ul>
+                            <li>
+                                Turn the system state dispatcher on/off.
+                            </li>
+                        </ul>
+
+                        <li><b>Topic</b></li>
+                        <ul>
+                            <li>
+                                Configure the topic on which to publish the system state.
+                            </li>
+                        </ul>
+                    </ul>
+
+                    <div class="text-header">COMMANDS</div>
+                    <p>
+                        <br />Control your Homey by sending commands to the command topic.
+                    </p>
+                    <ul class="main-list">
+                        <li><b>Commands (alpha)</b></li>
+                        <ul>
+                            <li>
+                                Turn the commands listener on/off.
+                            </li>
+                            <li>
+                                Commands are an advanced way to communicate with Homey over MQTT.
+                            </li>
+                            <li>
+                                See the app README for details.
+                            </li>
+                        </ul>
+
+                        <li><b>Topic</b></li>
+                        <ul>
+                            <li>
+                                Configure the topic on which to listen for commands.
+                            </li>
+                        </ul>
+                    </ul>
+
+                    <div class="text-header">BIRTH & LAST WILL</div>
+                    <p>
+                        <br />Broadcast a 'birth' message on MQTT Hub startup and a 'last will' message on shutdown.
+                    </p>
+                    <ul class="main-list">
+                        <li><b>Send birth & last will messages</b></li>
+                        <ul>
+                            <li>
+                                Turn the messages on/off.
+                            </li>
+                        </ul>
+
+                        <li><b>Topics</b></li>
+                        <ul>
+                            <li>
+                                Configure the topics on which to publish the birth and last will messages.
+                            </li>
+                        </ul>
+                        <li><b>Messages</b></li>
+                        <ul>
+                            <li>
+                                Configure the payload for the birth and last will messages.
+                            </li>
+                        </ul>
+                    </ul>
+
+                    <div class="text-header">RESET</div>
+                    <p>
+                        <br />Reset all settings.
+                    </p>
+                    <ul class="main-list">
+                        <li><b>Restore default settings</b></li>
+                        <ul>
+                            <li>
+                                Load app defaults.
+                            </li>
+                            <li>
+                                All settings will be reset, including device configuration.
+                            </li>
+                        </ul>
+                    </ul>
+
+                    <div class="text-header">DEVICES</div>
+                    <p>
+                        <br />Configure which devices are included in the MQTT Hub.
+                    </p>
+                    <ul class="main-list">
+                        <li>
+                            Enable/disable each device individually.
+                        </li>
+                        <li>
+                            When a device is <b>disabled</b>, it is fully excluded from the Hub. So all communication is disabled and no device state changes will be broadcasted for this device.
+                        </li>
+                    </ul>
+                </div>
+                <div id="instructionsnl" style="display:none">
+                    <!--To be implemented-->
+                </div>
+            </div>
+
+
+            <div id="tab4" class="panel" style="display: none;">
+                <div v-html="log"></div>
+            </div>
+
+        </div>
+        
+    </div>
+</body>
+</html>
