@@ -350,7 +350,6 @@ class HomieDispatcher {
                                 }
                                 
                                 this.setValue(device.id, capability, value, dataType)
-                                    .then()
                                     .catch(e => {
                                         Log.error("Failed to set capability value: " + name);
                                         Log.error(e);
@@ -378,7 +377,6 @@ class HomieDispatcher {
                         device.setMaxListeners(100);
                         const capabilityInstance = device.makeCapabilityInstance(key, value =>
                             this._handleStateChange(node, device.id, capability, value)
-                                .then()
                                 .catch(error => {
                                     Log.error("Failed to handle device state change");
                                     Log.error(error);

@@ -32,7 +32,6 @@ class MessageQueue {
 
             if (process !== false) {
                 this.process()
-                    .then()
                     .catch(e => {
                         Log.error("Failed to process message queue");
                         Log.error(e);

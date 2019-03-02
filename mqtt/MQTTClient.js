@@ -53,15 +53,16 @@ class MQTTClient  {
         }
     }
 
-    disconnect() {
+    async disconnect() {
         if (!this._connected) return;
         this._connected = false;
 
         try {
-            this.clientApp.unregister();
+            this.clientApp.removeListener('realtime', this._handleMessageCallback);
             this.clientApp.removeListener('install', this._installedCallback);
             this.clientApp.removeListener('uninstall', this._uninstalledCallback);
-            this.clientApp.removeListener('realtime', this._handleMessageCallback);
+
+            await this.clientApp.unregister();
             this._onClientAppUninstalled();
         } catch (e) {
             Log.error('Failed to disconnect MQTTClient');
@@ -141,7 +142,6 @@ class MQTTClient  {
         Log.debug('mqttClient.onClientAppInstalled');
         this.registered = true;
         this.onRegistered.emit()
-            .then()
             .catch(error => Log.error(error));
     }
 
@@ -149,7 +149,6 @@ class MQTTClient  {
         Log.debug('mqttClient.onClientAppUnInstalled');
         this.registered = false;
         this.onUnRegistered.emit()
-            .then()
             .catch(error => Log.error(error));
     }
 
@@ -157,7 +156,6 @@ class MQTTClient  {
         if (!this.registered) return;
 
         this.onMessage.emit(topic, message)
-            .then()
             .catch(error => Log.error(error));
     }
 }

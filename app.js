@@ -113,7 +113,7 @@ class MQTTHub extends Homey.App {
 
             if (this.mqttClient.isRegistered()) {
                 Log.info('start Hub');
-                this._sendBirthMessage();
+                await this._sendBirthMessage();
                 await this.run();
                 Log.info('app running: true');
             } else {
@@ -129,16 +129,27 @@ class MQTTHub extends Homey.App {
     /**
      * Stop Hub
      * */
-    stop() {
+    async stop() {
         if (!this._running) return;
         this._running = false;
 
         Log.info('stop Hub');
-        this._sendLastWillMessage();
-        this.mqttClient.disconnect();
+        try {
+            await this._sendLastWillMessage();
+        } catch (e) {
+            Log.error("Failed to send last will message on stop");
+            Log.error(e);
+        }
+        try {
+            Log.info("Disconnect MQTT Client");
+            await this.mqttClient.disconnect();
+        } catch (e) {
+            Log.error("Failed to disconnect MQTTClient");
+            Log.error(e);
+        }
 
         this._stopCommunicationProtocol();
-        this._stopBroadcasters();
+        await this._stopBroadcasters();
         this._stopCommands();
         delete this.protocol;
 
@@ -216,12 +227,15 @@ class MQTTHub extends Homey.App {
             this._stopBroadcasters();
         }
     }
-    _stopBroadcasters() {
+    async _stopBroadcasters() {
         if (this.systemStateDispatcher) {
             Log.info("stop system state broadcaster");
-            this.systemStateDispatcher.destroy()
-                .then(() => Log.info("Failed to destroy SystemState Dispatcher"))
-                .catch(error => Log.error(error));
+            try {
+                await this.systemStateDispatcher.destroy();
+            } catch (e) {
+                Log.error("Failed to destroy SystemState Dispatcher");
+                Log.error(e);
+            }
             delete this.systemStateDispatcher;
         }
     }
@@ -309,7 +323,9 @@ class MQTTHub extends Homey.App {
                     .catch(error => Log.error(error));
             }
             else {
-                this.stop();
+                this.stop()
+                    .then(() => Log.info("App stopped"))
+                    .catch(error => Log.error(error));
             }
         }
     }
@@ -336,11 +352,11 @@ class MQTTHub extends Homey.App {
             // birth & last will
             if (this.settings.birthWill) {
                 if (this.birthWill !== this.settings.birthWill) {
-                    this._sendBirthMessage();
+                    await this._sendBirthMessage();
                 }
             } else {
                 if (this.birthWill) {
-                    this._clearBirthWill();
+                    await this._clearBirthWill();
                 }
             }
             this.birthWill = this.settings.birthWill;
@@ -383,29 +399,35 @@ class MQTTHub extends Homey.App {
         }
         return topic;
     }
-    _sendBirthMessage() {
+    async _sendBirthMessage() {
         Log.debug("Send birth message");
         if (this.mqttClient && this.settings.birthWill !== false) {
             const msg = this.settings.birthMessage || BIRTH_MESSAGE;
-            this.mqttClient.publish(new Message(this._birthTopic, msg, 1, true));
+            return await this.mqttClient.publish(new Message(this._birthTopic, msg, 1, true));
         }
     }
-    _sendLastWillMessage() {
+    async _sendLastWillMessage() {
         Log.debug("Send last will message");
         if (this.mqttClient && this.settings.birthWill !== false) {
             const msg = this.settings.willMessage || WILL_MESSAGE;
-            this.mqttClient.publish(new Message(this._willTopic, msg, 1, true));
+            return await this.mqttClient.publish(new Message(this._willTopic, msg, 1, true));
         }
     }
-    _clearBirthWill() {
-        this.mqttClient.publish(new Message(this._birthTopic, null, 1, true));
-        this.mqttClient.publish(new Message(this._willTopic, null, 1, true));
+    async _clearBirthWill() {
+        await this.mqttClient.publish(new Message(this._birthTopic, null, 1, true));
+        await this.mqttClient.publish(new Message(this._willTopic, null, 1, true));
     }
 
     uninstall() {
         try {
-            this._sendLastWillMessage();
-            this.mqttClient.disconnect();
+            this._sendLastWillMessage()
+                .then(() => this.mqttClient.disconnect().catch(e => Log.error(e)))
+                .catch(error => {
+                    Log.error("Failed to send last will message at uninstall");
+                    Log.error(error);
+                    this.mqttClient.disconnect().catch(e => Log.error(e));
+                });
+            
             // TODO: unregister topics from MQTTClient?
         } catch(e) {
             // nothing...
