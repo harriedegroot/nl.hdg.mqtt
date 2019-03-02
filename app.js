@@ -105,17 +105,21 @@ class MQTTHub extends Homey.App {
      * Start Hub
      * */
     async start() {
-        if (this._running) return;
-        this._running = true;
-
         try {
-            Log.info('start Hub');
-            await this.mqttClient.connect();
-            this._sendBirthMessage();
+            if (!this.mqttClient.isRegistered()) {
+                Log.debug("Connect MQTT Client");
+                await this.mqttClient.connect();
+            }
 
-            await this.run();
-            
-            Log.info('app running: true');
+            if (this.mqttClient.isRegistered()) {
+                Log.info('start Hub');
+                this._sendBirthMessage();
+                await this.run();
+                Log.info('app running: true');
+            } else {
+                Log.debug("Waiting for MQTT Client...");
+                this.mqttClient.onRegistered.subscribe(() => this.start(), true); // NOTE: Recursive
+            }
         } catch (e) {
             Log.error('Failed to start Hub');
             Log.error(e);
@@ -149,7 +153,9 @@ class MQTTHub extends Homey.App {
      * Note: Called from start & settings changed
      * */
     async run() {
-        
+        if (this._running) return;
+        this._running = true;
+
         this._initProtocol();
 
         await this._startCommands();
@@ -378,12 +384,14 @@ class MQTTHub extends Homey.App {
         return topic;
     }
     _sendBirthMessage() {
+        Log.debug("Send birth message");
         if (this.mqttClient && this.settings.birthWill !== false) {
             const msg = this.settings.birthMessage || BIRTH_MESSAGE;
             this.mqttClient.publish(new Message(this._birthTopic, msg, 1, true));
         }
     }
     _sendLastWillMessage() {
+        Log.debug("Send last will message");
         if (this.mqttClient && this.settings.birthWill !== false) {
             const msg = this.settings.willMessage || WILL_MESSAGE;
             this.mqttClient.publish(new Message(this._willTopic, msg, 1, true));

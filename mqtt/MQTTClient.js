@@ -33,9 +33,6 @@ class MQTTClient  {
             this._uninstalledCallback = this._onClientAppUninstalled.bind(this);
             this._handleMessageCallback = this._handleMessage.bind(this);
 
-            // Fetch installed app
-            await this.clientApp.getInstalled();
-
             // Register future events
             this.clientApp
                 .register()
@@ -43,9 +40,13 @@ class MQTTClient  {
                 .on('uninstall', this._uninstalledCallback)
                 .on('realtime', this._handleMessageCallback);
 
+            // Fetch installed app
+            var installed = await this.clientApp.getInstalled();
+            
             // call installed handlers
-            this._onClientAppInstalled();
-
+            if (installed) {
+                this._onClientAppInstalled();
+            }
         } catch (e) {
             Log.error('Failed to connect MQTTClient');
             Log.error(e);

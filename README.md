@@ -79,7 +79,7 @@ The MQTT Hub also allows a `custom` communication protocol with the ability to c
 - color format (HSV, RGB, channels)
 - enable/disable dispatching of device states
 - disable topic normalization
-- dimensions & value scaling
+- dimensions & value scaling  
   
 #### Commands
 The hub provides two ways of controlling your devices over MQTT.  
@@ -107,6 +107,7 @@ E.g. These two messages will both dim the tv light to 30%:
 When using the command structure:
 - Device id's will automatically be resolved from the device id, name or topic (in this order).
 - The device name may contain either de original name or the normalized version.  
+  
   
 #### Birth & Last Will  
 The MQTT Hub is able to broadcast a 'birth' message on startup and a 'last will' message on shutdown.

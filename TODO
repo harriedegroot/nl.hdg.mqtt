@@ -32,6 +32,8 @@ Homie:
 - Zone depth > 1 (folder structure)
 
 App:
+
+- [Check] Removal of topics when changing normalization
 - [Check] shutdown procedure
 - [Check] Refresh devices on device/zone changes + Broadcast
 - unsubscribe from topics on MQTT Client (e.g. Uninstall app / topic switch)
@@ -140,3 +142,4 @@ x Settings: Split hiding of devices & applying default (protocol) settings
 - set value decimals => toFixed(capability.decimals)
 - Update Instructions
 - Adjust documentation for HA Discovery & changed settings (readme)
+- [BUG] MQTT Client installed
