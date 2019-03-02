@@ -95,7 +95,12 @@ class SystemStateDispatcher {
 
             const topic = (this.settings.systemStateTopic || TOPIC).replace('{deviceId}', this.settings.deviceId);
             if (this.topic && this.topic !== topic) {
-                this.mqttClient.clear(this.topic);
+                try {
+                    await this.mqttClient.clear(this.topic);
+                } catch (e) {
+                    Log.error("Failed to clear previous System State Dispatcher topics");
+                    Log.error(e);
+                }
             }
             this.topic = topic;
 
