@@ -71,7 +71,7 @@ class MessageQueue {
         this._processing = true;
 
         try {
-            while (this.running && this.queue.length) {
+            while (this.running && this.mqttClient.isRegistered() && this.queue.length) {
                 try {
                     await this.next();
                 } catch (e) {
