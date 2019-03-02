@@ -72,10 +72,10 @@ class MQTTClient  {
         }
     }
 
-    async subscribe(topic) {
+    async subscribe(topic, force) {
         if (topic) {
             this.topics = this.topics || new Set();
-            if (this.topics.has(topic)) {
+            if (!force && this.topics.has(topic)) {
                 Log.debug('[SKIP] Already subscribed to topic: ' + topic);
             }
             this.topics.add(topic);
@@ -94,6 +94,7 @@ class MQTTClient  {
     }
 
     unsubscribe(topic) {
+        this.topics.delete(topic);
         // TODO: implement topic unsubscription
     }
 
@@ -149,15 +150,36 @@ class MQTTClient  {
 
         if (delay > 0) {
             Log.debug(`Waiting ${delay / 1000} sec. before sending messages to just started MQTT client`);
-            this._registeredTimeout = setTimeout(() => this._onReady(), delay);
+            this._registeredTimeout = setTimeout(() => this._onReady().catch(e => Log.error(e)), delay);
         } else {
-            this._onReady();
+            this._onReady().catch(e => Log.error(e));
         }
     }
 
-    _onReady() {
+    async _onReady() {
+        Log.info("MQTTClient ready");
         this.registered = true;
-        this.onRegistered.emit().catch(error => Log.error(error));
+        try {
+            await this._registerTopics();
+        } catch (e) {
+            Log.error("Failed to subscribe to previous registered topics");
+            Log.error(e);
+        }
+        try {
+            Log.debug("Notify subscribers");
+            await this.onRegistered.emit().catch(error => Log.error(error));
+        } catch (e) {
+            Log.error(e);
+        }
+    }
+
+    async _registerTopics() {
+        if (!this.topics) return;
+        Log.debug("Subscribing to previous registered topics");
+        for (let topic of this.topics.values()) {
+            await this.subscribe(topic, true);
+        }
+        Log.debug("Topics registered");
     }
 
     _onClientAppUninstalled() {
