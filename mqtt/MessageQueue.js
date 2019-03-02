@@ -14,10 +14,13 @@ class MessageQueue {
         this.queue = [];
         this.messages = new Map();
         this.running = true;
+
+        // Clear message queue when MQTT Client uninstalled
+        this.mqttClient.onUnRegistered.subscribe(() => this.clear());
     }
 
     add(topic, payload, opt, process) {
-        if (topic) {
+        if (this.mqttClient.isRegistered() && topic) {
             opt = opt || {};
             let message = this.messages.get(topic);
             if (!message) {
