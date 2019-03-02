@@ -185,6 +185,7 @@ class MQTTHub extends Homey.App {
                 break;
             case "homie3":
             default:
+                this.settings.homieTopic = normalize(this.settings.homieTopic);
                 this.settings.topicIncludeClass = false;
                 this.settings.topicIncludeZone = false;
                 this.settings.normalize = true;
@@ -386,18 +387,24 @@ class MQTTHub extends Homey.App {
     }
 
     get _birthTopic() {
-        let topic = (this.settings.birthTopic || BIRTH_TOPIC).replace('{deviceId}', this.settings.deviceId);
-        if (this.settings.normalize !== false) {
-            topic = normalize(topic);
-        }
-        return topic;
+        const deviceId = this.settings.normalize !== false ? normalize(this.settings.deviceId) : this.settings.deviceId;
+        return (this.settings.birthTopic || BIRTH_TOPIC).replace('{deviceId}', deviceId);
+        
+        //let topic = (this.settings.birthTopic || BIRTH_TOPIC).replace('{deviceId}', this.settings.deviceId);
+        //if (this.settings.normalize !== false) {
+        //    topic = normalize(topic);
+        //}
+        //return topic;
     }
     get _willTopic() {
-        let topic = (this.settings.willTopic || WILL_TOPIC).replace('{deviceId}', this.settings.deviceId);
-        if (this.settings.normalize !== false) {
-            topic = normalize(topic);
-        }
-        return topic;
+        const deviceId = this.settings.normalize !== false ? normalize(this.settings.deviceId) : this.settings.deviceId;
+        return (this.settings.willTopic || WILL_TOPIC).replace('{deviceId}', deviceId);
+        
+        //let topic = (this.settings.willTopic || WILL_TOPIC).replace('{deviceId}', this.settings.deviceId);
+        //if (this.settings.normalize !== false) {
+        //    topic = normalize(topic);
+        //}
+        //return topic;
     }
     async _sendBirthMessage() {
         Log.debug("Send birth message");

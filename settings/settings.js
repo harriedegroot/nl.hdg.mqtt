@@ -227,10 +227,7 @@ function parseTopic(key, value) {
         if (hubSettings.deviceId) {
             value = value.replace('{deviceId}', normalize(hubSettings.deviceId));
         }
-
-        return hubSettings.normalize !== false && ['homieTopic', 'customTopic'].includes(key)
-            ? normalize(value)
-            : value;
+        return key === 'homieTopic' ? normalize(value) : value; 
     }
     return value;
 }

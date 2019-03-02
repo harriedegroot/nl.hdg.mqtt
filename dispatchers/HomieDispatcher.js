@@ -67,9 +67,9 @@ class HomieDispatcher {
         this.colorFormat = settings.colorFormat || DEFAULT_COLOR_FORMAT;
         this.normalize = !!settings.normalize;
 
-        if (this.normalize) {
-            this.topic = normalize(this.topic);
-        }
+        //if (this.normalize) {
+        //    this.topic = normalize(this.topic);
+        //}
 
         // parse topic
         const parts = this.topic.split('/');
@@ -227,13 +227,15 @@ class HomieDispatcher {
 
     getTopic(device, capability) {
         // TODO: some caching?
-        const topic = [
-            ...this.topic.split('/'),
+        let topic = [
             ...this.getNodeName(device).split('/'),
             capability ? (typeof capability === 'string' ? capability : capability.id) : undefined
         ].filter(x => x).join('/');
 
-        return this.normalize ? normalize(topic) : topic;
+        if (this.normalize)
+            topic = normalize(topic);
+
+        return this.topic + '/' + topic;
     }
 
     getNodeName(device) {

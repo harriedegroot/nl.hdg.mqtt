@@ -331,9 +331,9 @@ class HomeAssistantDispatcher {
             await this.registerHassStatus(settings);
 
             let topic = (settings.hassTopic || DEFAULT_TOPIC).replace('{deviceId}', settings.deviceId);
-            if (settings.normalize) {
-                topic = normalize(topic);
-            }
+            //if (settings.normalize) {
+            //    topic = normalize(topic);
+            //}
 
             if (this.breakingChanges(settings)) {
 
