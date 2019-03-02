@@ -5,6 +5,8 @@ const Log = require("../Log.js");
 const EventHandler = require('../EventHandler');
 const Message = require('./Message');
 
+const CLIENT_STARTUP_DELAY = 10000; // Wait 10 sec. before sending messages to the MQTT Client on app install
+
 class MQTTClient  {
 
     isRegistered() { return this.registered; }
@@ -45,7 +47,7 @@ class MQTTClient  {
             
             // call installed handlers
             if (installed) {
-                this._onClientAppInstalled();
+                this._onClientAppInstalled(0);
             }
         } catch (e) {
             Log.error('Failed to connect MQTTClient');
@@ -138,16 +140,35 @@ class MQTTClient  {
         return await this.publish(new Message(topic, null, qos || 0, true));
     }
 
-    _onClientAppInstalled(installed) {
+    _onClientAppInstalled(delay) {
         Log.debug('mqttClient.onClientAppInstalled');
+
+        if (delay === undefined) {
+            delay = CLIENT_STARTUP_DELAY;
+        }
+
+        if (delay > 0) {
+            Log.debug(`Waiting ${delay / 1000} sec. before sending messages to just started MQTT client`);
+            this._registeredTimeout = setTimeout(() => this._onReady(), delay);
+        } else {
+            this._onReady();
+        }
+    }
+
+    _onReady() {
         this.registered = true;
-        this.onRegistered.emit()
-            .catch(error => Log.error(error));
+        this.onRegistered.emit().catch(error => Log.error(error));
     }
 
     _onClientAppUninstalled() {
         Log.debug('mqttClient.onClientAppUnInstalled');
         this.registered = false;
+
+        if (this._registeredTimeout) {
+            clearTimeout(this._registeredTimeout);
+            delete this._registeredTimeout;
+        }
+
         this.onUnRegistered.emit()
             .catch(error => Log.error(error));
     }
