@@ -599,8 +599,8 @@ class HomieDispatcher {
                 let device = await this.api.devices.getDevice({ id: deviceId });
                 if (device) {
                     if (this.broadcast) {
+                        const property = node.setProperty('color');
                         if (property) {
-                            const property = node.setProperty('color');
                             this._sendColor(device, property, this._formatColor(device.capabilitiesObj));
                         }
                     }
