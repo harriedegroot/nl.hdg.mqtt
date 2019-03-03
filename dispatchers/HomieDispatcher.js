@@ -7,7 +7,7 @@ const HomieDevice = require('../homie/homieDevice');
 const HomieMQTTClient = require('../homie/HomieMQTTClient');
 const Color = require('../Color');
 
-const DEFAULT_TOPIC_ROOT = 'homie/homey';
+const DEFAULT_TOPIC_ROOT = 'homie/{deviceId}';
 const DEFAULT_DEVICE_NAME = 'Homey';
 const DEFAULT_ZONE = "home";
 const DEFAULT_CLASS = "other";

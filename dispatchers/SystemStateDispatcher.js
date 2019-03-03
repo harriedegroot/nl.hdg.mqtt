@@ -3,7 +3,7 @@
 const Log = require('../Log');
 const normalize = require('../normalize');
 
-const TOPIC = 'homey/system/info'; // TODO: Make system info topic configurable
+const TOPIC = '{deviceId}/system/info';
 const DELAY = 30000;
 
 /*

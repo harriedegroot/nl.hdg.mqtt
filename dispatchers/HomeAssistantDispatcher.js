@@ -270,8 +270,6 @@ const coverClasses = new Set([
     'window'
 ]);
 
-// NOTE: Make configurable
-const DEFAULT_DEVICE_ID = 'homey';
 const DEFAULT_TOPIC = 'homeassistant';
 const STATUS_TOPIC = 'hass/status';
 const STATUS_ONLINE = 'online';
@@ -326,12 +324,11 @@ class HomeAssistantDispatcher {
             }
 
             this.normalize = settings.normalize;
-            this.deviceId = normalize(settings.deviceId || DEFAULT_DEVICE_ID); 
+            this.deviceId = settings.normalize !== false ? normalize(settings.deviceId) : settings.deviceId;
 
             await this.registerHassStatus(settings);
 
-            const deviceId = settings.normalize !== false ? normalize(settings.deviceId) : settings.deviceId;
-            let topic = (settings.hassTopic || DEFAULT_TOPIC).replace('{deviceId}', deviceId);
+            let topic = (settings.hassTopic || DEFAULT_TOPIC).replace('{deviceId}', this.deviceId);
 
             if (this.breakingChanges(settings)) {
 
