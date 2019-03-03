@@ -662,17 +662,17 @@ class HomeAssistantDispatcher {
         if (typeof capability.id !== 'string') return undefined;
 
         // based on capability type from id (i.e. type_property)
-        //switch (capability.id.split('_').shift()) {
-        //    case 'alarm':
-        //        return {
-        //            type: 'alarm',
-        //            payload: {
-        //                payload_on: "true",
-        //                payload_off: "false",
-        //                device_class: 'alarm'
-        //            }
-        //        };
-        //}
+        switch (capability.id.split('_').shift()) {
+            case 'alarm':
+                return {
+                    type: 'alarm',
+                    payload: {
+                        payload_on: "true",
+                        payload_off: "false",
+                        device_class: 'alarm'
+                    }
+                };
+        }
 
         // TODO: icons
 
