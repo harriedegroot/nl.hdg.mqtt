@@ -389,7 +389,7 @@ class HomeAssistantDispatcher {
 
     async _onMessage(topic, message) {
 
-        if (topic !== this.hassStatusTopic) return;
+        if (topic !== this.statusTopic) return;
 
         Log.info("Received HomeAssistant status message: " + message);
 
