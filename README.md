@@ -129,6 +129,15 @@ The `v1.5` [branch](https://github.com/harriedegroot/nl.hdg.mqtt/tree/version1.5
   
 ## Change Log
   
+#### 2.1.1  
+- Improved app startup & shutdown procedures 
+- Resolved issues with Client & Hub app install order
+- Resolved some issues in MQTT Client app (un)install handling
+- Skip normalization of custom topics
+- Introduced log levels for 20% speed improvement
+- Home Assistant status topic fix
+- General bug fixes & stability
+  
 #### 2.1.0  
 - HA Discovery (beta)
 - Simplified settings page + added many options
