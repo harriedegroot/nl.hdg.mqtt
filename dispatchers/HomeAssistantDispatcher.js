@@ -306,7 +306,7 @@ class HomeAssistantDispatcher {
         });
         const changed = this._settingsHash !== hash;
         this._settingsHash = hash;
-        return changed;
+        return changed || this.homieDispatcher.breakingChanges(settings);
     }
 
     //clearTopic(topic) {
