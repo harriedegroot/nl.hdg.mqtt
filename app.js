@@ -31,6 +31,8 @@ const BIRTH_MESSAGE = 'online';
 const WILL_TOPIC = '{deviceId}/hub/status';
 const WILL_MESSAGE = 'offline';
 
+const DEFAULT_LOG_LEVEL = 'info';
+
 class MQTTHub extends Homey.App {
 
     async onInit() {
@@ -42,6 +44,7 @@ class MQTTHub extends Homey.App {
             this.settings = Homey.ManagerSettings.get('settings') || {};
             this.birthWill = this.settings.birthWill !== false;
 
+            Log.setLevel(DEBUG ? 'debug' : this.settings.loglevel || DEFAULT_LOG_LEVEL);
             Log.debug(this.settings, false, false);
 
             this.api = await HomeyAPI.forCurrentHomey();
@@ -274,7 +277,7 @@ class MQTTHub extends Homey.App {
     }
 
     async _getSystemInfo() {
-        Log.info("get system info");
+        Log.debug("get system info");
         const info = await this.api.system.getInfo();
         return {
             name: info.hostname,
@@ -284,28 +287,28 @@ class MQTTHub extends Homey.App {
 
     async getDevices() {
         try {
-            Log.info("get devices");
+            Log.debug("get devices");
             if (this.deviceManager && this.deviceManager.devices)
                 return this.deviceManager.devices;
 
             const api = await HomeyAPI.forCurrentHomey();
             return await api.devices.getDevices();
         } catch (e) {
-            Log.error("Failed to get Homey's devices");
+            Log.info("Failed to get Homey's devices");
             Log.error(e);
         }
     }
 
     async getZones() {
         try {
-            Log.info("get zones");
+            Log.debug("get zones");
             if (this.deviceManager && this.deviceManager.zones)
                 return this.deviceManager.zones;
 
             const api = await HomeyAPI.forCurrentHomey();
             return await api.zones.getZones();
         } catch (e) {
-            Log.error("Failed to get Homey's zones");
+            Log.info("Failed to get Homey's zones");
             Log.error(e);
         }
     }

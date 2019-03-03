@@ -391,7 +391,7 @@ class HomeAssistantDispatcher {
 
         if (topic !== this.statusTopic) return;
 
-        Log.info("Received HomeAssistant status message: " + message);
+        Log.debug("Received HomeAssistant status message: " + message);
 
         try {
             if (message === this.hassOnlineMessage && this.mqttClient.isRegistered()) {
@@ -415,7 +415,7 @@ class HomeAssistantDispatcher {
 
     // Get all devices and add them
     registerDevices() {
-        Log.info("register devices");
+        Log.info("Home Assistant discovery: register devices");
         const devices = this.deviceManager.devices;
         if (devices) {
             for (let key in devices) {
@@ -428,12 +428,12 @@ class HomeAssistantDispatcher {
 
     // Remove all device registrations
     unregisterDevices() {
-        Log.info("HomeAssistantDispatcher.unregisterDevices");
+        Log.debug("HomeAssistantDispatcher.unregisterDevices");
     }
 
     _registerDevice(device) {
         if (!device || !(device || {}).id) {
-            Log.info("invalid device");
+            Log.debug("invalid device");
             return;
         } 
 
@@ -449,7 +449,7 @@ class HomeAssistantDispatcher {
         }
         this._registered.add(device.id);
 
-        Log.info("HASS discover: " + device.name);
+        Log.debug("HASS discover: " + device.name);
 
         const remainingCapabilities = this._registerDeviceClass(device);
         this._registerCapabilities(device, remainingCapabilities);
@@ -605,7 +605,7 @@ class HomeAssistantDispatcher {
     _registerCapabilities(device, capabilities) {
         if (!device || !capabilities) return;
 
-        Log.info("HASS: register (remaining) capabilities: " + device.name);
+        Log.debug("HASS: register (remaining) capabilities: " + device.name);
         for (let key in capabilities) {
             if (capabilities.hasOwnProperty(key)) {
                 const capability = capabilities[key];
@@ -785,7 +785,7 @@ class HomeAssistantDispatcher {
             this.mqttClient.onMessage.unsubscribe(this._clientCallback);
             this._topics.clear();
         }
-        Log.info('Destroy HomeAssistantDispatcher');
+        Log.debug('Destroy HomeAssistantDispatcher');
     }
 }
 

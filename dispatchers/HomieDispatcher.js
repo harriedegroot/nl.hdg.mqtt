@@ -141,10 +141,10 @@ class HomieDispatcher {
         this.homieDevice.setFirmware(this.settings.deviceId || this.system.homeyModelName || 'Homey', this.system.homeyVersion || '2+');
 
         this._messageCallback = function (topic, value) {
-            Log.info('message: ' + topic + ' with value: ' + value);
+            Log.debug('message: ' + topic + ' with value: ' + value);
         };
         this._broadcastCallback = function (topic, value) {
-            Log.info('broadcast: ' + topic + ' with value: ' + value);
+            Log.debug('broadcast: ' + topic + ' with value: ' + value);
         };
         this.homieDevice.on('message', this._messageCallback);
         this.homieDevice.on('broadcast', this._broadcastCallback);
@@ -290,7 +290,7 @@ class HomieDispatcher {
     
     _registerDevice(device) {
         if (!device || !(device || {}).id) {
-            Log.info("invalid device");
+            Log.debug("invalid device");
             return;
         } 
 
@@ -301,11 +301,11 @@ class HomieDispatcher {
         }
 
         if (this._nodes.has(device.id)) {
-            Log.info('[SKIP] Device already registered');
+            Log.debug('[SKIP] Device already registered');
             return;
         }
 
-        Log.info("Register device: " + device.name);
+        Log.debug("Register device: " + device.name);
 
         const topic = this.getNodeName(device);
         const name = topic.split('/').pop();
@@ -415,7 +415,7 @@ class HomieDispatcher {
 
         const node = this._nodes.get((device || {}).id);
         if (!node) {
-            Log.info("[Skip] Device Node not found");
+            Log.debug("[Skip] Device Node not found");
             return;
         }
         
@@ -569,12 +569,12 @@ class HomieDispatcher {
     async _handleStateChange(node, deviceId, capability, value) {
 
         if (!node) {
-            Log.info("[SKIP] No valid node provided");
+            Log.debug("[SKIP] No valid node provided");
             return;
         }
 
         if (!this._nodes.has(deviceId)) {
-            Log.info('[SKIP] Device not registered');
+            Log.debug('[SKIP] Device not registered');
             return;
         }
 
@@ -583,10 +583,10 @@ class HomieDispatcher {
             return;
         }
         
-        Log.info("Homie set value [" + node.name + "." + capability.id + "]: " + value);
+        Log.debug("Homie set value [" + node.name + "." + capability.id + "]: " + value);
 
         if (value === undefined) {
-            Log.info("Homie: No value provided");
+            Log.debug("Homie: No value provided");
             return;
         }
 
@@ -617,17 +617,17 @@ class HomieDispatcher {
                     this._send(deviceId, property, this._formatValue(value, capability));
                 }
             } else {
-                Log.info("No property found for capability: " + capability.id);
+                Log.debug("No property found for capability: " + capability.id);
             }
         } catch (e) {
-            Log.error('HomieDispatcher: Failed to publish capability value');
+            Log.info('HomieDispatcher: Failed to publish capability value');
             Log.error(e);
         }
     }
 
     async setValue(deviceId, capability, value, dataType) {
 
-        Log.info('HomieDispatcher.setValue');
+        Log.debug('HomieDispatcher.setValue');
 
         // handle colors
         if (dataType === 'color') {
@@ -725,7 +725,7 @@ class HomieDispatcher {
                 Log.error(e);
             }
         } else {
-            Log.info('Invalid color value');
+            Log.debug('Invalid color value');
         }
     }
 

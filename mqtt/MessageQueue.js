@@ -72,9 +72,10 @@ class MessageQueue {
     async process() {
         if (this._processing) return;
         this._processing = true;
-
+        var count = 0;
         try {
             while (this.running && this.mqttClient.isRegistered() && this.queue.length) {
+                count++;
                 try {
                     await this.next();
                 } catch (e) {
@@ -95,7 +96,9 @@ class MessageQueue {
             Log.error('MessageQueue: Failed to process queue');
             Log.debug(e);
         }
-
+        if (count >= 10) {
+            Log.info("Done processing messsages: " + count);
+        }
         this._processing = false;
     }
 

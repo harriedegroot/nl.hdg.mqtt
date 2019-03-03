@@ -58,13 +58,13 @@ class CommandHandler {
 
             const command = this.getCommand(message);
             if (!command) {
-                Log.info("No command provided");
+                Log.debug("No command provided");
                 return;
             }
 
             const deviceId = this.getDeviceId(topic, message);
             if (!deviceId) {
-                Log.info("Device not found");
+                Log.debug("Device not found");
                 return;
             }
 

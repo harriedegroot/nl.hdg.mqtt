@@ -115,7 +115,7 @@ module.exports = [
         role: 'owner',
         requires_authorization: true,
         fn: function (args, callback) {
-            if (Homey.app) {
+            if (Log) {
                 let result = Log.getLogLines();
                 if (result instanceof Error) callback(result);
                 callback(null, result);
@@ -123,5 +123,39 @@ module.exports = [
                 callback(null, '');
             }
         }
-    }
+    },
+    {
+        description: 'Log level',
+        method: 'GET',
+        path: '/loglevel',
+        role: 'owner',
+        requires_authorization: true,
+        fn: function (args, callback) {
+            if (Log) {
+                let result = Log.getLevel();
+                if (result instanceof Error) callback(result);
+                callback(null, result);
+            } else {
+                callback(null, '');
+            }
+        }
+    },
+    {
+        description: 'Set log level',
+        method: 'POST',
+        path: '/loglevel',
+        role: 'owner',
+        requires_authorization: true,
+        fn: function (args, callback) {
+            if (Log && args && args.body) {
+                const level = args.body.level;
+                Log.info("Set log level: " + level);
+                let result = Log.setLevel(level);
+                if (result instanceof Error) callback(result);
+                callback(null, result);
+            } else {
+                callback('App not ready, please try again');
+            }
+        }
+    },
 ];

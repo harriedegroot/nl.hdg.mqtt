@@ -42,7 +42,9 @@ const defaultSettings = {
     "birthTopic": "{deviceId}/hub/status",
     "birthMessage": "online",
     "willTopic": "{deviceId}/hub/status",
-    "willMessage": "offline"
+    "willMessage": "offline",
+
+    "loglevel": "info"
 };
 
 //////////////////////////////////////////////
@@ -398,5 +400,15 @@ function stopLogUpdateTimer() {
     if (logTimeout) {
         clearTimeout(logTimeout);
         logTimeout = 0;
+    }
+}
+
+function setLogLevel(level) {
+    hubSettings.loglevel = level;
+    saveSettings();
+    try {
+        Homey.api('post', '/loglevel', { level }, (err, result) => updateLog());
+    } catch (e) {
+        displayLog(e);
     }
 }

@@ -659,6 +659,17 @@
 
 
             <div id="tab4" class="panel" style="display: none;">
+                <div class="setting">
+                    <label class="loglevel" data-i18n="tab4.loglevel">Log level</label>
+                    <div class="settings-itemgroup">
+                        <select id="loglevel" @change="setLogLevel($event.target.value)">
+                            <option value="off">Turned off</option>
+                            <option value="error">Errors and Warnings</option>
+                            <option value="info" selected="selected">Information</option>
+                            <option value="debug">Debug</option>
+                        </select>
+                    </div>
+                </div>
                 <div v-html="log"></div>
             </div>
 

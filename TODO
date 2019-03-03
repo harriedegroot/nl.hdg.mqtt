@@ -5,11 +5,12 @@ BUGS:
 - [BUG] client/hub registration?
 
 Settings:
+- Debug log level warning (20% speed improvement)
 - Enable/disable all devices
-- Seperate call for device enable/disable
 - display broadcast progress (loader)
 - Display number of messages in queue (fill 100% === number of devices)
 - Show number of messages per device
+- Seperate call for device enable/disable
 - CHECK en.json translations
 - Disable device capabilities
 
@@ -23,22 +24,20 @@ HASS:
 - [REFACTOR] De-couple parse & format logic. Refactor data processing. Create handlers per type?
 
 Homie:
+! Introduce queue for updating device state (use brightness slider ha app)
 - Fix RGB
-- Introduce queue for updating device state (use brightness slider ha app)
-- Check client availability processing
 - Publish device/$state disconnect message?
 - Device Aliasses (e.g. dim/brightness, light temperature, etc.)
 - Button-press & non-retained messages?
 - Zone depth > 1 (folder structure)
 
 App:
-
-- [Check] Removal of topics when changing normalization
-- [Check] shutdown procedure
+- [Check] Removal of topics when changing normalization/topic/disable device/etc.
+- profiling/optimizations
 - [Check] Refresh devices on device/zone changes + Broadcast
+- [Check] shutdown procedure
 - unsubscribe from topics on MQTT Client (e.g. Uninstall app / topic switch)
 - [CHECK] all code TODO's
-- profiling/optimizations
 - Flow card for MQTT Device (i.e. to add scenes)
 
 Discovery (auto discover external devices):
@@ -143,3 +142,7 @@ x Settings: Split hiding of devices & applying default (protocol) settings
 - Update Instructions
 - Adjust documentation for HA Discovery & changed settings (readme)
 - [BUG] MQTT Client installed
+- Fixed HASS Status topic
+- Normalization fixes
+- MQTT Client availability/installed checks (app startup order)
+- Log levels
