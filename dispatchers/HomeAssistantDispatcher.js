@@ -487,7 +487,6 @@ class HomeAssistantDispatcher {
                 // capture all other devices with onoff & dim capabilities and create a light device for it
                 if (capabilities && capabilities.hasOwnProperty('onoff') && capabilities.hasOwnProperty('dim')) {
                     this._registerLight(device).forEach(id => delete capabilities[id]);
-                    return;
                 }
                 // nothing
                 break;
@@ -540,11 +539,11 @@ class HomeAssistantDispatcher {
         // TODO: light_mode
         // TODO: RGB color setting
         
-        let topic = [type, device.name, 'config'].filter(x => x).join('/');
+        let topic = [device.name, 'config'].filter(x => x).join('/');
         if (this.normalize) {
             topic = normalize(topic);
         }
-        this._registerConfig(device, type, this.topic + '/' + topic, payload);
+        this._registerConfig(device, type, `${this.topic}/${type}/${topic}`, payload);
 
         return ['onoff', 'dim', 'light_hue', 'light_saturation', 'light_temperature', 'color', 'rgb', 'hsv'];
     }
@@ -590,11 +589,11 @@ class HomeAssistantDispatcher {
             payload.mode_state_template = "{% set values = { 'schedule':'auto', 'manual':'heat', 'notused':'cool', 'off':'off'} %}{{ values[value] if value in values.keys() else 'off' }}";
         }
 
-        let topic = [type, device.name, 'config'].filter(x => x).join('/');
+        let topic = [device.name, 'config'].filter(x => x).join('/');
         if (this.normalize) {
             topic = normalize(topic);
         }
-        this._registerConfig(device, type, this.topic + '/' + topic, payload);
+        this._registerConfig(device, type, `${this.topic}/${type}/${topic}`, payload);
 
         return ['onoff', 'measure-temperature', 'target-temperature', 'custom-thermostat-mode'];
     }
@@ -651,28 +650,28 @@ class HomeAssistantDispatcher {
         //}
 
         // final payload = above payload with added & overidden values from config
-        let topic = [type, device.name, capability.id, 'config'].filter(x => x).join('/');
+        let topic = [device.name, capability.id, 'config'].filter(x => x).join('/');
         if (this.normalize) {
             topic = normalize(topic);
         }
-        this._registerConfig(device, type, this.topic + '/' + topic, { ...payload, ...config.payload });
+        this._registerConfig(device, type, `${this.topic}/${type}/${topic}`, { ...payload, ...config.payload });
     }
 
     _createConfig(device, capability) {
         if (typeof capability.id !== 'string') return undefined;
 
         // based on capability type from id (i.e. type_property)
-        switch (capability.id.split('_').shift()) {
-            case 'alarm':
-                return {
-                    type: 'alarm',
-                    payload: {
-                        payload_on: "true",
-                        payload_off: "false",
-                        device_class: 'alarm'
-                    }
-                };
-        }
+        //switch (capability.id.split('_').shift()) {
+        //    case 'alarm':
+        //        return {
+        //            type: 'alarm',
+        //            payload: {
+        //                payload_on: "true",
+        //                payload_off: "false",
+        //                device_class: 'alarm'
+        //            }
+        //        };
+        //}
 
         // TODO: icons
 

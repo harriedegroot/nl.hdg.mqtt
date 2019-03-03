@@ -232,7 +232,7 @@ class HomieDispatcher {
         if (this.normalize)
             topic = normalize(topic);
 
-        return this.topic + '/' + topic;
+        return `${this.topic}/${topic}`;
     }
 
     getNodeName(device) {

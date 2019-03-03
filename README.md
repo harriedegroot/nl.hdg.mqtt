@@ -136,6 +136,7 @@ The `v1.5` [branch](https://github.com/harriedegroot/nl.hdg.mqtt/tree/version1.5
 - Skip normalization of custom topics
 - Introduced log levels for 20% speed improvement
 - Home Assistant status topic fix
+- Home Assistant binary sensors fix
 - General bug fixes & stability
   
 #### 2.1.0  

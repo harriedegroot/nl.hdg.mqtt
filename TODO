@@ -24,6 +24,8 @@ HASS:
 - [REFACTOR] De-couple parse & format logic. Refactor data processing. Create handlers per type?
 
 Homie:
+! [Check] value scaling setting
+! [Check] broadcast HASS discovery on custom protocol changes
 ! Introduce queue for updating device state (use brightness slider ha app)
 - Fix RGB
 - Publish device/$state disconnect message?
@@ -146,3 +148,4 @@ x Settings: Split hiding of devices & applying default (protocol) settings
 - Normalization fixes
 - MQTT Client availability/installed checks (app startup order)
 - Log levels
+- Fix HASS binary sensors
