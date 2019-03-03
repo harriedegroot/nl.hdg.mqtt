@@ -1,6 +1,7 @@
 "use strict";
 
 const Log = require('../Log');
+const normalize = require('../normalize');
 
 const TOPIC = 'homey/$command'; // <root>/<device id>/$command
 
@@ -24,7 +25,8 @@ class CommandHandler {
         if (!this.mqttClient) return;
         try {
             Log.info("Initializing set command handler");
-            const topic = (settings.commandTopic || TOPIC).replace('{deviceId}', settings.deviceId);
+            const deviceId = settings.normalize !== false ? normalize(settings.deviceId) : settings.deviceId;
+            const topic = (settings.commandTopic || TOPIC).replace('{deviceId}', deviceId);
             if (this.topic !== topic) {
                 if (this.topic) {
                     await this.mqttClient.clear(this.topic);

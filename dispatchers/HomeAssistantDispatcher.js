@@ -330,17 +330,15 @@ class HomeAssistantDispatcher {
 
             await this.registerHassStatus(settings);
 
-            let topic = (settings.hassTopic || DEFAULT_TOPIC).replace('{deviceId}', settings.deviceId);
-            //if (settings.normalize) {
-            //    topic = normalize(topic);
-            //}
+            const deviceId = settings.normalize !== false ? normalize(settings.deviceId) : settings.deviceId;
+            let topic = (settings.hassTopic || DEFAULT_TOPIC).replace('{deviceId}', deviceId);
 
             if (this.breakingChanges(settings)) {
 
                 if (this.topic !== topic) {
                     this._topics.clear();
                 }
-                this.topic = topic;
+                this.topic = topic.split('/').filter(x => x).join('/');
 
                 if (this.enabled) {
                     // NOTE: If the client is already connected, the 'connect' event won't be fired. 
@@ -545,11 +543,11 @@ class HomeAssistantDispatcher {
         // TODO: light_mode
         // TODO: RGB color setting
         
-        let topic = [...this.topic.split('/'), type, device.name, 'config'].filter(x => x).join('/');
+        let topic = [type, device.name, 'config'].filter(x => x).join('/');
         if (this.normalize) {
             topic = normalize(topic);
         }
-        this._registerConfig(device, type, topic, payload);
+        this._registerConfig(device, type, this.topic + '/' + topic, payload);
 
         return ['onoff', 'dim', 'light_hue', 'light_saturation', 'light_temperature', 'color', 'rgb', 'hsv'];
     }
@@ -595,11 +593,11 @@ class HomeAssistantDispatcher {
             payload.mode_state_template = "{% set values = { 'schedule':'auto', 'manual':'heat', 'notused':'cool', 'off':'off'} %}{{ values[value] if value in values.keys() else 'off' }}";
         }
 
-        let topic = [...this.topic.split('/'), type, device.name, 'config'].filter(x => x).join('/');
+        let topic = [type, device.name, 'config'].filter(x => x).join('/');
         if (this.normalize) {
             topic = normalize(topic);
         }
-        this._registerConfig(device, type, topic, payload);
+        this._registerConfig(device, type, this.topic + '/' + topic, payload);
 
         return ['onoff', 'measure-temperature', 'target-temperature', 'custom-thermostat-mode'];
     }
@@ -656,11 +654,11 @@ class HomeAssistantDispatcher {
         //}
 
         // final payload = above payload with added & overidden values from config
-        let topic = [...this.topic.split('/'), type, device.name, capability.id, 'config'].filter(x => x).join('/');
+        let topic = [type, device.name, capability.id, 'config'].filter(x => x).join('/');
         if (this.normalize) {
             topic = normalize(topic);
         }
-        this._registerConfig(device, type, topic, { ...payload, ...config.payload });
+        this._registerConfig(device, type, this.topic + '/' + topic, { ...payload, ...config.payload });
     }
 
     _createConfig(device, capability) {

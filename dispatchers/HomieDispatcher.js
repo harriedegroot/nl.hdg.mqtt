@@ -60,16 +60,13 @@ class HomieDispatcher {
 
         // read config
         this.broadcast = settings.broadcastDevices !== false;
-        this.topic = (settings.homieTopic || DEFAULT_TOPIC_ROOT).replace('{deviceId}', settings.deviceId);
+        const deviceId = settings.normalize !== false ? normalize(settings.deviceId) : settings.deviceId;
+        this.topic = (settings.homieTopic || DEFAULT_TOPIC_ROOT).replace('{deviceId}', deviceId);
         this.topicIncludeClass = settings.topicIncludeClass === true;
         this.topicIncludeZone = settings.topicIncludeZone === true;
         this.percentageScale = settings.percentageScale || DEFAULT_PROPERTY_SCALING;
         this.colorFormat = settings.colorFormat || DEFAULT_COLOR_FORMAT;
         this.normalize = !!settings.normalize;
-
-        //if (this.normalize) {
-        //    this.topic = normalize(this.topic);
-        //}
 
         // parse topic
         const parts = this.topic.split('/');

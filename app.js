@@ -389,22 +389,10 @@ class MQTTHub extends Homey.App {
     get _birthTopic() {
         const deviceId = this.settings.normalize !== false ? normalize(this.settings.deviceId) : this.settings.deviceId;
         return (this.settings.birthTopic || BIRTH_TOPIC).replace('{deviceId}', deviceId);
-        
-        //let topic = (this.settings.birthTopic || BIRTH_TOPIC).replace('{deviceId}', this.settings.deviceId);
-        //if (this.settings.normalize !== false) {
-        //    topic = normalize(topic);
-        //}
-        //return topic;
     }
     get _willTopic() {
         const deviceId = this.settings.normalize !== false ? normalize(this.settings.deviceId) : this.settings.deviceId;
         return (this.settings.willTopic || WILL_TOPIC).replace('{deviceId}', deviceId);
-        
-        //let topic = (this.settings.willTopic || WILL_TOPIC).replace('{deviceId}', this.settings.deviceId);
-        //if (this.settings.normalize !== false) {
-        //    topic = normalize(topic);
-        //}
-        //return topic;
     }
     async _sendBirthMessage() {
         Log.debug("Send birth message");

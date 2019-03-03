@@ -1,6 +1,7 @@
 "use strict";
 
 const Log = require('../Log');
+const normalize = require('../normalize');
 
 const TOPIC = 'homey/system/info'; // TODO: Make system info topic configurable
 const DELAY = 30000;
@@ -93,7 +94,8 @@ class SystemStateDispatcher {
         try {
             this.registered = true;
 
-            const topic = (this.settings.systemStateTopic || TOPIC).replace('{deviceId}', this.settings.deviceId);
+            const deviceId = this.settings.normalize !== false ? normalize(this.settings.deviceId) : this.settings.deviceId;
+            const topic = (this.settings.systemStateTopic || TOPIC).replace('{deviceId}', deviceId);
             if (this.topic && this.topic !== topic) {
                 try {
                     await this.mqttClient.clear(this.topic);
