@@ -298,14 +298,16 @@ class HomeAssistantDispatcher {
         }
     }
 
-    breakingChanges(settings) {
+    breakingChanges(settings, update) {
         const hash = JSON.stringify({
+            hass: settings.hass,
             hassTopic: settings.hassTopic,
-            normalize: settings.normalize,
-            deviceId: settings.deviceId
+            hassStatusTopic: settings.hassStatusTopic
         });
         const changed = this._settingsHash !== hash;
-        this._settingsHash = hash;
+        if (update) {
+            this._settingsHash = hash;
+        }
         return changed || this.homieDispatcher.breakingChanges(settings);
     }
 
@@ -330,7 +332,7 @@ class HomeAssistantDispatcher {
 
             let topic = (settings.hassTopic || DEFAULT_TOPIC).replace('{deviceId}', this.deviceId);
 
-            if (this.breakingChanges(settings)) {
+            if (this.breakingChanges(settings, true)) {
 
                 if (this.topic !== topic) {
                     this._topics.clear();

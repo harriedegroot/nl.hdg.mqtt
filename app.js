@@ -166,8 +166,8 @@ class MQTTHub extends Homey.App {
      * Load configuration & run
      * Note: Called from start & settings changed
      * */
-    async run() {
-        if (this._running) return;
+    async run(force) {
+        if (force !== true && this._running) return;
         this._running = true;
 
         this._initProtocol();
@@ -371,7 +371,7 @@ class MQTTHub extends Homey.App {
                 this.deviceManager.setEnabledDevices(this.settings.devices);
             }
 
-            await this.run();
+            await this.run(true);
 
             // clean-up all messages for disabled devices
             for (let deviceId of this.deviceChanges.disabled) {

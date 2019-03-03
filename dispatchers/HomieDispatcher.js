@@ -76,10 +76,12 @@ class HomieDispatcher {
         this.deviceId = parts.pop();
         this.topicRoot = parts.join('/');
     }
-
-    breakingChanges(settings) {
+    
+    breakingChanges(settings, update) {
         const hash = JSON.stringify({
+            protocol: settings.protocol,
             homieTopic: settings.homieTopic,
+            customTopic: settings.customTopic,
             normalize: settings.normalize,
             topicIncludeClass: settings.topicIncludeClass,
             topicIncludeZone: settings.topicIncludeZone,
@@ -88,7 +90,9 @@ class HomieDispatcher {
             broadcastDevices: settings.broadcastDevices
         });
         const changed = this._settingsHash !== hash;
-        this._settingsHash = hash;
+        if (update) {
+            this._settingsHash = hash;
+        }
         return changed;
     }
 
@@ -98,7 +102,7 @@ class HomieDispatcher {
             
 
         // Breaking changes? => Start a new HomieDevice (& destroy current)
-        if (this.breakingChanges(settings)) {
+        if (this.breakingChanges(settings, true)) {
 
             Log.info("Recreate HomieDevice with new settings");
 
