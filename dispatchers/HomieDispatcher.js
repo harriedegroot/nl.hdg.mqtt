@@ -488,7 +488,7 @@ class HomieDispatcher {
             switch (this.percentageScale) {
                 case 'int':
                     if (capability.min === 0 && capability.max === 1)
-                        return 'int';
+                        return 'integer';
                     break;
                 case 'float':
                     if (capability.min === 0 && capability.max === 100)
@@ -788,7 +788,7 @@ class HomieDispatcher {
             switch (this.percentageScale) {
                 case 'int':
                     if (capability.min === 0 && capability.max === 1)
-                        return this._parseValue(value, 'int') / 100.0;
+                        return this._parseValue(value, 'integer') / 100.0;
                     break;
                 case 'float':
                     if (capability.min === 0 && capability.max === 100)
