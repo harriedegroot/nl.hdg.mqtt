@@ -15,6 +15,7 @@ Settings:
 - Disable device capabilities
 
 HASS:
+- Duplicate (unavailable) onoff entity (light & switch) for light devices
 - Color temperature (read & write)
 - Update correct HSV values when setting one of the values (color topic)
 - Set numeric values? input_number: https://www.home-assistant.io/components/input_number/?
@@ -148,3 +149,4 @@ x Settings: Split hiding of devices & applying default (protocol) settings
 - Fix HASS binary sensors
 - broadcast HASS discovery on custom protocol changes
 - Fixed config changes detection
+- Homie integer datatype fix
