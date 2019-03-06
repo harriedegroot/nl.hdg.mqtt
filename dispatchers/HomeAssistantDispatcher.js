@@ -511,7 +511,9 @@ class HomeAssistantDispatcher {
             state_value_template: '{{ value }}',
             command_topic: `${stateTopic}/onoff/set`,
             //on_command_type: 'first' // send 'onoff' before sending state (dim, color, etc.)
-            on_command_type: 'brightness' // skip 'on' command
+            //on_command_type: 'last' // send 'onoff' after sending state (dim, color, etc.)
+            //on_command_type: 'brightness' // skip 'on' command
+            on_command_type: device.class === 'light' ? 'last' : 'brightness'
         };
 
         if (device.class !== 'light') {
