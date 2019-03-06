@@ -129,6 +129,10 @@ The `v1.5` [branch](https://github.com/harriedegroot/nl.hdg.mqtt/tree/version1.5
   
 ## Change Log
   
+#### 2.1.3  
+- Updated Homey api to version 2.1.172  
+- Home Assistant Discovery: on_command_type for lights set to 'last'
+    
 #### 2.1.2  
 - Homie Convention integer datatype fix
   
