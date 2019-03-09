@@ -128,6 +128,9 @@ The `v1.5` [branch](https://github.com/harriedegroot/nl.hdg.mqtt/tree/version1.5
 - ...
   
 ## Change Log
+    
+#### 2.1.4  
+- Display broadcast progress  
   
 #### 2.1.3  
 - Updated Homey api to version 2.1.172  

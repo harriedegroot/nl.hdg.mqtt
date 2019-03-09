@@ -7,8 +7,7 @@ BUGS:
 Settings:
 - Debug log level warning (20% speed improvement)
 - Enable/disable all devices
-- display broadcast progress (loader)
-- Display number of messages in queue (fill 100% === number of devices)
+
 - Show number of messages per device
 - Seperate call for device enable/disable
 - CHECK en.json translations
@@ -151,3 +150,4 @@ x Settings: Split hiding of devices & applying default (protocol) settings
 - broadcast HASS discovery on custom protocol changes
 - Fixed config changes detection
 - Homie integer datatype fix
+- display broadcast progress (loader)
