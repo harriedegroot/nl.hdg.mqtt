@@ -34,6 +34,7 @@ Homie:
 
 App:
 - profiling/optimizations
+- [Check] disabling devices it removed them from the homie/homey topic tree but created another named literally homie/deviceID
 - [Check] Refresh devices on device/zone changes + Broadcast
 - [Check] shutdown procedure
 - unsubscribe from topics on MQTT Client (e.g. Uninstall app / topic switch)

@@ -44,7 +44,11 @@
                 </div>
                 <div class="setting">
                     <label class="settings-item-description" data-i18n="tab1.refresh">Publish the state of all devices</label>
-                    <button id="refreshButton" class="btn" @click="refresh()" data-i18n="tab1.broadcast">Broadcast</button>
+                    <button id="refreshButton" class="btn" @click="refresh()" data-i18n="tab1.broadcast">
+                        <!-- progress div will be placed here... -->
+                        Broadcast
+                    </button>
+                    <div id="progress"></div> <!-- NOTE: This one is moved INSIDE the button via jQuery ==> Homey removes all elements from a button... -->
                 </div>
                 <!--<div class="setting">
                     <label class="settings-item-description" data-i18n="tab1.deviceId">Device Id</label>

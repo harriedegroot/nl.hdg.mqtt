@@ -286,30 +286,38 @@ class MQTTHub extends Homey.App {
     }
 
     async getDevices() {
-        try {
-            Log.debug("get devices");
-            if (this.deviceManager && this.deviceManager.devices)
-                return this.deviceManager.devices;
+        if (this.deviceManager) {
+            try {
+                Log.debug("get devices");
+                if (this.deviceManager && this.deviceManager.devices)
+                    return this.deviceManager.devices;
 
-            const api = await HomeyAPI.forCurrentHomey();
-            return await api.devices.getDevices();
-        } catch (e) {
-            Log.info("Failed to get Homey's devices");
-            Log.error(e);
+                const api = await HomeyAPI.forCurrentHomey();
+                return await api.devices.getDevices();
+            } catch (e) {
+                Log.info("Failed to get Homey's devices");
+                Log.error(e);
+            }
+        } else {
+            return [];
         }
     }
 
     async getZones() {
-        try {
-            Log.debug("get zones");
-            if (this.deviceManager && this.deviceManager.zones)
-                return this.deviceManager.zones;
+        if (this.deviceManager) {
+            try {
+                Log.debug("get zones");
+                if (this.deviceManager && this.deviceManager.zones)
+                    return this.deviceManager.zones;
 
-            const api = await HomeyAPI.forCurrentHomey();
-            return await api.zones.getZones();
-        } catch (e) {
-            Log.info("Failed to get Homey's zones");
-            Log.error(e);
+                const api = await HomeyAPI.forCurrentHomey();
+                return await api.zones.getZones();
+            } catch (e) {
+                Log.info("Failed to get Homey's zones");
+                Log.error(e);
+            }
+        } else {
+            return [];
         }
     }
 
@@ -334,17 +342,31 @@ class MQTTHub extends Homey.App {
         }
     }
 
+    getState() {
+        if (this.messageQueue) {
+            const state = this.messageQueue.getState();
+            Log.debug(state);
+            return state;
+        }
+        return {};
+    }
+
     /**
      * Publish all device states
      * */
     refresh() {
         Log.info('refresh');
-        if (this.homeAssistantDispatcher) {
-            this.homeAssistantDispatcher.dispatchState();
-        }
-        if (this.homieDispatcher) {
-            this.homieDispatcher.dispatchState();
-        }
+        this.messageQueue.clear();
+
+        // give the queue some time to finish processing the current message (50ms)
+        setTimeout(() => {
+            if (this.homeAssistantDispatcher) {
+                this.homeAssistantDispatcher.dispatchState();
+            }
+            if (this.homieDispatcher) {
+                this.homieDispatcher.dispatchState();
+            }
+        }, 50);
     }
 
     async settingsChanged() {

@@ -72,10 +72,12 @@ class MessageQueue {
     async process() {
         if (this._processing) return;
         this._processing = true;
-        var count = 0;
+        this.progress = 0;
+        this.total = this.queue.length;
         try {
             while (this.running && this.mqttClient.isRegistered() && this.queue.length) {
-                count++;
+                this.total = Math.max(this.queue.length, this.total);
+                this.progress++;
                 try {
                     await this.next();
                 } catch (e) {
@@ -96,10 +98,11 @@ class MessageQueue {
             Log.error('MessageQueue: Failed to process queue');
             Log.debug(e);
         }
-        if (count >= 10) {
-            Log.info("Done processing messsages: " + count);
+        if (this.progress >= 10) {
+            Log.info("Done processing messsages: " + this.progress);
         }
         this._processing = false;
+        this.resetState();
     }
 
     async send(message) {
@@ -109,6 +112,18 @@ class MessageQueue {
             Log.error("MessageQueue: Failed to send message");
             Log.error(e);
         }
+    }
+
+    getState() {
+        return {
+            processing: this._processing,
+            progress: this.progress,
+            total: this.total
+        };
+    }
+    resetState() {
+        this.total = 0;
+        this.progress = 0;
     }
 
     start() {
@@ -122,6 +137,7 @@ class MessageQueue {
     clear() {
         this.queue = [];
         this.messages.clear();
+        this.resetState();
     }
 
     destroy() {

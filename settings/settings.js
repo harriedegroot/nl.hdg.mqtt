@@ -7,6 +7,7 @@ var refreshLogEnabled = false;
 var log = '';
 var logTimeout = 0;
 var FETCH_LOG_DELAY = 5000;
+var $progress = null;
 
 const STATUS_TOPIC = 'hass/status';
 const STATUS_ONLINE = 'online';
@@ -84,6 +85,8 @@ const defaultSettings = {
 //                    return callback(null, { zone: { name: 'zone' } });
 //                case '/log':
 //                    return callback(null, ["test " + Math.random(), "test " + Math.random()]);
+//                case '/state':
+//                    return callback(null, { total: 1000, progress: Math.round(Math.random() * 1000) });
 //                default:
 //                    return callback(null, {});
 //            }
@@ -206,6 +209,9 @@ function onHomeyReady(homeyReady){
         }
         updateValues();
     });
+
+    // Display progress percentage in broadcast button
+    initProgressDisplay();
 }
 
 const normalize = function (topic) {
@@ -346,6 +352,27 @@ function deviceEnabled(device) {
         return false;
     
     return !hubSettings.devices || hubSettings.devices[device.id] !== false;
+}
+
+function initProgressDisplay() {
+    // register elements
+    $progress = $('#progress');
+    $progress.prependTo("#refreshButton"); // Strange Homey BUG!!!
+
+    // run
+    setInterval(updateProgress, 1000);
+}
+
+function updateProgress() {
+    Homey.api('GET', '/state', null, (err, result) => {
+        if (result) {
+            let total = Number(result.total || 0);
+            let progress = Number(result.progress || 0);
+            let percent = total > 10 ? progress / total : 0;
+            let width = Math.ceil(percent * 100) + '%';
+            $progress.css('width', width);
+        }
+    });
 }
 
 /*** LOG ***/

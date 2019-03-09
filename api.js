@@ -158,4 +158,20 @@ module.exports = [
             }
         }
     },
+    {
+        description: 'Queue/Progress state',
+        method: 'GET',
+        path: '/state',
+        role: 'owner',
+        requires_authorization: true,
+        fn: function (args, callback) {
+            if (Homey.app) {
+                let result = Homey.app.getState();
+                if (result instanceof Error) callback(result);
+                callback(null, result);
+            } else {
+                callback('App not ready, please try again');
+            }
+        }
+    }
 ];

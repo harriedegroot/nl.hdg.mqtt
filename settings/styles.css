@@ -109,19 +109,38 @@ button {
 
     background: none !important;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+
+    position: relative !important;
+    overflow: hidden !important;
 }
-button:hover {
+/*button:hover {
     background:  rgb(220,220,220) !important;
-}
+}*/
 button:active {
     background-color: rgba(160, 160, 160, 1) !important;
     color: white;
+
+    /*background: none !important;*/
     box-shadow: none;
 }
 button:disabled,
 button[disabled] {
-    background: rgb(220,220,220) !important;
-    opacity: 0.3;
+    /*background: rgb(220,220,220) !important;
+    opacity: 0.3;*/
+     color: rgba(0, 0, 0, 0.50);
+}
+
+#progress {
+    width: 0%;
+    height: 200px;
+    background: #4BD763;
+    display: block;
+    margin: 0;
+    position: absolute;
+    padding: 0;
+    top: -10px;
+    left: 0;
+    z-index: -1;
 }
 
 .text-header {
