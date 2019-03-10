@@ -79,6 +79,8 @@ class MQTTHub extends Homey.App {
             // run
             Log.debug("Launch!");
             await this.start();
+
+            this._initialized = true;
         }
         catch (e) {
             Log.error('[boot] Failed to initialize app');
@@ -323,7 +325,6 @@ class MQTTHub extends Homey.App {
 
     isRunning() {
         return this._running;
-        //return this.mqttClient && this.mqttClient.isRegistered() && !this.pause;
     }
 
     setRunning(running) {
@@ -356,7 +357,9 @@ class MQTTHub extends Homey.App {
      * */
     refresh() {
         Log.info('refresh');
-        
+
+        if (!this._initialized) return;
+
         if (this.homeAssistantDispatcher) {
             this.homeAssistantDispatcher.dispatchState();
         }
@@ -366,6 +369,7 @@ class MQTTHub extends Homey.App {
     }
 
     async settingsChanged() {
+
         try {
             Log.info("Settings changed");
             this.settings = Homey.ManagerSettings.get('settings') || {};
@@ -389,7 +393,9 @@ class MQTTHub extends Homey.App {
                 this.deviceManager.setEnabledDevices(this.settings.devices);
             }
 
-            await this.run(true);
+            if (this._initialized) {
+                await this.run(true);
+            }
 
             // clean-up all messages for disabled devices
             for (let deviceId of this.deviceChanges.disabled) {
