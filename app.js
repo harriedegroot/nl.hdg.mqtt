@@ -356,17 +356,13 @@ class MQTTHub extends Homey.App {
      * */
     refresh() {
         Log.info('refresh');
-        this.messageQueue.clear();
-
-        // give the queue some time to finish processing the current message (50ms)
-        setTimeout(() => {
-            if (this.homeAssistantDispatcher) {
-                this.homeAssistantDispatcher.dispatchState();
-            }
-            if (this.homieDispatcher) {
-                this.homieDispatcher.dispatchState();
-            }
-        }, 50);
+        
+        if (this.homeAssistantDispatcher) {
+            this.homeAssistantDispatcher.dispatchState();
+        }
+        if (this.homieDispatcher) {
+            this.homieDispatcher.dispatchState();
+        }
     }
 
     async settingsChanged() {
