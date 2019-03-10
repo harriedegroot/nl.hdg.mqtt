@@ -105,7 +105,7 @@ const defaultSettings = {
 
 const ALL_DEVICES = {
     id: 'all',
-    name: "# ALL DEVICES #",
+    name: "# ALL DEVICES",
     zone: "MQTT Hub",
     iconObj: {
         url: "../assets/icon.svg"

@@ -149,6 +149,7 @@ x Settings: Split hiding of devices & applying default (protocol) settings
 - display broadcast progress (loader)
 x Debug log level warning (20% speed improvement)
 - [Check] shutdown procedure
-- [CHECK] all code TODO's
+- [Check] all code TODO's
 - profiling/optimizations
 - Enable/disable all devices
+- HASS: Changed Light dimming to 'first'

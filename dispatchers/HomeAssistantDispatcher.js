@@ -513,7 +513,7 @@ class HomeAssistantDispatcher {
             //on_command_type: 'first' // send 'onoff' before sending state (dim, color, etc.)
             //on_command_type: 'last' // send 'onoff' after sending state (dim, color, etc.)
             //on_command_type: 'brightness' // skip 'on' command
-            on_command_type: device.class === 'light' ? 'last' : 'brightness'
+            on_command_type: device.class === 'light' ? 'first' : 'brightness'
         };
 
         if (device.class !== 'light') {
