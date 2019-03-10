@@ -2,10 +2,8 @@
 
 BUGS:
 - [BUG] enabling virtual devices breaks the hub
-- [BUG] client/hub registration?
 
 Settings:
-- Enable/disable all devices
 - Show number of messages per device
 - Seperate call for device enable/disable
 - CHECK en.json translations
@@ -31,11 +29,11 @@ Homie:
 - Zone depth > 1 (folder structure)
 
 App:
-- profiling/optimizations
 - [Check] disabling devices it removed them from the homie/homey topic tree but created another named literally homie/deviceID
 - [Check] Refresh devices on device/zone changes + Broadcast
 - unsubscribe from topics on MQTT Client (e.g. Uninstall app / topic switch)
 - Flow card for MQTT Device (i.e. to add scenes)
+- Flow card to trigger a broadcast
 
 Discovery (auto discover external devices):
 - Implement Homie discovery
@@ -138,6 +136,7 @@ x Settings: Split hiding of devices & applying default (protocol) settings
 - set value decimals => toFixed(capability.decimals)
 - Update Instructions
 - Adjust documentation for HA Discovery & changed settings (readme)
+- [BUG] client/hub registration?
 - [BUG] MQTT Client installed
 - Fixed HASS Status topic
 - Normalization fixes
@@ -151,3 +150,5 @@ x Settings: Split hiding of devices & applying default (protocol) settings
 x Debug log level warning (20% speed improvement)
 - [Check] shutdown procedure
 - [CHECK] all code TODO's
+- profiling/optimizations
+- Enable/disable all devices

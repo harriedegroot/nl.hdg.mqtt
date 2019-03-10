@@ -8,6 +8,7 @@ var log = '';
 var logTimeout = 0;
 var FETCH_LOG_DELAY = 5000;
 var $progress = null;
+var devices = [];
 
 const STATUS_TOPIC = 'hass/status';
 const STATUS_ONLINE = 'online';
@@ -45,23 +46,23 @@ const defaultSettings = {
     "willTopic": "{deviceId}/hub/status",
     "willMessage": "offline",
 
-    "loglevel": "info"
+    "loglevel": "info",
 };
 
 //////////////////////////////////////////////
 
 //const testDevices = {
-//    test: { id: 'test', name: "test some long named device lkfjdh sdlkfjhgsldkfhg lksdjfhslkdh ", zone: "zone", iconObj: { url: "../assets/icon.svg" }},
-//    test1: { id: 'test', name: "device 1", zone: "zone" },
-//    test2: { id: 'test', name: "device 2", zone: "zone" },
-//    test3: { id: 'test', name: "device 3", zone: "zone" },
-//    test4: { id: 'test', name: "device 4", zone: "zone" },
-//    test5: { id: 'test', name: "device 5", zone: "zone" },
-//    test6: { id: 'test', name: "device 6", zone: "zone" },
-//    test7: { id: 'test', name: "device 7", zone: "zone" },
-//    test8: { id: 'test', name: "device 8", zone: "zone" },
-//    test9: { id: 'test', name: "device 9", zone: "zone" },
-//    test10: { id: 'test', name: "device 10", zone: "zone" }
+//    test: { id: 'test0', name: "test some long named device lkfjdh sdlkfjhgsldkfhg lksdjfhslkdh ", zone: "zone", iconObj: { url: "../assets/icon.svg" }},
+//    test1: { id: 'test1', name: "device 1", zone: "zone" },
+//    test2: { id: 'test2', name: "device 2", zone: "zone" },
+//    test3: { id: 'test3', name: "device 3", zone: "zone" },
+//    test4: { id: 'test4', name: "device 4", zone: "zone" },
+//    test5: { id: 'test5', name: "device 5", zone: "zone" },
+//    test6: { id: 'test6', name: "device 6", zone: "zone" },
+//    test7: { id: 'test7', name: "device 7", zone: "zone" },
+//    test8: { id: 'test8', name: "device 8", zone: "zone" },
+//    test9: { id: 'test9', name: "device 9", zone: "zone" },
+//    test10: { id: 'test10', name: "device 10", zone: "zone" }
 //};
 //$(document).ready(function () {
 //    onHomeyReady({
@@ -74,7 +75,10 @@ const defaultSettings = {
 //                hass: true,
 //                broadcastSystemState: true,
 //                commands: true,
-//                birthWill: true
+//                birthWill: true,
+//                devices: {
+//                    test1: false
+//                }
 //            }
 //        }),
 //        api: (method, url, _, callback) => {
@@ -98,6 +102,15 @@ const defaultSettings = {
 //});
 
 //////////////////////////////////////////////
+
+const ALL_DEVICES = {
+    id: 'all',
+    name: "# ALL DEVICES #",
+    zone: "MQTT Hub",
+    iconObj: {
+        url: "../assets/icon.svg"
+    }
+};
 
 function onHomeyReady(homeyReady){
     Homey = homeyReady;
@@ -129,13 +142,15 @@ function onHomeyReady(homeyReady){
                 return Homey.api('GET', '/devices', null, (err, result) => {
                     loading = false;
                     if (err) return Homey.alert('getDevices ' + err);
-                    this.devices = Object.keys(result).map(key => result[key]);
+                    devices = Object.keys(result).map(key => result[key]);
+                    devices.unshift(ALL_DEVICES);
+                    this.devices = devices;
                 });
             },
             getZone: function (device) {
                 const zoneId = typeof device.zone === 'object' ? device.zone.id : device.zone;
                 const zone = this.zones && this.zones[zoneId];
-                return zone && zone.name ? zone.name : 'unknown';
+                return zone && zone.name ? zone.name : zoneId || '';
             },
             getIcon: function (device) {
                 try {
@@ -339,16 +354,30 @@ function saveDevice(device, checked) {
     if (typeof device !== 'object' || !device.id)
         return;
 
-    hubSettings.devices = hubSettings.devices || {};
-    hubSettings.devices[device.id] = checked;
+    if (device.id === ALL_DEVICES.id) {
+        hubSettings.devices = {};
+        for (let device of devices.filter(d => d.id !== ALL_DEVICES.id)) {
+            hubSettings.devices[device.id] = checked;
+        }
+    } else {
+        hubSettings.devices = hubSettings.devices || {};
+        hubSettings.devices[device.id] = checked;
+    }
 
     _writeSettings();
+    $app.$forceUpdate();
 }
 
 function deviceEnabled(device) {
     if (typeof device !== 'object' || !device.id)
         return false;
-    
+
+    if (device.id === ALL_DEVICES.id) {
+        return !devices
+            .filter(d => d.id !== ALL_DEVICES)
+            .some(d => hubSettings.devices[d.id] === false);
+    }
+
     return !hubSettings.devices || hubSettings.devices[device.id] !== false;
 }
 
