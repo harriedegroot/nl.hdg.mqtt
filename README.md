@@ -129,6 +129,10 @@ The `v1.5` [branch](https://github.com/harriedegroot/nl.hdg.mqtt/tree/version1.5
   
 ## Change Log
     
+#### 2.1.5  
+- Option to enable/disable all devices
+- Performance & stability improvements 
+  
 #### 2.1.4  
 - Display broadcast progress  
   
