@@ -70,7 +70,7 @@ const configurations = {
     //    }
     //},
 
-    //////////////// TODO: Iplement the rest of the pre-defined capabilities /////////////
+    //////////////// TODO: Implement the rest of the pre-defined capabilities /////////////
 
     //// Sensor
     target_temperature: {
@@ -676,8 +676,6 @@ class HomeAssistantDispatcher {
         //            }
         //        };
         //}
-
-        // TODO: icons
 
         // based on capability data type
         let cfg;

@@ -128,12 +128,10 @@ class CommandHandler {
         return typeof message.capability === 'object' ? message.capability.id : message.capability;
     }
 
-    // TODO: Format by capability datatype
     parseValue(message, capabilityId) {
         if (message === undefined || message === null) return undefined;
         let value = typeof message === 'object' ? message.value : message.toString();
 
-        // TODO: parse value to correct type
         if (capabilityId) {
 
             if (value === 'true') return true;

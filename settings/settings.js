@@ -150,11 +150,9 @@ function onHomeyReady(homeyReady){
                 if (el) {
                     el.checked = running;
                     Homey.api('post', '/running', { running }, (err, result) => {
-                        // TODO: Fetch state again
+                        // nothing...
                     });
                 }
-
-                // TODO: Call app
             },
             refresh: function () {
                 $("#refreshButton").prop("disabled", true);
@@ -185,7 +183,7 @@ function onHomeyReady(homeyReady){
                 await this.getZones();
                 await this.getDevices();
             } catch (e) {
-                // TODO: Log error;
+                // nothing...
             }
              
             updateInterface();

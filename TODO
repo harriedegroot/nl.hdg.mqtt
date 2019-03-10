@@ -5,16 +5,15 @@ BUGS:
 - [BUG] client/hub registration?
 
 Settings:
-- Debug log level warning (20% speed improvement)
 - Enable/disable all devices
-
 - Show number of messages per device
 - Seperate call for device enable/disable
 - CHECK en.json translations
 - Disable device capabilities
 
 HASS:
-- Duplicate (unavailable) onoff entity (light & switch) for light devices
+! Include configuration overrides
+! Duplicate (unavailable) onoff entity (light & switch) for light devices
 - Color temperature (read & write)
 - Update correct HSV values when setting one of the values (color topic)
 - Set numeric values? input_number: https://www.home-assistant.io/components/input_number/?
@@ -25,19 +24,17 @@ HASS:
 
 Homie:
 ! Introduce queue for updating device state (use brightness slider ha app)
-- Fix RGB
-- Publish device/$state disconnect message?
 - Device Aliasses (e.g. dim/brightness, light temperature, etc.)
 - Button-press & non-retained messages?
+- Fix RGB
+- Publish $state disconnect message?
 - Zone depth > 1 (folder structure)
 
 App:
 - profiling/optimizations
 - [Check] disabling devices it removed them from the homie/homey topic tree but created another named literally homie/deviceID
 - [Check] Refresh devices on device/zone changes + Broadcast
-- [Check] shutdown procedure
 - unsubscribe from topics on MQTT Client (e.g. Uninstall app / topic switch)
-- [CHECK] all code TODO's
 - Flow card for MQTT Device (i.e. to add scenes)
 
 Discovery (auto discover external devices):
@@ -151,3 +148,6 @@ x Settings: Split hiding of devices & applying default (protocol) settings
 - Fixed config changes detection
 - Homie integer datatype fix
 - display broadcast progress (loader)
+x Debug log level warning (20% speed improvement)
+- [Check] shutdown procedure
+- [CHECK] all code TODO's

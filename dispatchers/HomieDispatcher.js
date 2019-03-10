@@ -227,7 +227,6 @@ class HomieDispatcher {
     }
 
     getTopic(device, capability) {
-        // TODO: some caching?
         let topic = [
             ...this.getNodeName(device).split('/'),
             capability ? (typeof capability === 'string' ? capability : capability.id) : undefined
@@ -278,7 +277,6 @@ class HomieDispatcher {
                 break;
         }
 
-        // TODO: Seperate settings switches for color formatting
         const topic = property.mqttTopicProperty;
 
         // send color objects

@@ -6,8 +6,6 @@ const Message = require('./Message');
 
 const DELAY = 0; // Wait 10 ms before sending next message to give Homey some breathing time
 
-// TODO: Wait for MQTT client registration
-
 class MessageQueue {
     constructor(mqttClient) {
         this.mqttClient = mqttClient;
