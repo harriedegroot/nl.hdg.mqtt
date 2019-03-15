@@ -148,16 +148,23 @@ function onHomeyReady(homeyReady){
                 });
             },
             getZone: function (device) {
-                const zoneId = typeof device.zone === 'object' ? device.zone.id : device.zone;
-                const zone = this.zones && this.zones[zoneId];
-                return zone && zone.name ? zone.name : zoneId || '';
+                try {
+                    const zoneId = typeof device.zone === 'object' ? device.zone.id : device.zone;
+                    const zone = this.zones && this.zones[zoneId];
+                    return zone.name ? zone.name : zoneId || '';
+                } catch (e) {
+                    return '';
+                }
             },
             getIcon: function (device) {
                 try {
-                    return "<img src=\"" + device.iconObj.url + "\" style=\"width:auto;height:auto;max-width:50px;max-height:30px;\"/>";
+                    if (device && device.iconObj && device.iconObj.url) {
+                        return "<img src=\"" + device.iconObj.url + "\" style=\"width:auto;height:auto;max-width:50px;max-height:30px;\"/>";
+                    }
                 } catch (e) {
-                    return "<!-- no device.iconObj.url -->";
+                    // nothing
                 }
+                return "<!-- no device.iconObj.url -->";
             },
             setRunning: function (value) {
                 running = !!value;
@@ -369,16 +376,24 @@ function saveDevice(device, checked) {
 }
 
 function deviceEnabled(device) {
-    if (typeof device !== 'object' || !device.id)
-        return false;
+    try {
+        if (!device || typeof device !== 'object' || !device.id || !devices || !Array.isArray(devices))
+            return false;
 
-    if (device.id === ALL_DEVICES.id) {
-        return !devices
-            .filter(d => d.id !== ALL_DEVICES)
-            .some(d => hubSettings.devices[d.id] === false);
+        const deviceSettings = hubSettings && hubSettings.devices ? hubSettings.devices : {};
+
+        if (device.id === ALL_DEVICES.id) {
+            return !devices
+                .filter(d => d && d.id !== ALL_DEVICES)
+                .some(d => deviceSettings[d.id] === false);
+        }
+
+        return !deviceSettings || deviceSettings[device.id] !== false;
+
+    } catch (e) {
+        // nothing...
     }
-
-    return !hubSettings.devices || hubSettings.devices[device.id] !== false;
+    return false;
 }
 
 function initProgressDisplay() {
