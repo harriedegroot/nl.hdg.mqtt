@@ -129,6 +129,9 @@ The `v1.5` [branch](https://github.com/harriedegroot/nl.hdg.mqtt/tree/version1.5
   
 ## Change Log
     
+#### 2.1.6  
+- [FIXED] Devices are not displayed in app settings on clean install
+  
 #### 2.1.5  
 - Option to enable/disable all devices
 - Performance & stability improvements 
