@@ -54,7 +54,7 @@ You can connect with any broker (e.g. [CloudMQTT](https://www.cloudmqtt.com/), [
 6. Configure your communication channels by observing & dispatching messages on the available topics.
 7. Start communicating with homey.
   
-TIP: [MQTT Explorer](https://thomasnordquist.github.io/MQTT-Explorer/) is a nice tool to check the available communication channels.
+TIP: [MQTT Explorer](https://mqtt-explorer.com/) is a nice tool to check the available communication channels.
   
 ## Communication
 The hub allows several ways of communication.  
