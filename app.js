@@ -346,7 +346,7 @@ class MQTTHub extends Homey.App {
     getState() {
         if (this.messageQueue) {
             const state = this.messageQueue.getState();
-            Log.debug(state);
+            //Log.debug(state);
             return state;
         }
         return {};
