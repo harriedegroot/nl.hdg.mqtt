@@ -73,23 +73,28 @@ class MQTTClient  {
     }
 
     async subscribe(topic, force) {
-        if (topic) {
-            this.topics = this.topics || new Set();
-            if (!force && this.topics.has(topic)) {
-                Log.debug('[SKIP] Already subscribed to topic: ' + topic);
-            }
-            this.topics.add(topic);
-
-            Log.info('subscribing to topic: ' + topic);
-            return await this.clientApp.post('subscribe', { topic: topic }, error => {
-                if (error) {
-                    Log.error(error);
-                } else {
-                    Log.info('sucessfully subscribed to topic: ' + topic);
+        try {
+            if (topic) {
+                this.topics = this.topics || new Set();
+                if (!force && this.topics.has(topic)) {
+                    Log.debug('[SKIP] Already subscribed to topic: ' + topic);
                 }
-            });
-        } else {
-            Log.info("skipped topic subscription: No topic provided");
+                this.topics.add(topic);
+
+                Log.info('subscribing to topic: ' + topic);
+                return await this.clientApp.post('subscribe', { topic: topic }, error => {
+                    if (error) {
+                        Log.error(error);
+                    } else {
+                        Log.info('sucessfully subscribed to topic: ' + topic);
+                    }
+                });
+            } else {
+                Log.info("skipped topic subscription: No topic provided");
+            }
+        } catch (e) {
+            Log.error("Failed to subscribe to topic: " + (topic || ''));
+            Log.error(e);
         }
     }
 
