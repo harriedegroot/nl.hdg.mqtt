@@ -11,12 +11,11 @@ Auto discovery protocols are implemented to simplify the setup and connection wi
   
 ## What can it be used for?
 Some of the many possibilities:
-- Integrate with other home automation systems: [OpenHab](https://www.openhab.org/), [Home Assistant](https://www.home-assistant.io/), [Domoticz](http://www.domoticz.com/), etc.
-- Create custom dashboards: [TileBoard](https://community.home-assistant.io/t/tileboard-new-dashboard-for-homeassistant/57173), [HABPanel](https://www.openhab.org/docs/configuration/habpanel.html), [Node RED Dashboard](https://flows.nodered.org/node/node-red-dashboard), etc.
-- Create advanced flows and logic: [Node RED](https://nodered.org/), etc.
-- Use native mobile apps (3rd party): [MQTT Dash](https://play.google.com/store/apps/details?id=net.routix.mqttdash), etc.
-- Connect to virtual assistants (Google Home/Assistant): [gBridge](https://gBridge.io), etc.
-- Insights: [Prometheus](https://prometheus.io), etc.
+- Integrate with other home automation systems: [OpenHab](https://www.openhab.org/), [Home Assistant](https://www.home-assistant.io/), [Domoticz](http://www.domoticz.com/), ...
+- Create custom dashboards: [Lovelace UI](https://www.home-assistant.io/lovelace/), [TileBoard](https://community.home-assistant.io/t/tileboard-new-dashboard-for-homeassistant/57173), [HABPanel](https://www.openhab.org/docs/configuration/habpanel.html), [Node RED Dashboard](https://flows.nodered.org/node/node-red-dashboard), ...
+- Create advanced flows and logic: [Node RED](https://nodered.org/), ...
+- Use native mobile apps (3rd party): [MQTT Dash](https://play.google.com/store/apps/details?id=net.routix.mqttdash), ...
+- Connect to virtual assistants (Google Home/Assistant): [gBridge](https://gBridge.io), ...
 - ...
   
 ## Functionality
@@ -25,11 +24,10 @@ The functionality of the MQTT Hub:
 - Create a communication channel for each device.
 - Dispatch device state changes for all connected devices.
 - Auto discovery of your Homey devices within external apps.
-- Add the ability to remotely update the state of any device (set capability).
+- Add the ability to remotely update the state of any device.
 - Dispatch system info (memory, cpu, etc.) on a regular basis.
-- Request info (system, zone, device, capability, etc.).
-
-All can be configured via app settings (e.g. topic structure, enable/disable devices, etc.).   
+  
+All can be configured via app settings.
   
 ## Is this app for me?
 *First*: This appp is NOT a plug & play solution. NOR is it the replacement for the desktop interface.  
@@ -110,7 +108,7 @@ When using the command structure:
   
   
 #### Birth & Last Will  
-The MQTT Hub is able to broadcast a 'birth' message on startup and a 'last will' message on shutdown.
+The MQTT Hub is able to broadcast a `birth` message on startup and a `last will` message on shutdown.
 This can be used by external applications to act on the Hub availability (online/offline).
   
 ## Homey firmware v1.5 and v2
@@ -119,9 +117,8 @@ Starting from app version 2.0.0, this app can only run on Homey's v2 firmware. T
 The `v1.5` [branch](https://github.com/harriedegroot/nl.hdg.mqtt/tree/version1.5) will remain and can be manually installed on Homey using [`athom-cli`](https://www.npmjs.com/package/athom-cli).
     
 ## Future
-- Additional installation info, tutorials & how-to's.
-- Trigger flows.
-- Create the abillity to listen to app flow triggers.
+- Trigger flows
+- Create the abillity to listen to app flow triggers
 - Discover devices from external apps (& create virtual devices?)
 - Expand the insights / device state broadcaster
 - Additional commands for advanced control
@@ -129,6 +126,11 @@ The `v1.5` [branch](https://github.com/harriedegroot/nl.hdg.mqtt/tree/version1.5
   
 ## Change Log
     
+#### 2.1.7  
+- Changed MQTT Explorer url
+- Updated readme
+- Bug fixes & stability improvements
+
 #### 2.1.6  
 - [FIXED] Devices are not displayed in app settings on clean install
   
