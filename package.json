@@ -11,6 +11,6 @@
   },
   "dependencies": {
     "lodash": "^4.17.11",
-    "athom-api": "2.1.172"
+    "athom-api": "2.1.178"
   }
 }
