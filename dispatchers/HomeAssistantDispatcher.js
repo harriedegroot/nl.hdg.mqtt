@@ -436,6 +436,11 @@ class HomeAssistantDispatcher {
             return;
         } 
 
+        if (!device.capabilitiesObj || typeof device.capabilitiesObj !== 'object') {
+            Log.debug("[skip] Device without capabilities");
+            return;
+        } 
+
         if (!this.deviceManager.isDeviceEnabled(device.id)) {
             //Log.info('[SKIP] Device disabled');
             this.disableDevice(device.id);
@@ -458,40 +463,45 @@ class HomeAssistantDispatcher {
 
         const capabilities = { ...device.capabilitiesObj };
 
-        switch (device.class) {
-            case 'light':
-                this._registerLight(device).forEach(id => delete capabilities[id]);
-                break;
-            case 'thermostat':
-                this._registerThermostat(device).forEach(id => delete capabilities[id]);
-                break;
-            case 'socket':
-            case 'vacuumcleaner':
-            case 'fan':
-            case 'heater':
-            case 'sensor':
-            case 'kettle':
-            case 'coffeemachine':
-            case 'homealarm':
-            case 'speaker':
-            case 'button':
-            case 'doorbell':
-            case 'lock':
-            case 'windowcoverings':
-            case 'tv':
-            case 'amplifier':
-            case 'curtain':
-            case 'blinds':
-            case 'sunshade':
-            case 'remote':
-            case 'other':
-            default:
-                // capture all other devices with onoff & dim capabilities and create a light device for it
-                if (capabilities && capabilities.hasOwnProperty('onoff') && capabilities.hasOwnProperty('dim')) {
+        try {
+            switch (device.class) {
+                case 'light':
                     this._registerLight(device).forEach(id => delete capabilities[id]);
-                }
-                // nothing
-                break;
+                    break;
+                case 'thermostat':
+                    this._registerThermostat(device).forEach(id => delete capabilities[id]);
+                    break;
+                case 'socket':
+                case 'vacuumcleaner':
+                case 'fan':
+                case 'heater':
+                case 'sensor':
+                case 'kettle':
+                case 'coffeemachine':
+                case 'homealarm':
+                case 'speaker':
+                case 'button':
+                case 'doorbell':
+                case 'lock':
+                case 'windowcoverings':
+                case 'tv':
+                case 'amplifier':
+                case 'curtain':
+                case 'blinds':
+                case 'sunshade':
+                case 'remote':
+                case 'other':
+                default:
+                    // capture all other devices with onoff & dim capabilities and create a light device for it
+                    if (capabilities && capabilities.hasOwnProperty('onoff') && capabilities.hasOwnProperty('dim')) {
+                        this._registerLight(device).forEach(id => delete capabilities[id]);
+                    }
+                    // nothing
+                    break;
+            }
+        } catch (e) {
+            Log.error("Failed to register device by class");
+            Log.error(e);
         }
 
         return capabilities;
@@ -499,6 +509,8 @@ class HomeAssistantDispatcher {
 
     _registerLight(device) {
         const capabilities = device.capabilitiesObj;
+        if (!capabilities) return [];
+
         const stateTopic = this.homieDispatcher.getTopic(device);
         const type = 'light';
 
