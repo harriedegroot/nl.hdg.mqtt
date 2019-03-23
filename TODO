@@ -12,7 +12,7 @@ Settings:
 HASS:
 ! Include configuration overrides
 ! Duplicate (unavailable) onoff entity (light & switch) for light devices
-! Covers
+! Update lights & dimming (prevent brightness sliders returning to previous position due 'onoff' call)
 - Color temperature (read & write)
 - Update correct HSV values when setting one of the values (color topic)
 - Set numeric values? input_number: https://www.home-assistant.io/components/input_number/?
@@ -159,3 +159,4 @@ x Debug log level warning (20% speed improvement)
 - profiling/optimizations
 - Enable/disable all devices
 - HASS: Changed Light dimming to 'first'
+- HASS: Covers

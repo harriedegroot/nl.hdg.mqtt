@@ -124,7 +124,10 @@ The `v1.5` [branch](https://github.com/harriedegroot/nl.hdg.mqtt/tree/version1.5
 - Additional commands for advanced control
 - ...
   
-## Change Log
+## Change Log  
+  
+#### 2.1.8  
+- HA Discovery: covers/blinds
     
 #### 2.1.7  
 - PR: MQTT Explorer url
