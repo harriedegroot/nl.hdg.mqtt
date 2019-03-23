@@ -212,5 +212,5 @@ Do you like this app? Consider a donation to support development.
  
 [![Donate][pp-donate-image]][pp-donate-link]
 
-[pp-donate-link]: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=harriedegroot%40gmail%2ecom&lc=NL&item_name=Harrie%20de%20Groot&item_number=Homey%20MQTT%20Hub&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted
+[pp-donate-link]: https://www.paypal.me/harriedegroot
 [pp-donate-image]: https://img.shields.io/badge/Donate-PayPal-green.svg
