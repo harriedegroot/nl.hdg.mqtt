@@ -471,10 +471,16 @@ class HomeAssistantDispatcher {
                 case 'thermostat':
                     this._registerThermostat(device).forEach(id => delete capabilities[id]);
                     break;
+                case 'windowcoverings':
+                case 'curtain':
+                case 'blinds':
+                case 'sunshade':
+                    this._registerCover(device).forEach(id => delete capabilities[id]);
+                    break;
+                case 'heater':
                 case 'socket':
                 case 'vacuumcleaner':
                 case 'fan':
-                case 'heater':
                 case 'sensor':
                 case 'kettle':
                 case 'coffeemachine':
@@ -483,19 +489,23 @@ class HomeAssistantDispatcher {
                 case 'button':
                 case 'doorbell':
                 case 'lock':
-                case 'windowcoverings':
                 case 'tv':
                 case 'amplifier':
-                case 'curtain':
-                case 'blinds':
-                case 'sunshade':
                 case 'remote':
                 case 'other':
                 default:
                     // capture all other devices with onoff & dim capabilities and create a light device for it
-                    if (capabilities && capabilities.hasOwnProperty('onoff') && capabilities.hasOwnProperty('dim')) {
-                        this._registerLight(device).forEach(id => delete capabilities[id]);
+                    if (capabilities) {
+                        if (capabilities.hasOwnProperty('onoff') && capabilities.hasOwnProperty('dim')) {
+                            this._registerLight(device).forEach(id => delete capabilities[id]);
+                        }
+
+                        // capture all other window coverings
+                        if (capabilities.hasOwnProperty('windowcoverings_state')) {
+                            this._registerCover(device).forEach(id => delete capabilities[id]);
+                        }
                     }
+
                     // nothing
                     break;
             }
@@ -566,6 +576,8 @@ class HomeAssistantDispatcher {
 
     _registerThermostat(device) {
         const capabilities = device.capabilitiesObj;
+        if (!capabilities) return [];
+
         const stateTopic = this.homieDispatcher.getTopic(device);
         const type = 'climate';
 
@@ -612,6 +624,88 @@ class HomeAssistantDispatcher {
         this._registerConfig(device, type, `${this.topic}/${type}/${topic}`, payload);
 
         return ['onoff', 'measure-temperature', 'target-temperature', 'custom-thermostat-mode'];
+    }
+
+    _registerCover(device) {
+        const capabilities = device.capabilitiesObj;
+        if (!capabilities) return [];
+
+        const stateTopic = this.homieDispatcher.getTopic(device);
+        const type = 'cover';
+
+        /*
+         cover:
+            command_topic: "home-assistant/cover/set"
+            state_topic: "home-assistant/cover/state"
+            availability_topic: "home-assistant/cover/availability"
+            payload_open: "OPEN"
+            payload_close: "CLOSE"
+            payload_stop: "STOP"
+            state_open: "open"
+            state_closed: "closed"
+            value_template: '{{ value.x }}'
+            tilt_command_topic: 'home-assistant/cover/tilt'
+            tilt_status_topic: 'home-assistant/cover/tilt-state'
+            tilt_min: 0
+            tilt_max: 180
+            tilt_closed_value: 70
+            tilt_opened_value: 180
+         */
+
+        //windowcoverings_state	enum up	[up|idle|down]
+        //windowcoverings_set	number 0
+        //dim	number	0.02
+
+        const payload = {
+            name: device.name,
+            unique_id: `${device.id}_${type}`,
+            value_template: '{{ value }}',
+        };
+
+        if (capabilities.hasOwnProperty('windowcoverings_state')) {
+            payload.state_topic = `${stateTopic}/windowcoverings_state`;
+            payload.state_open = 'up';
+            payload.state_closed = 'down';
+            if (capabilities.windowcoverings_state.setable) {
+                payload.command_topic = `${stateTopic}/windowcoverings_state/set`;
+                payload.payload_open = 'up';
+                payload.payload_close = 'down';
+                payload.payload_stop = 'idle';
+            }
+        }
+
+        // NOTE: If position_topic is set state_topic is ignored.
+        const position = capabilities.hasOwnProperty('dim') ? 'dim'
+                        : capabilities.hasOwnProperty('windowcoverings_set') ? 'windowcoverings_set'
+                        : undefined;
+        if (position) {
+            payload.position_topic = `${stateTopic}/${position}`;
+            payload.position_closed = capabilities[tilt].min || 0;
+            payload.position_open = capabilities[tilt].max || 100;
+            if (capabilities[position].setable) {
+                payload.position_command_topic = `${stateTopic}/${position}/set`;
+                payload.set_position_template = '{{ value }}';
+            }
+        }
+
+        if (capabilities.hasOwnProperty('windowcoverings_tilt_set')) {
+            payload.tilt_status_topic = `${stateTopic}/windowcoverings_tilt_set`;
+            if (capabilities['windowcoverings_tilt_set'].setable) {
+                payload.tilt_command_topic = `${stateTopic}/windowcoverings_tilt_set/set`;
+                payload.tilt_min = capabilities['windowcoverings_tilt_set'].min || 0;
+                payload.tilt_max = capabilities['windowcoverings_tilt_set'].max || 180;
+                //payload.tilt_closed_value = 70
+                //payload.tilt_opened_value = 180
+            }
+        }
+
+        let topic = [device.name, 'config'].filter(x => x).join('/');
+        if (this.normalize) {
+            topic = normalize(topic);
+        }
+        this._registerConfig(device, type, `${this.topic}/${type}/${topic}`, payload);
+
+        return ['windowcoverings_state', 'windowcoverings_set', 'dim', 'windowcoverings_tilt_set'];
     }
 
     _registerCapabilities(device, capabilities) {
