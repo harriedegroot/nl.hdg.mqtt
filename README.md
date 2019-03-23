@@ -127,8 +127,9 @@ The `v1.5` [branch](https://github.com/harriedegroot/nl.hdg.mqtt/tree/version1.5
 ## Change Log
     
 #### 2.1.7  
-- Changed MQTT Explorer url
+- PR: MQTT Explorer url
 - Updated readme
+- Athom api update (2.1.178)
 - Bug fixes & stability improvements
 
 #### 2.1.6  
