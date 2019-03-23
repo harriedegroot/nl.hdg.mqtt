@@ -12,10 +12,13 @@ Settings:
 HASS:
 ! Include configuration overrides
 ! Duplicate (unavailable) onoff entity (light & switch) for light devices
+! Covers
 - Color temperature (read & write)
 - Update correct HSV values when setting one of the values (color topic)
 - Set numeric values? input_number: https://www.home-assistant.io/components/input_number/?
-- Remaining device types (Alarm control panels, Binary sensors, Cameras, Covers, Fans, HVACs, Lights, Locks, Sensors, Switches, Vacuums)
+- Fans
+- Locks
+- Vacuums
 - thermostat modes
 - configure additional properties for the remaining capabilities (e.g. icon, device class, etc.)
 - [REFACTOR] De-couple parse & format logic. Refactor data processing. Create handlers per type?
@@ -34,11 +37,14 @@ App:
 - unsubscribe from topics on MQTT Client (e.g. Uninstall app / topic switch)
 - Flow card for MQTT Device (i.e. to add scenes)
 - Flow card to trigger a broadcast
+- Translate to Dutch
+- Translate to German
 
 Discovery (auto discover external devices):
+- Create a virtual device acting on MQTT messages (extend/app2app interface with virtual devices app?)
 - Implement Homie discovery
 - Implement HA discovery
-- Create virtual devices from MQTT discovery
+- Create virtual devices from MQTT discovery (automatically?)
 
 Commands:
 - Updating state for multiple devices (e.g. all devices in a room)
@@ -50,7 +56,7 @@ Commands:
 - Trigger flow
 - Listen to scene flow triggers
 
-System info:
+Insights / System info:
 - Publish system info on seperate topics (i.s.o. json)
 - (All) Prometheus functionality
 
