@@ -663,11 +663,12 @@ class HomeAssistantDispatcher {
         };
 
         if (capabilities.hasOwnProperty('windowcoverings_state')) {
-            payload.state_topic = `${stateTopic}/windowcoverings_state`;
+            const coverStateTopic = this.normalize ? normalize('windowcoverings-state') : 'windowcoverings_state';
+            payload.state_topic = `${stateTopic}/${coverStateTopic}`;
             payload.state_open = 'up';
             payload.state_closed = 'down';
             if (capabilities.windowcoverings_state.setable) {
-                payload.command_topic = `${stateTopic}/windowcoverings_state/set`;
+                payload.command_topic = `${stateTopic}/${coverStateTopic}/set`;
                 payload.payload_open = 'up';
                 payload.payload_close = 'down';
                 payload.payload_stop = 'idle';
@@ -679,11 +680,12 @@ class HomeAssistantDispatcher {
                         : capabilities.hasOwnProperty('windowcoverings_set') ? 'windowcoverings_set'
                         : undefined;
         if (position) {
-            payload.position_topic = `${stateTopic}/${position}`;
-            payload.position_closed = capabilities[tilt].min || 0;
-            payload.position_open = capabilities[tilt].max || 100;
+            const positonTopic = this.normalize ? normalize(position) : position;
+            payload.position_topic = `${stateTopic}/${positonTopic}`;
+            payload.position_closed = capabilities[position].min || 0;
+            payload.position_open = capabilities[position].max || 100;
             if (capabilities[position].setable) {
-                payload.position_command_topic = `${stateTopic}/${position}/set`;
+                payload.position_command_topic = `${stateTopic}/${positonTopic}/set`;
                 payload.set_position_template = '{{ value }}';
             }
         }
