@@ -662,7 +662,8 @@ class HomeAssistantDispatcher {
             value_template: '{{ value }}',
         };
 
-        if (capabilities.hasOwnProperty('windowcoverings_state')) {
+        const hasState = capabilities.hasOwnProperty('windowcoverings_state');
+        if (hasState) {
             const coverStateTopic = this.normalize ? normalize('windowcoverings_state') : 'windowcoverings_state';
             payload.state_topic = `${stateTopic}/${coverStateTopic}`;
             payload.state_open = 'up';
@@ -673,8 +674,10 @@ class HomeAssistantDispatcher {
                 payload.payload_close = 'down';
                 payload.payload_stop = 'idle';
             }
-        } else {
-            // NOTE: If position_topic is set state_topic is ignored.
+        }
+
+        // NOTE: If position_topic is set state_topic is ignored.
+        if (!hasState || !capabilities.windowcoverings_state.setable) {
             const position = capabilities.hasOwnProperty('dim') ? 'dim'
                             : capabilities.hasOwnProperty('windowcoverings_set') ? 'windowcoverings_set'
                             : undefined;
