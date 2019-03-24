@@ -663,7 +663,7 @@ class HomeAssistantDispatcher {
         };
 
         if (capabilities.hasOwnProperty('windowcoverings_state')) {
-            const coverStateTopic = this.normalize ? normalize('windowcoverings-state') : 'windowcoverings_state';
+            const coverStateTopic = this.normalize ? normalize('windowcoverings_state') : 'windowcoverings_state';
             payload.state_topic = `${stateTopic}/${coverStateTopic}`;
             payload.state_open = 'up';
             payload.state_closed = 'down';
@@ -673,27 +673,28 @@ class HomeAssistantDispatcher {
                 payload.payload_close = 'down';
                 payload.payload_stop = 'idle';
             }
-        }
-
-        // NOTE: If position_topic is set state_topic is ignored.
-        const position = capabilities.hasOwnProperty('dim') ? 'dim'
-                        : capabilities.hasOwnProperty('windowcoverings_set') ? 'windowcoverings_set'
-                        : undefined;
-        if (position) {
-            const positonTopic = this.normalize ? normalize(position) : position;
-            payload.position_topic = `${stateTopic}/${positonTopic}`;
-            payload.position_closed = capabilities[position].min || 0;
-            payload.position_open = capabilities[position].max || 100;
-            if (capabilities[position].setable) {
-                payload.position_command_topic = `${stateTopic}/${positonTopic}/set`;
-                payload.set_position_template = '{{ value }}';
+        } else {
+            // NOTE: If position_topic is set state_topic is ignored.
+            const position = capabilities.hasOwnProperty('dim') ? 'dim'
+                            : capabilities.hasOwnProperty('windowcoverings_set') ? 'windowcoverings_set'
+                            : undefined;
+            if (position) {
+                const positonTopic = this.normalize ? normalize(position) : position;
+                payload.position_topic = `${stateTopic}/${positonTopic}`;
+                payload.position_closed = capabilities[position].min || 0;
+                payload.position_open = capabilities[position].max || 100;
+                if (capabilities[position].setable) {
+                    payload.position_command_topic = `${stateTopic}/${positonTopic}/set`;
+                    payload.set_position_template = '{{ value }}';
+                }
             }
         }
 
         if (capabilities.hasOwnProperty('windowcoverings_tilt_set')) {
-            payload.tilt_status_topic = `${stateTopic}/windowcoverings_tilt_set`;
+            const tiltTopic = this.normalize ? normalize('windowcoverings_tilt_set') : 'windowcoverings_tilt_set';
+            payload.tilt_status_topic = `${stateTopic}/${tiltTopic}`;
             if (capabilities['windowcoverings_tilt_set'].setable) {
-                payload.tilt_command_topic = `${stateTopic}/windowcoverings_tilt_set/set`;
+                payload.tilt_command_topic = `${stateTopic}/${tiltTopic}/set`;
                 payload.tilt_min = capabilities['windowcoverings_tilt_set'].min || 0;
                 payload.tilt_max = capabilities['windowcoverings_tilt_set'].max || 180;
                 //payload.tilt_closed_value = 70
