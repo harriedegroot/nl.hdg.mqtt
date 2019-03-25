@@ -53,7 +53,7 @@ module.exports = [
             if (Homey.app) {
                 let result = Homey.app.isRunning();
                 if (result instanceof Error) callback(result);
-                callback(null, result);
+                else callback(null, result);
             } else {
                 callback(null, false);
             }
@@ -70,7 +70,7 @@ module.exports = [
                 let running = args && args.body && args.body.running;
                 let result = Homey.app.setRunning(running);
                 if (result instanceof Error) callback(result);
-                callback(null, result);
+                else callback(null, result);
             } else {
                 callback('App not ready, please try again');
             }
@@ -102,7 +102,7 @@ module.exports = [
             if (Homey.app) {
                 let result = Homey.app.settingsChanged();
                 if (result instanceof Error) callback(result);
-                callback(null, result);
+                else callback(null, result);
             } else {
                 callback('App not ready, please try again');
             }
@@ -118,7 +118,7 @@ module.exports = [
             if (Log) {
                 let result = Log.getLogLines();
                 if (result instanceof Error) callback(result);
-                callback(null, result);
+                else callback(null, result);
             } else {
                 callback(null, '');
             }
@@ -134,7 +134,7 @@ module.exports = [
             if (Log) {
                 let result = Log.getLevel();
                 if (result instanceof Error) callback(result);
-                callback(null, result);
+                else callback(null, result);
             } else {
                 callback(null, '');
             }
@@ -152,7 +152,7 @@ module.exports = [
                 Log.info("Set log level: " + level);
                 let result = Log.setLevel(level);
                 if (result instanceof Error) callback(result);
-                callback(null, result);
+                else callback(null, result);
             } else {
                 callback('App not ready, please try again');
             }
@@ -168,7 +168,7 @@ module.exports = [
             if (Homey.app) {
                 let result = Homey.app.getState();
                 if (result instanceof Error) callback(result);
-                callback(null, result);
+                else callback(null, result);
             } else {
                 callback('App not ready, please try again');
             }

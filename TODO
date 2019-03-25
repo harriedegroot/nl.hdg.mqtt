@@ -13,6 +13,7 @@ HASS:
 ! Include configuration overrides
 ! Duplicate (unavailable) onoff entity (light & switch) for light devices
 ! Update lights & dimming (prevent brightness sliders returning to previous position due 'onoff' call)
+- [BUG] Cover stop -> resume
 - Color temperature (read & write)
 - Update correct HSV values when setting one of the values (color topic)
 - Set numeric values? input_number: https://www.home-assistant.io/components/input_number/?
