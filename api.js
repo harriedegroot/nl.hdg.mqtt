@@ -84,9 +84,12 @@ module.exports = [
         requires_authorization: true,
         fn: function (args, callback) {
             if (Homey.app) {
-                let result = Homey.app.refresh();
-                if (result instanceof Error) callback(result);
-                callback(null, result);
+                let result = Homey.app.refresh()
+                    .then(() => {
+                        if (result instanceof Error) callback(result);
+                        else callback(null, result);
+                    })
+                    .catch(error => callback(error));
             } else {
                 callback('App not ready, please try again');
             }

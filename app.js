@@ -355,10 +355,14 @@ class MQTTHub extends Homey.App {
     /**
      * Publish all device states
      * */
-    refresh() {
+    async refresh() {
         Log.info('refresh');
 
         if (!this._initialized) return;
+
+        if (this.mqttClient) {
+            await this.mqttClient.retryFailedSubscriptions();
+        }
 
         if (this.homeAssistantDispatcher) {
             this.homeAssistantDispatcher.dispatchState();

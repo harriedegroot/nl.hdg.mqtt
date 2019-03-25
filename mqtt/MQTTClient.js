@@ -73,6 +73,10 @@ class MQTTClient  {
     }
 
     async subscribe(topic, force) {
+        if (!topic) {
+            Log.error("No topic provided to subscribe to");
+            return;
+        }
         try {
             if (topic) {
                 this.topics = this.topics || new Set();
@@ -93,14 +97,46 @@ class MQTTClient  {
                 Log.info("skipped topic subscription: No topic provided");
             }
         } catch (e) {
-            Log.error("Failed to subscribe to topic: " + (topic || ''));
-            Log.error(e);
+            Log.error("Failed to subscribe to topic: " + topic);
+
+            if (!force) {
+                Log.info("Wait 5 sec. and rety to subscription to topic: " + topic);
+                setTimeout(async () => {
+                    Log.info("Retry subscription to topic: " + topic);
+                    await this.subscribe(topic, true);
+                }, 5000);
+            } else {
+                this._failedSubscriptions = true;
+                Log.info("Retry failed...could not subscribe to topic: " + topic);
+                Log.error(e);
+            }
+        }
+    }
+
+    async retryFailedSubscriptions() {
+        if (this._failedSubscriptions) {
+            try {
+                await this._registerTopics();
+            } catch (e) {
+                Log.error("Still unable to register to earlier failed topics");
+                Log.error(e);
+            }
         }
     }
 
     unsubscribe(topic) {
-        this.topics.delete(topic);
-        // TODO: implement topic unsubscription
+        if (!topic) {
+            Log.error("No topic provided to unsubscribe");
+            return;
+        }
+        try {
+            this.topics.delete(topic);
+
+            // TODO: implement topic unsubscription
+
+        } catch (e) {
+            Log.error("Failed to unsubscribe from topic: " + topic);
+        }
     }
 
     /**
@@ -179,7 +215,9 @@ class MQTTClient  {
     }
 
     async _registerTopics() {
+        this._failedSubscriptions = false;
         if (!this.topics) return;
+
         Log.debug("Subscribing to previous registered topics");
         for (let topic of this.topics.values()) {
             await this.subscribe(topic, true);
