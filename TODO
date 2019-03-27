@@ -4,6 +4,7 @@ BUGS:
 - [BUG] enabling virtual devices breaks the hub
 
 Settings:
+- [BUG] All devices MQTT Hub zone
 - Show number of messages per device
 - Seperate call for device enable/disable
 - CHECK en.json translations
