@@ -1,4 +1,98 @@
 {
+  "pair": {
+    "title": {
+      "capabilities": "Capabilities",
+      "class": "Device Class",
+      "done": "Ready",
+      "icon": "Icon",
+      "name": "Device Name",
+      "switch": "New MQTT Switch"
+    },
+    "select": {
+      "capabilities": "Select 1 or more capabilities",
+      "class": "Select a device class",
+      "done": "The device is added to Homey",
+      "icon": "Select an icon",
+      "name": "Device name",
+      "details": "Specify the details"
+    },
+    "default": {
+      "name": {
+        "switch": "MQTT Switch"
+      },
+      "topic": {
+        "state": "State topic",
+        "set": "Set topic"
+      }
+    },
+    "device": {
+      "add": "Add device"
+    },
+    "warning": {
+      "not_changeable": " Warning: these settings cannot be changed afterwards"
+    }
+  },
+  "class": {
+    "other": "Other",
+    "light": "Light",
+    "socket": "Socket",
+    "tv": "TV",
+    "amplifier": "Amplifier",
+    "windowcoverings": "Window Coverings",
+    "fan": "Fan",
+    "heater": "Heater",
+    "kettle": "Kettle",
+    "coffeemachine": "Coffee Machine",
+    "button": "Button",
+    "homealarm": "Home Alarm",
+    "thermostat": "Thermostat",
+    "sensor": "Sensor",
+    "lock": "Lock",
+    "undefined": "New device"
+  },
+  "capability": {
+    "onoff": "On / Off",
+    "dim": "Dimmable",
+    "button": "Button",
+    "windowcoverings_state": "Up / Idle / Down",
+    "windowcoverings_tilt_up": "Tilt Up",
+    "windowcoverings_tilt_set": "Tilt Set",
+    "windowcoverings_tilt_down": "Tilt Down",
+    "homealarm_state": "Armed / Partially armed / Disarmed",
+    "alarm_motion": "Motion",
+    "alarm_contact": "Door/Window Open",
+    "target_temperature": "Target Temperature",
+    "thermostat_mode": "Automatic / Heat / Cool / Off",
+    "light_hue": "Hue light",
+    "light_saturation": "Saturation",
+    "light_temperature": "Licht Temperature",
+    "light_mode": "Color / Temperature",
+    "volume_set": "Set Volume",
+    "volume_mute": "Mute",
+    "volume_up": "Volume Up",
+    "volume_down": "Volume Down",
+    "locked": "Locked",
+    "lock_mode": "Always locked / Always unlocked / Locked until unlocked",
+    "measure_temperature": "Measure Temperature",
+    "measure_co": "CO",
+    "measure_co2": "CO2",
+    "measure_current": "Current",
+    "measure_luminance": "Luminance",
+    "measure_noise": "Noise",
+    "measure_pm25": "Atmospheric Particulate Matter",
+    "measure_power": "Power",
+    "measure_pressure": "Pressure",
+    "measure_rain": "Rain",
+    "measure_ultraviolet": "Ultraviolet",
+    "measure_voltage": "Voltage",
+    "measure_water": "Water flow",
+    "measure_wind_strength": "Wind strength",
+    "measure_wind_angle": "Wind angle",
+    "measure_gust_strength": "Gust strength",
+    "measure_gust_angle": "Gust angle",
+    "measure_humidity": "Humidity",
+    "meter_power": "Energy"
+  },
   "settings": {
     "benefit": "Turn your Homey into a HUB"
   },

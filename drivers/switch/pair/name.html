@@ -1,0 +1,59 @@
+<!doctype html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="../../../assets/styles.css" />
+    <script src='../../../assets/vue.min.js'></script>
+    <script src='../../../assets/lodash.min.js'></script>
+    <script>
+        Homey.setTitle(__('pair.title.switch'));
+        const DEBOUNCE = 500;
+        new Vue({
+            el: '#app',
+            data: {
+                name: __('pair.default.name.switch'),
+                stateTopic: '',
+                setTopic: ''
+            },
+            methods: {
+                save(data) {
+                    Homey.emit('set', data, (err, result) => console.log(err || result));
+                }
+            },
+            watch: {
+                name(val) {
+                    this.save({ name: val });
+                },
+                stateTopic(val) {
+                    this.save({ stateTopic: val });
+                },
+                setTopic(val) {
+                    this.save({ setTopic: val });
+                }
+            }
+        });
+    </script>
+</head>
+<body>
+    <div id="app">
+        <div class="setting">
+            <label class="settings-item-description" data-i18n="pair.select.name">-Device name-</label>
+            <div class="settings-itemgroup">
+                <input type="text" v-model="name">
+            </div>
+        </div>
+
+        <div class="setting">
+            <label class="settings-item-description" data-i18n="pair.default.topic.state">-State topic-</label>
+            <div class="settings-itemgroup">
+                <input type="text" v-model="stateTopic">
+            </div>
+        </div>
+        <div class="setting">
+            <label class="settings-item-description" data-i18n="pair.default.topic.set">-Set topic-</label>
+            <div class="settings-itemgroup">
+                <input type="text" v-model="setTopic">
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -2,6 +2,19 @@
 
 BUGS:
 - [BUG] enabling virtual devices breaks the hub
+- (node:31687) UnhandledPromiseRejectionWarning: TypeError: this.devices.filter is not a function
+    at DeviceManager._removeDevice (/DeviceManager.js:199:41)
+    at o (/node_modules/athom-api/dist/index.js:1:1152714)
+    at t.value (/node_modules/athom-api/dist/index.js:1:1156612)
+    at t.<anonymous> (/node_modules/athom-api/dist/index.js:1:1104671)
+    at a (/node_modules/athom-api/dist/index.js:1:324413)
+    at Generator._invoke (/node_modules/athom-api/dist/index.js:1:325455)
+    at Generator.e.(anonymous function) [as next] (/node_modules/athom-api/dist/index.js:1:324592)
+    at n (/node_modules/athom-api/dist/index.js:1:8790)
+    at /node_modules/athom-api/dist/index.js:1:8886
+    at <anonymous>
+(node:31687) UnhandledPromiseRejectionWarning: Unhandled promise rejection. This error originated either by throwing 
+
 
 Settings:
 - [BUG] All devices MQTT Hub zone

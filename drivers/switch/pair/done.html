@@ -1,0 +1,28 @@
+<script>
+
+  Homey.setTitle(__('pair.title.done'));
+  new Vue({
+    el: '#done_instructions',
+    data: {
+      instructions: __('pair.select.done')
+    }
+  });
+  Homey.emit('getPairingDevice', null, function (err, device) {
+    if (err) {
+      console.log(err);
+      return;
+    }
+    console.log(device);
+
+    Homey.addDevice(device, (err, res) => {
+      if (err) {
+        console.log(err);
+        return;
+      }
+
+      Homey.done();
+    })
+  });
+</script>
+
+<span id='done_instructions'>{{instructions}}</span>

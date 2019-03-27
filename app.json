@@ -8,14 +8,17 @@
     "nl": "MQTT Hub"
   },
   "description": {
-    "en":  "Turn your Homey into a HUB and let external applications discover & control all your connected devices.",
+    "en": "Turn your Homey into a HUB and let external applications discover & control all your connected devices.",
     "nl": "Maak van je Homey een HUB. Geef externe applicaties de mogelijkheid om al je apparaten te vinden en er mee te communiceren."
   },
   "category": [
     "tools",
     "internet"
   ],
-  "permissions": [ "homey:manager:api", "homey:app:nl.scanno.mqtt" ],
+  "permissions": [
+    "homey:manager:api",
+    "homey:app:nl.scanno.mqtt"
+  ],
   "images": {
     "large": "/assets/images/large.jpg",
     "small": "/assets/images/small.jpg"
@@ -45,5 +48,33 @@
   },
   "bugs": {
     "url": "https://github.com/harriedegroot/nl.hdg.mqtt/issues"
-  }
+  },
+  "drivers": [
+    {
+      "id": "switch",
+      "name": {
+        "en": "MQTT Switch",
+        "nl": "MQTT Schakelaar"
+      },
+      "class": "other",
+      "capabilities": [
+        "onoff"
+      ],
+      "images": {
+        "large": "/drivers/switch/assets/images/large.png",
+        "small": "/drivers/switch/assets/images/small.png"
+      },
+      "pair": [
+        {
+          "id": "name",
+          "navigation": {
+            "next": "done"
+          }
+        },
+        {
+          "id": "done"
+        }
+      ]
+    }
+  ]
 }
