@@ -7,6 +7,15 @@
       instructions: __('pair.select.done')
     }
   });
+  
+  //Homey.emit('install', null, function (err, device) {
+  //  if (err) {
+  //      // TODO: Display error
+  //      this.instructions = '[ERROR] ' + err;
+  //      console.log(err);
+  //      return;
+  //  }
+  //}
   Homey.emit('getPairingDevice', null, function (err, device) {
     if (err) {
       console.log(err);

@@ -1,6 +1,7 @@
 'use strict';
 
 const Homey = require('homey');
+const MQTTClient = require('../../mqtt/MQTTClient');
 
 function guid() {
     function s4() {
@@ -12,10 +13,12 @@ function guid() {
 class MQTTSwitchDriver extends Homey.Driver {
 	
 	onInit() {
-		this.log('MQTT Switch Driver is initialized');
+        this.log('MQTT Switch Driver is initialized');
     }
 
-    onPair(socket) {
+    async onPair(socket) {
+        let client = new MQTTClient();
+
         let pairingDevice = {
             name: Homey.__('pair.default.name.switch'),
             settings: {},
@@ -48,6 +51,27 @@ class MQTTSwitchDriver extends Homey.Driver {
 
         socket.on('getPairingDevice', function (data, callback) {
             callback(null, pairingDevice);
+        });
+
+        socket.on('install', function (data, callback) {
+
+            client.isInstalled()
+                .then(installed => {
+                    if (!installed) {
+                        calback("MQTT Client app not installed");
+                        return;
+                    }
+
+                    Homey.addDevice(pairingDevice, (err, res) => {
+                        if (err) {
+                            callback(err);
+                            return;
+                        }
+                        callback(null, pairingDevice);
+                        Homey.done();
+                    });
+                })
+                .catch(error => callback(error));
         });
 
         socket.on('disconnect', function () {
