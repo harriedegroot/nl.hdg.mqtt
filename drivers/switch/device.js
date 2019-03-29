@@ -6,10 +6,13 @@ const MQTTClient = require('../../mqtt/MQTTClient');
 const MessageQueue = require('../../mqtt/MessageQueue');
 const TopicsRegistry = require('../../mqtt/TopicsRegistry');
 
-class MQTTSwitchDevice extends Homey.Device {
+const HomeyLib = require('homey-lib'); //From HomeyLib; see: https://github.com/athombv/node-homey-lib
+const CAPABILITIES = HomeyLib.getCapabilities();
+
+class MQTTDevice extends Homey.Device {
 
 	async onInit() {
-        this.log('Initializing MQTTSwitchDevice...');
+        this.log('Initializing MQTT Device...');
 
         this.onSettings(null, super.getSettings(), []);
 
@@ -18,7 +21,7 @@ class MQTTSwitchDevice extends Homey.Device {
 
         this.registerDeviceChanges();
        
-        this.log('MQTTSwitchDevice is initialized');
+        this.log('MQTTDevice is initialized');
     }
 
     onSettings(oldSettingsObj, newSettingsObj, changedKeysArr) {
@@ -35,7 +38,6 @@ class MQTTSwitchDevice extends Homey.Device {
                 percentageScale: settings.percentageScale,
                 stateTopic: settings.stateTopic,
                 setTopic: settings.setTopic,
-                dataType: this.getDataType('onoff')
             }
         };
 
@@ -45,11 +47,6 @@ class MQTTSwitchDevice extends Homey.Device {
                 this._topics.set(stateTopic, capabilityId);
             }
         }
-    }
-
-    getDataType(capabilityId) {
-        const current = this.getCapabilityValue(capabilityId);
-        return current === null ? undefined : typeof current;
     }
 
     async initMQTT() {
@@ -71,7 +68,7 @@ class MQTTSwitchDevice extends Homey.Device {
     
     async subscribeToTopics() {
         for (let topic of this._topics.keys()) {
-            this.log('Subscribe to MQTT Switch Device topic: ' + topic);
+            this.log('Subscribe to MQTT Device topic: ' + topic);
             await this.mqttClient.subscribe(topic);
         }
     }
@@ -84,11 +81,11 @@ class MQTTSwitchDevice extends Homey.Device {
             const capabilityId = this._topics.get(topic);
             if (!capabilityId) return;
 
-            this.log('MQTTSwitchDevice.onMessage');
+            this.log('MQTTDevice.onMessage');
             this.log(topic + ': ' + (typeof message === 'object' ? JSON.stringify(message, null, 2) : message));
 
             // TODO: Value templates?
-            const capability = this._capabilities[capabilityId];
+            const capability = CAPABILITIES[capabilityId];
             if (!capability) {
                 this.log('capability not found for topic');
                 return;
@@ -98,7 +95,7 @@ class MQTTSwitchDevice extends Homey.Device {
             await this.setCapabilityValue(capabilityId, value);
 
         } catch (e) {
-            this.log('Error handeling MQTT Switch device message');
+            this.log('Error handeling MQTT device message');
             this.log(e);
         }
     }
@@ -109,19 +106,15 @@ class MQTTSwitchDevice extends Homey.Device {
 
             for (var capabilityId in capabilities) {
 
-                const capability = this._capabilities[capabilityId];
-                if (!capability) {
+                const config = this._capabilities[capabilityId];
+                if (!config) {
                     this.log('Capability config not found: ' + capabilityId);
                     continue;
                 }
 
                 const value = capabilities[capabilityId];
-                if (!capability.dataType && value !== null) {
-                    capability.dataType = typeof value;
-                }
-
-                const topic = capability.setTopic;
-                const payload = this.formatValue(value);
+                const topic = config.setTopic;
+                const payload = this.formatValue(value, CAPABILITIES[capabilityId]);
                 const retain = true;
                 const qos = 0;
 
@@ -184,11 +177,11 @@ class MQTTSwitchDevice extends Homey.Device {
             switch (capability.percentageScale) {
                 case 'int':
                     if (capability.min === 0 && capability.max === 1)
-                        return this._parseValue(value, 'integer') / 100.0;
+                        return this.parseValue(value, 'integer') / 100.0;
                     break;
                 case 'float':
                     if (capability.min === 0 && capability.max === 100)
-                        return round(this._parseValue(value, 'float') * 100, 0, 100);
+                        return round(this.parseValue(value, 'float') * 100, 0, 100);
                     break;
                 case 'default':
                 default:
@@ -237,4 +230,4 @@ class MQTTSwitchDevice extends Homey.Device {
     }
 }
 
-module.exports = MQTTSwitchDevice;
+module.exports = MQTTDevice;
