@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "lodash": "^4.17.11",
-    "athom-api": "2.1.178"
+    "athom-api": "2.1.178",
+    "homey-lib": "2.3.30"
   }
 }

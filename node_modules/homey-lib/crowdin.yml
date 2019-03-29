@@ -1,0 +1,7 @@
+files:
+  - source: /assets/app/permissions.json
+    translation: '%original_path%/%file_name%.%two_letters_code%.%file_extension%'
+  - source: /assets/capability/capabilities/*.json
+    translation: '%original_path%/%file_name%.%two_letters_code%.%file_extension%'
+  - source: /assets/device/classes/*.json
+    translation: '%original_path%/%file_name%.%two_letters_code%.%file_extension%'
