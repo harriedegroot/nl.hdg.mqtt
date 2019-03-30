@@ -21,9 +21,12 @@ function sortByTitle(a, b, lang) {
 }
 
 class MQTTDriver extends Homey.Driver {
-	
+
+    // TODO: Single MessageQueue for all MQTT devices
+
 	onInit() {
         this.log('MQTT Driver is initialized');
+        this.client = new MQTTClient();
     }
 
     // TODO: language
@@ -32,7 +35,7 @@ class MQTTDriver extends Homey.Driver {
     }
 
     async onPair(socket) {
-        let client = new MQTTClient();
+        
         let edit = undefined;
 
         let pairingDevice = {
@@ -144,6 +147,7 @@ class MQTTDriver extends Homey.Driver {
         });
 
         socket.on('disconnect', function () {
+            // TODO: Disconnect MQTT client
             console.log("User aborted or pairing is finished");
         });
     }

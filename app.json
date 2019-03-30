@@ -87,6 +87,29 @@
           "id": "done"
         }
       ]
+    },
+    {
+      "id": "homie",
+      "name": {
+        "en": "Homie Discovery",
+        "nl": "Homie Discovery"
+      },
+      "class": "other",
+      "capabilities": [
+        "onoff"
+      ],
+      "images": {
+        "large": "/drivers/device/assets/images/large.png",
+        "small": "/drivers/device/assets/images/small.png"
+      },
+      "pair": [
+        {
+          "id": "topic"
+        },
+        {
+          "id": "discover"
+        }
+      ]
     }
   ]
 }

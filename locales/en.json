@@ -6,7 +6,8 @@
       "done": "Ready",
       "icon": "Icon",
       "name": "Device Name",
-      "device": "New MQTT Device"
+      "device": "New MQTT Device",
+      "discovery": "Discover MQTT Devices"
     },
     "select": {
       "add": "Add capability",
@@ -33,6 +34,10 @@
     },
     "warning": {
       "not_changeable": " Warning: these settings cannot be changed afterwards"
+    },
+    "discovery": {
+      "homieTopic": "Homie Discovery Topic",
+      "start": "Discover devices"
     }
   },
   "settings": {

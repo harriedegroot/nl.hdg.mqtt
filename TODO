@@ -71,12 +71,15 @@ MQTT Device:
 - value templates
 - auto fill set topic
 - socket exceptions => use messageQueue from hub?
+- Disconnect MQTT client on done
+- move utils.js
 
 Discovery (auto discover external devices):
 - Implement Homie discovery
 - Implement HA discovery
 - Create virtual devices from MQTT discovery (automatically?)
 - Keep a record of previous discovery topic
+- Disconnect MQTT client on done
 
 Commands:
 - Updating state for multiple devices (e.g. all devices in a room)

@@ -8,7 +8,7 @@ const TopicsRegistry = require('../../mqtt/TopicsRegistry');
 
 const HomeyLib = require('homey-lib');
 const CAPABILITIES = HomeyLib.getCapabilities();
-const DEVICE_CLASSES = HomeyLib.getDeviceClasses();
+//const DEVICE_CLASSES = HomeyLib.getDeviceClasses();
 
 class MQTTDevice extends Homey.Device {
 
@@ -32,11 +32,10 @@ class MQTTDevice extends Homey.Device {
         this.log(JSON.stringify(settings, null, 2));
 
         this._topics = new Map();
-
-        // TODO: Multiple capabilities
         this._capabilities = settings.capabilities;
         this.percentageScale = settings.percentageScale || 'int';
 
+        // Link state topics to capabilities
         for (let capabilityId in this._capabilities) {
             const stateTopic = this._capabilities[capabilityId].stateTopic;
             if (stateTopic) {
@@ -73,7 +72,6 @@ class MQTTDevice extends Homey.Device {
         if (this._deleted) return;
 
         try {
-            // TODO: Multiple capabilities
             const capabilityId = this._topics.get(topic);
             if (!capabilityId) return;
 

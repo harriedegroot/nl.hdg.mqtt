@@ -1,0 +1,40 @@
+<link rel="stylesheet" type="text/css" href="../../../assets/styles.css" />
+<script src='../../../assets/vue.min.js'></script>
+<script src='../../../assets/lodash.min.js'></script>
+<script>
+    Homey.setTitle(__('pair.title.discovery'));
+    new Vue({
+        el: '#homie_discovery',
+        data: {
+            devices: [],
+        },
+        methods: {
+        },
+        watch: {
+        },
+        mounted() {
+            // TODO: Listen for discovered devices
+        },
+    });
+</script>
+
+<div id="homie_discovery">
+
+    <div>List of all discovered devices</div>
+
+
+    <!--<div class="setting" v-if="capabilities && device && device.capabilities.length">
+        <label class="settings-item-description" data-i18n="pair.select.capabilities">{{__('pair.select.capabilities')}}</label>
+        <div class="capabilities">
+            <div class="capability" v-for="capability of device.capabilities" style="clear:both; padding:5px 0">
+                <button style="float:left;max-width:calc(100% - 52px);text-align: left;" class="hy-button visible edit-button" @click="editCapability(capability)">
+                    <span >{{capabilities[capability] ? capabilities[capability].title.en : 'NOT FOUND'}} ({{capability}})</span>
+                </button>
+                <button class="hy-button visible remove-button" @click="removeCapability(capability)" style="max-width:50px">
+                    <i class="fa fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    </div>-->
+
+</div>
