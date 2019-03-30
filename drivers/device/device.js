@@ -35,7 +35,7 @@ class MQTTDevice extends Homey.Device {
 
         // TODO: Multiple capabilities
         this._capabilities = settings.capabilities;
-        this.percentageScale = settings.percentageScale !== false;
+        this.percentageScale = settings.percentageScale || 'int';
 
         for (let capabilityId in this._capabilities) {
             const stateTopic = this._capabilities[capabilityId].stateTopic;
