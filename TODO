@@ -55,11 +55,28 @@ App:
 - Translate to Dutch
 - Translate to German
 
+MQTT Device:
+- Percentage scale setting
+- FlowCards
+- Tokens
+- Icons
+- Handle (un)installing of MQTT app
+- availablility topic
+- Edit topics during install
+- Manage topics after device is installed
+- Custom capabilities
+- Images (fa app)
+- Translations
+- unsubscribe from topics on uninstall
+- value templates
+- auto fill set topic
+- socket exceptions => use messageQueue from hub?
+
 Discovery (auto discover external devices):
-- Create a virtual device acting on MQTT messages (extend/app2app interface with virtual devices app?)
 - Implement Homie discovery
 - Implement HA discovery
 - Create virtual devices from MQTT discovery (automatically?)
+- Keep a record of previous discovery topic
 
 Commands:
 - Updating state for multiple devices (e.g. all devices in a room)
@@ -175,3 +192,4 @@ x Debug log level warning (20% speed improvement)
 - Enable/disable all devices
 - HASS: Changed Light dimming to 'first'
 - HASS: Covers
+- Create a virtual device acting on MQTT messages
