@@ -6,8 +6,9 @@ const MQTTClient = require('../../mqtt/MQTTClient');
 const MessageQueue = require('../../mqtt/MessageQueue');
 const TopicsRegistry = require('../../mqtt/TopicsRegistry');
 
-const HomeyLib = require('homey-lib'); //From HomeyLib; see: https://github.com/athombv/node-homey-lib
+const HomeyLib = require('homey-lib');
 const CAPABILITIES = HomeyLib.getCapabilities();
+const DEVICE_CLASSES = HomeyLib.getDeviceClasses();
 
 class MQTTDevice extends Homey.Device {
 
@@ -33,13 +34,8 @@ class MQTTDevice extends Homey.Device {
         this._topics = new Map();
 
         // TODO: Multiple capabilities
-        this._capabilities = {
-            onoff: {
-                percentageScale: settings.percentageScale,
-                stateTopic: settings.stateTopic,
-                setTopic: settings.setTopic,
-            }
-        };
+        this._capabilities = settings.capabilities;
+        this.percentageScale = settings.percentageScale !== false;
 
         for (let capabilityId in this._capabilities) {
             const stateTopic = this._capabilities[capabilityId].stateTopic;
@@ -151,7 +147,7 @@ class MQTTDevice extends Homey.Device {
         }
 
         if (capability.units === '%') {
-            switch (capability.percentageScale) {
+            switch (this.percentageScale) {
                 case 'int':
                     if (capability.min === 0 && capability.max === 1)
                         return value * 100;
@@ -174,7 +170,7 @@ class MQTTDevice extends Homey.Device {
 
         // Handle percentage scaling
         if (capability && capability.units === '%') {
-            switch (capability.percentageScale) {
+            switch (this.percentageScale) {
                 case 'int':
                     if (capability.min === 0 && capability.max === 1)
                         return this.parseValue(value, 'integer') / 100.0;

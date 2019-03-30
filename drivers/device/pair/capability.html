@@ -1,0 +1,70 @@
+<link rel="stylesheet" type="text/css" href="../../../assets/styles.css" />
+<script src='../../../assets/vue.min.js'></script>
+<script src='../../../assets/lodash.min.js'></script>
+<script src='./utils.js'></script>
+<script>
+    
+    Homey.setTitle(__('pair.title.capability'));
+    new Vue({
+        el: '#capability',
+        data: {
+            capability: undefined,
+            capabilities: undefined,
+            sorted: undefined,
+            stateTopic: '',
+            setTopic: ''
+        },
+        methods: {
+            save(data) {
+                Homey.emit('setCapability', data, (err, result) => console.log(err || result));
+            }
+        },
+        watch: {
+            capability(val) {
+                this.save({ capability: val, stateTopic: this.stateTopic, setTopic: this.setTopic });
+            },
+            stateTopic(val) {
+                this.save({ capability: this.capability, stateTopic: val, setTopic: this.setTopic });
+            },
+            setTopic(val) {
+                this.save({ capability: this.capability, stateTopic: this.stateTopic, setTopic: val });
+            }
+        },
+        mounted() {
+            Homey.emit('capability', true, (err, result) => this.capability = result);
+            Homey.emit('capabilities', { filter: true }, (err, result) => {
+                this.capabilities = result;
+                const lang = 'en';
+                this.sorted = Object.keys(result)
+                    .sort((a, b) => sortByTitle(result[a], result[b], lang))
+                    .map(key => { return { id: key, capability: result[key] }; });
+            });
+        },
+    });
+</script>
+
+<div id="capability" v-if="capabilities">
+    <div class="setting">
+        <label class="settings-item-description">{{__('pair.select.capability')}}</label>
+        <div class="settings-itemgroup">
+            <select v-model="capability" v-if="capabilities">
+                <option :value="item.id" v-for="item of sorted">
+                    {{item.capability.title.en}} ({{item.id}})
+                </option>
+            </select>
+        </div>
+    </div>
+
+    <div class="setting" v-if="capability && capabilities[capability].getable">
+        <label class="settings-item-description">{{__('pair.default.topic.state')}}</label>
+        <div class="settings-itemgroup">
+            <input type="text" v-model="stateTopic">
+        </div>
+    </div>
+    <div class="setting" v-if="capability && capabilities[capability].setable">
+        <label class="settings-item-description">{{__('pair.default.topic.set')}}</label>
+        <div class="settings-itemgroup">
+            <input type="text" v-model="setTopic">
+        </div>
+    </div>
+</div>

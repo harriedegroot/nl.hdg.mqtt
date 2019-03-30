@@ -51,24 +51,36 @@
   },
   "drivers": [
     {
-      "id": "switch",
+      "id": "device",
       "name": {
-        "en": "MQTT Switch",
-        "nl": "MQTT Schakelaar"
+        "en": "MQTT Device",
+        "nl": "MQTT Apparaat"
       },
       "class": "other",
       "capabilities": [
         "onoff"
       ],
       "images": {
-        "large": "/drivers/switch/assets/images/large.png",
-        "small": "/drivers/switch/assets/images/small.png"
+        "large": "/drivers/device/assets/images/large.png",
+        "small": "/drivers/device/assets/images/small.png"
       },
       "pair": [
         {
-          "id": "name",
+          "id": "device",
+          "navigation": {
+            "next": "capabilities"
+          }
+        },
+        {
+          "id": "capabilities",
           "navigation": {
             "next": "done"
+          }
+        },
+        {
+          "id": "capability",
+          "navigation": {
+            "next": "capabilities"
           }
         },
         {
