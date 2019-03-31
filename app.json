@@ -80,7 +80,6 @@
         {
           "id": "capability",
           "navigation": {
-            "prev": "capabilities",
             "next": "capabilities"
           }
         },
@@ -108,10 +107,7 @@
           "id": "topic"
         },
         {
-          "id": "discover",
-          "navigation": {
-            "prev": "topic"
-          }
+          "id": "discover"
         }
       ]
     }
