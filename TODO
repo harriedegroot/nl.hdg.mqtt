@@ -59,13 +59,13 @@ MQTT Device:
 - Percentage scale setting
 - FlowCards
 - Tokens
-- Icons
+- Icons (fa app)
 - Handle (un)installing of MQTT app
 - availablility topic
 - Edit topics during install
 - Manage topics after device is installed
 - Custom capabilities
-- Images (fa app)
+- Images
 - Translations
 - unsubscribe from topics on uninstall
 - value templates
@@ -73,11 +73,10 @@ MQTT Device:
 - Disconnect MQTT client on done
 
 Discovery (auto discover external devices):
-- Implement Homie discovery
 - Implement HA discovery
-- Create virtual devices from MQTT discovery (automatically?)
 - Keep a record of previous discovery topic
 - Disconnect MQTT client on done
+- Detect already configured devices & mark them created
 
 Commands:
 - Updating state for multiple devices (e.g. all devices in a room)
@@ -196,3 +195,5 @@ x Debug log level warning (20% speed improvement)
 - Create a virtual device acting on MQTT messages
 - MQTT Device socket exceptions => static messageQueue for all MQTT Devices
 - move utils.js to shared location
+- Implement Homie discovery
+- Create virtual devices from MQTT discovery
