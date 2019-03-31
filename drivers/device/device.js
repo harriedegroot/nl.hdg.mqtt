@@ -10,6 +10,11 @@ const HomeyLib = require('homey-lib');
 const CAPABILITIES = HomeyLib.getCapabilities();
 //const DEVICE_CLASSES = HomeyLib.getDeviceClasses();
 
+const STATIC = {
+    mqttClient: null,
+    messageQueue: null
+}
+
 class MQTTDevice extends Homey.Device {
 
 	async onInit() {
@@ -46,11 +51,19 @@ class MQTTDevice extends Homey.Device {
 
     async initMQTT() {
         this.log("Init MQTT");
-        this.mqttClient = new MQTTClient();
+
+        if (!STATIC.mqttClient) {
+            STATIC.mqttClient = new MQTTClient();
+        }
+        if (!STATIC.messageQueue) {
+            STATIC.messageQueue = new MessageQueue(STATIC.mqttClient);
+        }
+
+        this.mqttClient = STATIC.mqttClient;
         this._messageHandler = this.onMessage.bind(this);
         this.mqttClient.onMessage.subscribe(this._messageHandler);
 
-        this.messageQueue = new MessageQueue(this.mqttClient);
+        this.messageQueue = STATIC.messageQueue;
         this.topicsRegistry = new TopicsRegistry(this.messageQueue);
 
         this.log("Connect MQTT Client");
