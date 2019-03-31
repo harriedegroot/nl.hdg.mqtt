@@ -188,18 +188,6 @@ class MQTTHomieDiscovery extends Homey.Driver {
     }
 
     async onPair(socket) {
-        //let pairingDevice = {
-        //    name: Homey.__('pair.default.name.device'),
-        //    class: undefined,
-        //    settings: {
-        //        capabilities: {}
-        //    },
-        //    data: {
-        //        id: guid(),
-        //        version: 1
-        //    },
-        //    capabilities: []
-        //};
 
         socket.on('log', function (msg, callback) {
             console.log(msg);
@@ -225,13 +213,63 @@ class MQTTHomieDiscovery extends Homey.Driver {
                 .catch(error => callback('failed to start discovery'));
         });
 
+        socket.on('create', (config, callback) => {
+            if (config) {
+                callback(null, this.createDevice(config));
+            } else {
+                callback('Invalid config');
+            }
+        });
+
         socket.on('disconnect', function () {
             // TODO: Disconnect MQTT client
             console.log("User aborted or pairing is finished");
         });
     }
 
+    createDevice(config) {
+        const capabilities = {};
+        if (config.properties) {
+            for (let propertyId in config.properties) {
+                const property = config.properties[propertyId];
+                if (!property) continue;
+
+                let capabilityId = property.capabilityId;
+                if (!capabilityId) continue; // NOTE: No capability selected => skip
+
+                let settings = capabilities[capabilityId];
+                if (settings) {
+                    // TODO: handle capability duplicates (custom capability?)
+                    console.warn('Duplicate capability');
+                } else {
+                    settings = {};
+                }
+
+                const capability = CAPABILITIES[capabilityId];
+                if (!capability || capability.getable !== false) {
+                    settings.stateTopic = `${this._topic}${config.id}/${propertyId}`;
+                }
+                if ((capability && capability.setable) || property.settable) {
+                    settings.setTopic = `${this._topic}${config.id}/${propertyId}/set`;
+                }
+                capabilities[capabilityId] = settings;
+            }
+        }
+
+        return {
+            name: config.deviceName || config.name,
+            class: config.deviceClass,
+            data: {
+                id: guid(),
+                version: 1
+            },
+            settings: { capabilities },
+            capabilities: Object.keys(capabilities)
+        };
+    }
+
     async discover(topic) {
+        this._running = true;
         this._finished = false;
         topic = trim(trim(topic || '', '#'), '/'); // NOTE: remove '/#'
         let discoveryTopic = `${topic}/#`; // listen to all messages within root topic
@@ -270,7 +308,7 @@ class MQTTHomieDiscovery extends Homey.Driver {
     }
 
     async onMessage(topic, message) {
-        if (!topic || !this._topic) return;
+        if (!topic || !this._topic || !this._running) return;
         if (!topic.startsWith(this._topic)) return;
 
         this.log('onHomieMessage: ' + topic);
@@ -347,8 +385,7 @@ class MQTTHomieDiscovery extends Homey.Driver {
     stop() {
         // TODO: Unregister from topic (keep track of registration count within client?)
         //this.mqttClient.unregister(this._topic + '#');
-        delete this._socket;
-        delete this._topic;
+        delete this._running;
     }
 }
 

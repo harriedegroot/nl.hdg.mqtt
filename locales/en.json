@@ -42,7 +42,9 @@
       "discovered": "Discovered Homie nodes",
       "add": "Create device",
       "capabilities": "Select capabilities",
-      "selectCapability": "Not mapped.."
+      "selectCapability": "Not mapped..",
+      "success": "MQTT device created",
+      "failure": "Failed to create MQTT device"
     }
   },
   "settings": {

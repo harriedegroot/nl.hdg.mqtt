@@ -45,6 +45,11 @@
                         config.deviceClass = config.matchedClass || 'other';
                     }
 
+                    // custom device name
+                    if (!config.deviceName) {
+                        config.deviceName = config.name;
+                    }
+
                     // pre-selected capabilities
                     if (config.properties) {
                         for (let id of Object.keys(config.properties)) {
@@ -63,9 +68,21 @@
                 Vue.set(node, 'open', !node.open);
             },
             createDevice(node) {
-                Vue.set(node, 'created', true);
-                Vue.set(node, 'open', false);
-                Homey.alert('MQTT device created');
+                Homey.emit('create', node, (err, result) => {
+                    if (!err) {
+                        Homey.createDevice(result, (err, result) => {
+                            if (!err) {
+                                Vue.set(node, 'created', true);
+                                Vue.set(node, 'open', false);
+                                Homey.alert(Homey.__('pair.discovery.success'));
+                            } else {
+                                Homey.alert(Homey.__('pair.discovery.failure'));
+                            }
+                        });
+                    } else {
+                        Homey.alert(Homey.__('pair.discovery.failure'));
+                    }
+                });
             }
         },
         watch: {
@@ -102,6 +119,12 @@
                 </div>
             </div>
             <div class="capabilities" v-show="node.open">
+                <div class="setting">
+                    <label class="settings-item-description">{{__('pair.select.name')}}</label>
+                    <div class="settings-itemgroup">
+                        <input type="text" v-model="node.deviceName">
+                    </div>
+                </div>
                 <div class="setting">
                     <label class="settings-item-description">{{__('pair.select.class')}}</label>
                     <div class="settings-itemgroup">

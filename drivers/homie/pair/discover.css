@@ -25,6 +25,7 @@
 .device-header {
     padding: 6px;
     position: relative;
+    cursor: pointer;
 }
 .device-header-text {
     margin-left: 40px;
@@ -61,6 +62,7 @@
 }
 .create-button {
     margin: 10px 0 5px 0 !important;
+    cursor: pointer;
 }
 .created .create-button {
     background: #4BD763 !important;
