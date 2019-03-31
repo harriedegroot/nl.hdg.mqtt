@@ -70,9 +70,7 @@ MQTT Device:
 - unsubscribe from topics on uninstall
 - value templates
 - auto fill set topic
-- socket exceptions => use messageQueue from hub?
 - Disconnect MQTT client on done
-- move utils.js
 
 Discovery (auto discover external devices):
 - Implement Homie discovery
@@ -196,3 +194,5 @@ x Debug log level warning (20% speed improvement)
 - HASS: Changed Light dimming to 'first'
 - HASS: Covers
 - Create a virtual device acting on MQTT messages
+- MQTT Device socket exceptions => static messageQueue for all MQTT Devices
+- move utils.js to shared location

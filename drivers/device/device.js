@@ -13,7 +13,7 @@ const CAPABILITIES = HomeyLib.getCapabilities();
 const STATIC = {
     mqttClient: null,
     messageQueue: null
-}
+};
 
 class MQTTDevice extends Homey.Device {
 
