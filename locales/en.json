@@ -37,7 +37,8 @@
     },
     "discovery": {
       "homieTopic": "Homie Discovery Topic",
-      "start": "Discover devices"
+      "start": "Discover devices",
+      "waiting":  "Waiting for Homie device..."
     }
   },
   "settings": {

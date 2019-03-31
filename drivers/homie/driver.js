@@ -7,6 +7,11 @@ const MQTTDevice = require('../device/device');
 const HomeyLib = require('homey-lib');
 const CAPABILITIES = HomeyLib.getCapabilities();
 
+const PROPERTIES = {
+    'brightness': 'dim'
+    // TODO: Add additional known property to capability mappings
+};
+
 function guid() {
     function s4() {
         return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
@@ -37,7 +42,6 @@ function toBool(value) {
 class HomieProperty {
     constructor(propertyId) {
         this.id = propertyId;
-
         this.capability = this.matchCapability(propertyId);
     }
     parse(parts, payload) {
@@ -73,15 +77,33 @@ class HomieProperty {
         if (!propertyId) return undefined;
 
         const id = propertyId.toLowerCase().replace('-', '_');
-        switch (id) {
-            case 'brightness':
-                return 'dim';
-            default:
-                return CAPABILITIES[id];
+
+        // known property mapping?
+        if (PROPERTIES.hasOwnProperty(id))
+            return CAPABILITIES[PROPERTIES[id]];
+
+        // exact match?
+        if (CAPABILITIES.hasOwnProperty(id))
+            return CAPABILITIES[id];
+
+        // match by [measure_ | alarm_ | ..._] capability
+        for (let capabilityId in Object.keys(CAPABILITIES)) {
+            const parts = capabilityId.split('_');
+            if (parts.length > 1) {
+                parts.shift();
+                if (parts.join('_') === id)
+                    return CAPABILITIES[capabilityId];
+            }
         }
 
+        // string contains?
+        const match = Object.keys(CAPABILITIES).find(c => c.indexOf(id) !== -1);
+        if (match)
+            return CAPABILITIES[match];
+
         // TODO: Custom capabilities
-        // TODO: Extend capability matching
+
+        return undefined;
     }
 }
 
@@ -89,7 +111,7 @@ class HomieNode {
 
     constructor(nodeId) {
         this.id = nodeId;
-        this.properties = new Map();
+        this.properties = {};
     }
 
     parse(parts, payload) {
@@ -121,9 +143,9 @@ class HomieNode {
     }
 
     addProperty(propertyId, parts, payload) {
-        const property = this.properties.get(propertyId) || new HomieProperty(propertyId);
+        const property = this.properties[propertyId] || new HomieProperty(propertyId);
         property.parse(parts, payload);
-        this.properties.set(propertyId, property);
+        this.properties[propertyId] = property;
     }
 }
 
@@ -132,6 +154,11 @@ class MQTTHomieDiscovery extends Homey.Driver {
 	onInit() {
         this.log('MQTT Driver is initialized');
         this._map = new Map();
+
+        // Add id property to all capabilities
+        Object.keys(CAPABILITIES).forEach(id => CAPABILITIES[id].id = id);
+
+        // init mqtt
         this.mqttClient = new MQTTClient();
         this._messageHandler = this.onMessage.bind(this);
         this.mqttClient.onMessage.subscribe(this._messageHandler);
@@ -169,6 +196,7 @@ class MQTTHomieDiscovery extends Homey.Driver {
         });
 
         socket.on('discover', ({ topic }, callback) => {
+            this._socket = socket;
             console.log('discover');
             this.discover(topic)
                 .then(() => {
@@ -185,6 +213,7 @@ class MQTTHomieDiscovery extends Homey.Driver {
     }
 
     async discover(topic) {
+        this._finished = false;
         topic = trim(trim(topic || '', '#'), '/'); // NOTE: remove '/#'
         let discoveryTopic = `${topic}/#`; // listen to all messages within root topic
         topic = `${topic}/`; // NOTE: force tailing /
@@ -215,6 +244,12 @@ class MQTTHomieDiscovery extends Homey.Driver {
         }
     }
 
+    detected(deviceName) {
+        if (deviceName && this._socket) {
+            this._socket.emit('detected', deviceName);
+        }
+    }
+
     async onMessage(topic, message) {
         if (!topic || !this._topic) return;
         if (!topic.startsWith(this._topic)) return;
@@ -227,6 +262,7 @@ class MQTTHomieDiscovery extends Homey.Driver {
         switch (part) {
             case '$homie':
                 this.log('Homie device version: ' + message);
+                this.detected();
                 return; // TODO: Handle $homie message (version); Skip unsupported versions?
             case '$name':
                 this.log('Found Homie device: ' + message);
@@ -251,11 +287,11 @@ class MQTTHomieDiscovery extends Homey.Driver {
                 this.addDevice(part, parts, message);
         }
 
-        if (this._nodes && this._nodes.length === this._map.size) {
+        if (!this._finished && this._nodes && this._nodes.length === this._map.size) {
+            this._finished = true;
             await delay(1000); // wait 1 more sec to complete last device
             this.log("All nodes discovered");
-            // TODO: stop discovery
-            // TODO: report front-end
+            this.stop();
         }
 
         return Promise.resolve();
@@ -272,13 +308,26 @@ class MQTTHomieDiscovery extends Homey.Driver {
             node.parse(parts, message);
             this._map.set(nodeId, node);
 
-            // TODO: Notify front-end
-            this.log(JSON.stringify(node, null, 2));
+            if (this._socket) {
+                try {
+                    this._socket.emit('device', node);
+                } catch (e) {
+                    console.log(e);
+                }
+            }
 
+            return node;
         } catch (e) {
             this.log('Error handeling MQTT homie discovery message');
             this.log(e);
         }
+    }
+
+    stop() {
+        // TODO: Unregister from topic (keep track of registration count within client?)
+        //this.mqttClient.unregister(this._topic + '#');
+        delete this._socket;
+        delete this._topic;
     }
 }
 
