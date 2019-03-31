@@ -38,7 +38,11 @@
     "discovery": {
       "homieTopic": "Homie Discovery Topic",
       "start": "Discover devices",
-      "waiting":  "Waiting for Homie device..."
+      "waiting": "Waiting for Homie device...",
+      "discovered": "Discovered Homie nodes",
+      "add": "Create device",
+      "capabilities": "Select capabilities",
+      "selectCapability": "Not mapped.."
     }
   },
   "settings": {

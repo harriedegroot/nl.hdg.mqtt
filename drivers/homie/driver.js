@@ -6,6 +6,7 @@ const MQTTClient = require('../../mqtt/MQTTClient');
 const MQTTDevice = require('../device/device');
 const HomeyLib = require('homey-lib');
 const CAPABILITIES = HomeyLib.getCapabilities();
+const DEVICE_CLASSES = HomeyLib.getDeviceClasses();
 
 const PROPERTIES = {
     'brightness': 'dim'
@@ -164,9 +165,6 @@ class MQTTHomieDiscovery extends Homey.Driver {
         this.mqttClient.onMessage.subscribe(this._messageHandler);
     }
 
-    // Homey.showLoadingOverlay()
-    // Homey.hideLoadingOverlay()
-
     // TODO: language
     get language() {
         return 'en';
@@ -177,22 +175,30 @@ class MQTTHomieDiscovery extends Homey.Driver {
     }
 
     async onPair(socket) {
-        let pairingDevice = {
-            name: Homey.__('pair.default.name.device'),
-            class: undefined,
-            settings: {
-                capabilities: {}
-            },
-            data: {
-                id: guid(),
-                version: 1
-            },
-            capabilities: []
-        };
+        //let pairingDevice = {
+        //    name: Homey.__('pair.default.name.device'),
+        //    class: undefined,
+        //    settings: {
+        //        capabilities: {}
+        //    },
+        //    data: {
+        //        id: guid(),
+        //        version: 1
+        //    },
+        //    capabilities: []
+        //};
 
         socket.on('log', function (msg, callback) {
             console.log(msg);
             callback(null, "ok");
+        });
+
+        socket.on('deviceClasses', function (data, callback) {
+            callback(null, { ...DEVICE_CLASSES });
+        });
+
+        socket.on('capabilities', function (data, callback) {
+            callback(null, { ...CAPABILITIES });
         });
 
         socket.on('discover', ({ topic }, callback) => {
@@ -291,6 +297,8 @@ class MQTTHomieDiscovery extends Homey.Driver {
             this._finished = true;
             await delay(1000); // wait 1 more sec to complete last device
             this.log("All nodes discovered");
+            this._socket.emit('done', true);
+
             this.stop();
         }
 
