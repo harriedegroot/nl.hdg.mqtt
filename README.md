@@ -132,9 +132,12 @@ The `v1.5` [branch](https://github.com/harriedegroot/nl.hdg.mqtt/tree/version1.5
   
 ## Change Log  
   
+#### 2.2.1  
+- Homie MQTT Discovery
+  
 #### 2.2.0  
-- MQTT Device (alpha version)
-    
+- MQTT Device
+  
 #### 2.1.9  
 - Retry topic subscriptions on failure & manual broadcast  
   

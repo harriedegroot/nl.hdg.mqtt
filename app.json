@@ -1,6 +1,6 @@
 {
   "id": "nl.hdg.mqtt",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "compatibility": ">=2.0.0",
   "sdk": 2,
   "name": {
@@ -15,6 +15,9 @@
     "tools",
     "internet"
   ],
+  "tags": {
+    "en": [ "MQTT", "HUB", "gateway", "bridge" ]
+  },
   "permissions": [
     "homey:manager:api",
     "homey:app:nl.scanno.mqtt"
@@ -49,6 +52,7 @@
   "bugs": {
     "url": "https://github.com/harriedegroot/nl.hdg.mqtt/issues"
   },
+  "homeyCommunityTopicId": 6766,
   "drivers": [
     {
       "id": "device",
