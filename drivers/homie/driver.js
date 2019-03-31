@@ -8,6 +8,12 @@ const HomeyLib = require('homey-lib');
 const CAPABILITIES = HomeyLib.getCapabilities();
 const DEVICE_CLASSES = HomeyLib.getDeviceClasses();
 
+// Mapping of device types to classes
+const CLASSES = {
+    // TODO: Add additional known mappings
+};
+
+// Mapping of properties to capabilities
 const PROPERTIES = {
     'brightness': 'dim'
     // TODO: Add additional known property to capability mappings
@@ -127,6 +133,7 @@ class HomieNode {
                     return;
                 case '$type':
                     this.type = payload;
+                    this.matchedClass = this.matchClass(payload);
                     return;
                 case '$properties':
                     this.propertiesIds = (payload || '').split(',');
@@ -148,6 +155,11 @@ class HomieNode {
         property.parse(parts, payload);
         this.properties[propertyId] = property;
     }
+
+    matchClass(type) {
+        if (!type) return undefined;
+        return CLASSES[type] || DEVICE_CLASSES.hasOwnProperty(type) ? type : undefined;
+    }
 }
 
 class MQTTHomieDiscovery extends Homey.Driver {
@@ -156,7 +168,8 @@ class MQTTHomieDiscovery extends Homey.Driver {
         this.log('MQTT Driver is initialized');
         this._map = new Map();
 
-        // Add id property to all capabilities
+        // Add id property to all device classes & capabilities
+        Object.keys(DEVICE_CLASSES).forEach(id => DEVICE_CLASSES[id].id = id);
         Object.keys(CAPABILITIES).forEach(id => CAPABILITIES[id].id = id);
 
         // init mqtt
