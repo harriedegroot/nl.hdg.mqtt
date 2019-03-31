@@ -236,16 +236,15 @@ class MQTTHomieDiscovery extends Homey.Driver {
 
                 let capabilityId = property.capabilityId;
                 if (!capabilityId) continue; // NOTE: No capability selected => skip
+                const capability = CAPABILITIES[capabilityId];
 
                 let settings = capabilities[capabilityId];
                 if (settings) {
-                    // TODO: handle capability duplicates (custom capability?)
-                    console.warn('Duplicate capability');
+                    capabilityId = `${capabilityId}.${guid()}`; 
                 } else {
                     settings = {};
                 }
 
-                const capability = CAPABILITIES[capabilityId];
                 if (!capability || capability.getable !== false) {
                     settings.stateTopic = `${this._topic}${config.id}/${propertyId}`;
                 }
