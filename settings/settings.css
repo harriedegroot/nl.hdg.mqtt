@@ -1,3 +1,7 @@
+button {
+    display: block !important;
+}
+
 #progress {
     width: 0%;
     height: 200px;

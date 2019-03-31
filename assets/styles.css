@@ -99,7 +99,6 @@ input[type=text] {
 }
 
 button {
-    display: block !important;
     width: 99% !important;
     margin: 0 0 0 2px !important;
     padding: 10px !important;
