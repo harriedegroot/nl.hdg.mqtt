@@ -47,7 +47,8 @@ Homie:
 - Zone depth > 1 (folder structure)
 
 App:
-- [Check] disabling devices it removed them from the homie/homey topic tree but created another named literally homie/deviceID
+- Icon
+- [BUG] disabling devices it removed them from the homie/homey topic tree but created another named literally homie/deviceID
 - [Check] Refresh devices on device/zone changes + Broadcast
 - unsubscribe from topics on MQTT Client (e.g. Uninstall app / topic switch)
 - Flow card for MQTT Device (i.e. to add scenes)
@@ -56,6 +57,7 @@ App:
 - Translate to German
 
 MQTT Device:
+- Styling capabilities list
 - Percentage scale setting
 - FlowCards
 - Tokens
@@ -91,6 +93,11 @@ Commands:
 Insights / System info:
 - Publish system info on seperate topics (i.s.o. json)
 - (All) Prometheus functionality
+
+MQTT Client app:
+- Api to unregister topics (ref counter)
+- fix required app restarts
+- icon
 
 
 ======= DONE =======
@@ -197,3 +204,4 @@ x Debug log level warning (20% speed improvement)
 - move utils.js to shared location
 - Implement Homie discovery
 - Create virtual devices from MQTT discovery
+- Device Icons (assets)
