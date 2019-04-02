@@ -103,8 +103,8 @@
         "onoff"
       ],
       "images": {
-        "large": "/drivers/device/assets/images/large.png",
-        "small": "/drivers/device/assets/images/small.png"
+        "large": "/drivers/homie/assets/images/large.png",
+        "small": "/drivers/homie/assets/images/small.png"
       },
       "pair": [
         {
