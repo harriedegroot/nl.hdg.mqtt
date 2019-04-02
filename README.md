@@ -132,6 +132,10 @@ The `v1.5` [branch](https://github.com/harriedegroot/nl.hdg.mqtt/tree/version1.5
   
 ## Change Log  
   
+#### 2.2.2  
+- Updated Icons & Images
+- Fixed small styling issue in MQTT Device capabilities list
+  
 #### 2.2.1  
 - Homie MQTT Discovery
   

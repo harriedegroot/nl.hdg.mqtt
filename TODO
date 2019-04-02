@@ -57,7 +57,7 @@ App:
 - Translate to German
 
 MQTT Device:
-- Styling capabilities list
+
 - Percentage scale setting
 - FlowCards
 - Tokens
@@ -205,3 +205,4 @@ x Debug log level warning (20% speed improvement)
 - Implement Homie discovery
 - Create virtual devices from MQTT discovery
 - Device Icons (assets)
+- Styling capabilities list

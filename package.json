@@ -1,6 +1,6 @@
 {
   "name": "nl.hdg.mqtt",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "description": "MQTT Hub",
   "author": {
     "name": "Harrie de Groot"

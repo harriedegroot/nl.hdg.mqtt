@@ -1,6 +1,6 @@
 {
   "id": "nl.hdg.mqtt",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "compatibility": ">=2.0.0",
   "sdk": 2,
   "name": {
@@ -16,7 +16,7 @@
     "internet"
   ],
   "tags": {
-    "en": [ "MQTT", "HUB", "gateway", "bridge" ]
+    "en": [ "MQTT", "HUB", "gateway", "bridge", "discovery" ]
   },
   "permissions": [
     "homey:manager:api",
