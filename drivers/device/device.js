@@ -5,6 +5,7 @@ const delay = require('../../delay');
 const MQTTClient = require('../../mqtt/MQTTClient');
 const MessageQueue = require('../../mqtt/MessageQueue');
 const TopicsRegistry = require('../../mqtt/TopicsRegistry');
+const { formatValue, parseValue } = require('../../ValueParser');
 
 const HomeyLib = require('homey-lib');
 const CAPABILITIES = HomeyLib.getCapabilities();
@@ -98,7 +99,7 @@ class MQTTDevice extends Homey.Device {
                 return;
             }
 
-            const value = this.parseValue(message, capability);
+            const value = parseValue(message, capability, this.percentageScale);
             await this.setCapabilityValue(capabilityId, value);
 
         } catch (e) {
@@ -121,7 +122,7 @@ class MQTTDevice extends Homey.Device {
 
                 const value = capabilities[capabilityId];
                 const topic = config.setTopic;
-                const payload = this.formatValue(value, CAPABILITIES[capabilityId]);
+                const payload = formatValue(value, CAPABILITIES[capabilityId], this.percentageScale);
                 const retain = true;
                 const qos = 0;
 
@@ -149,81 +150,6 @@ class MQTTDevice extends Homey.Device {
 
             return Promise.resolve();
         }, 500);
-    }
-
-   
-    formatValue(value, capability) {
-        if (typeof value === 'boolean') {
-            return value ? 'true' : 'false';
-        }
-
-        if (capability.units === '%') {
-            switch (this.percentageScale) {
-                case 'int':
-                    if (capability.min === 0 && capability.max === 1)
-                        return value * 100;
-                    break;
-                case 'float':
-                    if (capability.min === 0 && capability.max === 100)
-                        return value / 100;
-                    break;
-                case 'default':
-                default:
-                    // nothing
-                    break;
-            }
-        }
-
-        return value;
-    }
-
-    parseValue(value, capability) {
-
-        // Handle percentage scaling
-        if (capability && capability.units === '%') {
-            switch (this.percentageScale) {
-                case 'int':
-                    if (capability.min === 0 && capability.max === 1)
-                        return this.parseValue(value, 'integer') / 100.0;
-                    break;
-                case 'float':
-                    if (capability.min === 0 && capability.max === 100)
-                        return round(this.parseValue(value, 'float') * 100, 0, 100);
-                    break;
-                case 'default':
-                default:
-                    // nothing
-                    break;
-            }
-        }
-
-        // by data type
-        switch (capability.dataType) {
-            case 'boolean':
-                if (typeof value === 'string') {
-                    value = value.toLowerCase();
-                }
-                return value === true || value === 'true' || value === 1 || value === '1' || value === 'on' || value === 'yes';
-            case 'number':
-            case 'float':
-                value = typeof value === 'number' ? value : typeof value === 'string' ? Number(value) || 0 : 0;
-                return capability.decimals >= 0 ? decimals(value, capability.decimals) : value;
-            case 'integer':
-                return typeof value === 'number' ? value : typeof value === 'string' ? parseInt(value) || 0 : 0;
-            case 'string':
-                return value ? value.toString() : undefined;
-            case 'enum':
-            case 'color':
-            default:
-                switch (typeof value) {
-                    case 'boolean':
-                    case 'number':
-                        return value;
-                    default:
-                        let numeric = Number(value);
-                        return isNaN(numeric) ? value : numeric;
-                }
-        }
     }
 
     onDeleted() {

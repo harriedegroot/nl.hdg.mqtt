@@ -118,7 +118,7 @@
                     <div>{{node.type}}</div>
                 </div>
             </div>
-            <div class="capabilities" v-show="node.open">
+            <div class="capabilities" v-if="node.open">
                 <div class="setting">
                     <label class="settings-item-description">{{__('pair.select.name')}}</label>
                     <div class="settings-itemgroup">
