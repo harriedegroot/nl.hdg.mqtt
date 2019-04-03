@@ -77,6 +77,7 @@ MQTT Device:
 
 Discovery (auto discover external devices):
 - Styling bug empty list discovered devices (empty row?)
+- [Bug] Close button does not react (discovered devices view)
 - Implement HA discovery
 - Keep a record of previous discovery topic
 - Disconnect MQTT client on done

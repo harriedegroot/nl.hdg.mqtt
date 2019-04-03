@@ -5,6 +5,7 @@ const MQTTClient = require('../../mqtt/MQTTClient');
 const HomeyLib = require('homey-lib');
 const CAPABILITIES = HomeyLib.getCapabilities();
 const DEVICE_CLASSES = HomeyLib.getDeviceClasses();
+const { formatValue, parseValue } = require('../../ValueParser');
 
 function guid() {
     function s4() {
@@ -20,6 +21,12 @@ function sortByTitle(a, b, lang) {
     return title1 < title2 ? -1 : title1 > title2 ? 1 : 0;
 }
 
+function validate(item, value) {
+    if (value === null || typeof value === 'undefined')
+        throw new ReferenceError(item + ' is null or undefined');
+    return value;
+}
+
 class MQTTDriver extends Homey.Driver {
 
     // TODO: Single MessageQueue for all MQTT devices
@@ -27,6 +34,7 @@ class MQTTDriver extends Homey.Driver {
 	onInit() {
         this.log('MQTT Driver is initialized');
         this.client = new MQTTClient();
+        this.registerFlowCardAction('set_value');
     }
 
     // TODO: language
@@ -150,6 +158,43 @@ class MQTTDriver extends Homey.Driver {
             // TODO: Disconnect MQTT client
             console.log("User aborted or pairing is finished");
         });
+    }
+
+    registerFlowCardAction(card_name) {
+        let flowCardAction = new Homey.FlowCardAction(card_name);
+        flowCardAction
+            .register()
+            .registerRunListener((args, state) => {
+                try {
+                    if (!args || typeof args !== 'object') return;
+
+                    this.log('args:');
+                    this.log(args);
+
+                    const device = validate('device', args.device);
+                    const capabilityId = validate('capability', args.capability);
+                    const rawValue = validate('value', args.value);
+
+                    this.log(device.getName() + ' -> Capability: ' + capabilityId);
+
+                    // TODO: Read percentage scale from device settings
+                    const percentageScale = 'int'; //settings.percentageScale || 'int'
+                    const value = parseValue(rawValue, CAPABILITIES[capabilityId], percentageScale);
+
+                    this.log(device.getName() + ' -> Value:  ' + value);
+                    device.setCapabilityValue(capabilityId, value) // Fire and forget
+                        .catch(this.error);
+
+                    // TODO: Also/OR send MQTT message?
+
+                    return Promise.resolve(true);
+                }
+                catch (error) {
+                    this.log('MQTT Device triggered with missing information: ' + error.message);
+
+                    return Promise.reject(error);
+                }
+            });
     }
 }
 

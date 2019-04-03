@@ -115,5 +115,98 @@
         }
       ]
     }
-  ]
+  ],
+
+  "flow": {
+    "triggers": [
+      {
+        "id": "device_changed",
+        "title": {
+          "en": "An MQTT device changed",
+          "nl": "Een MQTT apparaat is veranderd"
+        },
+        "tokens": [
+          {
+            "name": "value",
+            "title": {
+              "en": "value",
+              "nl": "waarde"
+            },
+            "example": {
+              "en": "true",
+              "nl": "true"
+            }
+          },
+          {
+            "name": "Capability",
+            "title": {
+              "en": "capability",
+              "nl": "functionaliteit"
+            },
+            "example": {
+              "en": "onoff",
+              "nl": "aanuit"
+            }
+          },
+          {
+            "name": "device",
+            "title": {
+              "en": "device",
+              "nl": "apparaat"
+            },
+            "example": {
+              "en": "MQTT Lamp",
+              "nl": "MQTT Lamp"
+            }
+          }
+        ]
+      },
+      {
+        "id": "change",
+        "title": {
+          "en": "Value changed",
+          "nl": "Waarde is veranderd"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=device"
+          }
+        ]
+      }
+    ],
+    "actions": [
+      {
+        "id": "set_value",
+        "title": {
+          "en": "Set a capability value",
+          "nl": "Zet de waarde van een functionaliteit"
+        },
+        "args": [
+          {
+            "name": "capability",
+            "type": "text",
+            "placeholder": {
+              "en": "Capability",
+              "nl": "Functionaliteit"
+            }
+          },
+          {
+            "name": "value",
+            "type": "text",
+            "placeholder": {
+              "en": "Value",
+              "nl": "Waarde"
+            }
+          },
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=device"
+          }
+        ]
+      }
+    ]
+  }
 }

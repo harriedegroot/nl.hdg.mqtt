@@ -23,6 +23,12 @@ class MQTTDevice extends Homey.Device {
 
         this.onSettings(null, super.getSettings(), []);
 
+        this.thisDeviceChanged = new Homey.FlowCardTriggerDevice('change');
+        this.thisDeviceChanged.register();
+
+        this.someDeviceChanged = new Homey.FlowCardTrigger('device_changed');
+        this.someDeviceChanged.register();
+
         await this.initMQTT();
         await this.subscribeToTopics();
 
@@ -132,20 +138,19 @@ class MQTTDevice extends Homey.Device {
 
                 this.messageQueue.add(topic, payload, { qos, retain: retain !== false });
 
-                // TODO: Flow cards
-                //process.nextTick(async () => {
-                //    await delay(100);
-                //    this.DeviceChanged.trigger(this, {}, capabilities)
-                //        .catch(this.error);
-                //});
+                process.nextTick(async () => {
+                    await delay(100);
+                    this.thisDeviceChanged.trigger(this, {}, capabilities) // Fire and forget
+                        .catch(this.error);
+                });
 
-                //let tokens = {
-                //    'device': this.getName(),
-                //    'variable': capability,
-                //    'value': '' + value
-                //}
-                //aVirtualDeviceChanged.trigger(tokens) // Fire and forget
-                //    .catch(this.error)
+                let tokens = {
+                    'device': this.getName(),
+                    'variable': capabilityId,
+                    'value': '' + value
+                };
+                this.someDeviceChanged.trigger(tokens) // Fire and forget
+                    .catch(this.error);
             }
 
             return Promise.resolve();
