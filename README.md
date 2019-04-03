@@ -132,6 +132,10 @@ The `v1.5` [branch](https://github.com/harriedegroot/nl.hdg.mqtt/tree/version1.5
   
 ## Change Log  
   
+#### 2.2.3  
+- Flowcard Triggers & Actions
+- Improved performance of Homie discovery devices list
+  
 #### 2.2.2  
 - Updated Icons & Images
 - Fixed a small styling issue in MQTT Device capabilities list
