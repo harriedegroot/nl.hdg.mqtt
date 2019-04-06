@@ -169,19 +169,15 @@ class DeviceManager {
         }
     }
 
-    async _addDevice(id) {
+    async _addDevice(device) {
         Log.info('New device found!');
         
-        const device = await this.getDeviceById(id);
-        if (device) {
-            this.devices = this.devices || [];
-            if (!this.devices.find(device)) {
-                this.devices.push(device);
-            }
+        if (device && device.id) {
+            this.devices = this.devices || {};
+            this.devices[device.id] = device;
+            
             await this.registerDevice(device);
             await this.onAdd.emit(device);
-        } else {
-            Log.warning('Device not found: ' + id);
         }
     }
 
@@ -194,11 +190,8 @@ class DeviceManager {
         if (this.deviceTopicIds) this.deviceIds.delete(id);
         if (deviceName && this.deviceNames) this.deviceNames.delete(deviceName);
         if (deviceTopic && this.deviceTopics) this.deviceTopics.delete(deviceTopic);
-
-        if (this.devices) {
-            this.devices = this.devices.filter(d => d.id !== id);
-        }
-
+        if (this.devices) delete this.devices[id];
+        
         await this.onRemove.emit(id);
     }
 
