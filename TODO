@@ -1,35 +1,18 @@
 === TODO ===
 
-BUGS:
-- [BUG] enabling virtual devices breaks the hub
-- (node:31687) UnhandledPromiseRejectionWarning: TypeError: this.devices.filter is not a function
-    at DeviceManager._removeDevice (/DeviceManager.js:199:41)
-    at o (/node_modules/athom-api/dist/index.js:1:1152714)
-    at t.value (/node_modules/athom-api/dist/index.js:1:1156612)
-    at t.<anonymous> (/node_modules/athom-api/dist/index.js:1:1104671)
-    at a (/node_modules/athom-api/dist/index.js:1:324413)
-    at Generator._invoke (/node_modules/athom-api/dist/index.js:1:325455)
-    at Generator.e.(anonymous function) [as next] (/node_modules/athom-api/dist/index.js:1:324592)
-    at n (/node_modules/athom-api/dist/index.js:1:8790)
-    at /node_modules/athom-api/dist/index.js:1:8886
-    at <anonymous>
-(node:31687) UnhandledPromiseRejectionWarning: Unhandled promise rejection. This error originated either by throwing 
-
-
 Settings:
-- [BUG] All devices MQTT Hub zone
-- [BUG] Broadcast progress in developer portal
 - Show number of messages per device
 - Seperate call for device enable/disable
 - CHECK en.json translations
 - Disable device capabilities
+- Refactor jQuery hacks to Vue bindings
 
 HASS:
 ! Include configuration overrides
 ! Duplicate (unavailable) onoff entity (light & switch) for light devices
 ! Update lights & dimming (prevent brightness sliders returning to previous position due 'onoff' call)
+! Color temperature (read & write)
 - [BUG] Cover stop -> resume
-- Color temperature (read & write)
 - Update correct HSV values when setting one of the values (color topic)
 - Set numeric values? input_number: https://www.home-assistant.io/components/input_number/?
 - Fans
@@ -41,15 +24,15 @@ HASS:
 
 Homie:
 - Use ValueParser
+- Do NOT retain messages for non-getable capabilities (button)
 ! Introduce queue for updating device state (use brightness slider ha app)
 - Device Aliasses (e.g. dim/brightness, light temperature, etc.)
-- Button-press & non-retained messages?
+- Publish onoff message on dim && dim when switching onoff?
 - Fix RGB
-- Publish $state disconnect message?
+- (listen to) broadcasts
 - Zone depth > 1 (folder structure)
 
 App:
-- Icon
 - [BUG] disabling devices it removed them from the homie/homey topic tree but created another named literally homie/deviceID
 - [Check] Refresh devices on device/zone changes + Broadcast
 - unsubscribe from topics on MQTT Client (e.g. Uninstall app / topic switch)
@@ -59,32 +42,30 @@ App:
 - Translate to German
 
 MQTT Device:
-- Percentage scale setting
-- FlowCards
-- Tokens
-- Icons (fa app)
+- Display topics in capabilities list?
+- Edit topics during install
+- Icons (fa/mdi apps)
 - Handle (un)installing of MQTT app
 - availablility topic
-- Edit topics during install
-- Manage topics after device is installed
 - Custom capabilities
-- Images
 - Translations
 - unsubscribe from topics on uninstall
 - value templates
 - auto fill set topic
 - Disconnect MQTT client on done
+- Color (+ device setting)
 
 Discovery (auto discover external devices):
 - Styling bug empty list discovered devices (empty row?)
 - [Bug] Close button does not react (discovered devices view)
+- [Check] Capability matches Nefit
 - Implement HA discovery
 - Keep a record of previous discovery topic
 - Disconnect MQTT client on done
 - Detect already configured devices & mark them created
 
 Commands:
-- Updating state for multiple devices (e.g. all devices in a room)
+- Updating state for multiple devices (e.g. all devices in a room) == Homie broadcast?
 - Info requests:
   * System
   * Device classes
@@ -99,6 +80,7 @@ Insights / System info:
 
 MQTT Client app:
 - Api to unregister topics (ref counter)
+- send retained topic messages on (re)connect?
 - fix required app restarts
 - icon
 
@@ -209,3 +191,9 @@ x Debug log level warning (20% speed improvement)
 - Create virtual devices from MQTT discovery
 - Device Icons (assets)
 - Styling capabilities list
+- MQTT Device FlowCards
+- App Icon with Homie in center
+- Fix handling of adding/removing Homey devices (DeviceManager)
+- [BUG] All devices MQTT Hub zone
+- MQTT Device: Percentage scale setting
+- Manage topics after device is installed
