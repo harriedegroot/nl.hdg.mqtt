@@ -116,7 +116,7 @@ module.exports = {
             if (level === 0) {
                 clearLogLines();
             }
-            maxLines = level === 4 ? 1000 : 100;
+            maxLines = this.level === 4 ? 1000 : 100;
         }
     },
     debug: function (line, functions, implementation) {
