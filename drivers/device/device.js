@@ -43,6 +43,21 @@ class MQTTDevice extends Homey.Device {
         this.log("Read settings:");
         this.log(JSON.stringify(settings, null, 2));
 
+        // Modified topics?
+        if (changedKeysArr && changedKeysArr.includes('topics') && settings.topics) {
+            try {
+                const capabilities = JSON.parse(settings.topics);
+                if (capabilities && typeof capabilities === 'object') {
+                    settings.capabilities = capabilities;
+                } else { // reset...
+                    this.restoreSettingsTopics(settings);
+                }
+            } catch(e) {
+                // probably invalid JSON
+                this.restoreSettingsTopics(settings);
+            }
+        }
+
         this._topics = new Map();
         this._capabilities = settings.capabilities;
         this.percentageScale = settings.percentageScale || 'int';
@@ -54,6 +69,18 @@ class MQTTDevice extends Homey.Device {
                 this._topics.set(stateTopic, capabilityId);
             }
         }
+    }
+
+    restoreSettingsTopics(settings) {
+        settings.topics = settings.capabilities
+            ? JSON.stringify(settings.capabilities, null, 2)
+            : '';
+
+        // Fire & forget (wait 31 sec. to pass the settings timeout)
+        // NOTE: This doesn't seem work...
+        //setTimeout(() => {
+        //    this.setSettings(settings).catch(error => this.log(error));
+        //}, 31000);
     }
 
     async initMQTT() {

@@ -50,6 +50,7 @@ class MQTTDriver extends Homey.Driver {
             name: Homey.__('pair.default.name.device'),
             class: undefined,
             settings: {
+                topics: '', // used for device settings; to be able to change topics afterwards
                 capabilities: {}
             },
             data: {
@@ -125,6 +126,11 @@ class MQTTDriver extends Homey.Driver {
                 Object.assign(config, data);
                 pairingDevice.settings.capabilities[id] = config;
             }
+
+            pairingDevice.settings.topics = pairingDevice.settings.capabilities
+                ? JSON.stringify(pairingDevice.settings.capabilities, null, 2)
+                : '';
+
             console.log('pairingDevice: ' + JSON.stringify(pairingDevice));
             callback(null, pairingDevice);
         });
