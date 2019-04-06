@@ -90,6 +90,66 @@
         {
           "id": "done"
         }
+      ],
+      "settings": [
+        {
+          "type": "group",
+          "label": {
+            "en": "General"
+          },
+          "children": [
+            {
+              "id": "percentageScale",
+              "type": "radio",
+              "label": {
+                "en": "Percentage scaling"
+              },
+              "value": "int",
+              "values": [
+                {
+                  "id": "default",
+                  "label": {
+                    "en": "default (original value)"
+                  }
+                },
+                {
+                  "id": "int",
+                  "label": {
+                    "en": "int (0...100)"
+                  }
+                },
+                {
+                  "id": "float",
+                  "label": {
+                    "en": "float (0...1)"
+                  }
+                }
+              ],
+              "hint": {
+                "en": "By default all Homey values are represented as a floating point value between 0 and 1. Most other applications use an integer representation of 0 - 100 for percentages and cannot handle floating point percentages. To overcome this, all percentages are scaled between 0 and 100 by default; change when needed."
+              }
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Advanced"
+          },
+          "children": [
+            {
+              "id": "topics",
+              "type": "textarea",
+              "label": {
+                "en": "Topics"
+              },
+              "value": "",
+              "hint": {
+                "en": "WARNING: Messing up the topic config will break the device!"
+              }
+            }
+          ]
+        }
       ]
     },
     {
