@@ -115,7 +115,7 @@ class MQTTDriver extends Homey.Driver {
             callback(null, pairingDevice);
         });
 
-        socket.on('setCapability', function (data, callback) {
+        socket.on('setCapability', (data, callback) => {
             console.log('setCapability: ' + JSON.stringify(data, null, 2));
             if (data && data.capability) {
                 const id = data.capability;
@@ -127,9 +127,7 @@ class MQTTDriver extends Homey.Driver {
                 pairingDevice.settings.capabilities[id] = config;
             }
 
-            pairingDevice.settings.topics = pairingDevice.settings.capabilities
-                ? JSON.stringify(pairingDevice.settings.capabilities, null, 2)
-                : '';
+            pairingDevice.settings.topics = this.getSettingsTopics(pairingDevice);
 
             console.log('pairingDevice: ' + JSON.stringify(pairingDevice));
             callback(null, pairingDevice);
@@ -164,6 +162,16 @@ class MQTTDriver extends Homey.Driver {
             // TODO: Disconnect MQTT client
             console.log("User aborted or pairing is finished");
         });
+    }
+
+    getSettingsTopics(pairingDevice) {
+        if (!pairingDevice || !pairingDevice.settings || !pairingDevice.settings.capabilities) return '';
+
+        let topics = { ...pairingDevice.settings.capabilities };
+        for (let id in topics) {
+            delete topics[id].capability;
+        }
+        return JSON.stringify(topics, null, 2);
     }
 
     registerFlowCardAction(card_name) {

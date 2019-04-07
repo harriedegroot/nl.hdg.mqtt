@@ -48,6 +48,7 @@ class MQTTDevice extends Homey.Device {
             try {
                 const capabilities = JSON.parse(settings.topics);
                 if (capabilities && typeof capabilities === 'object') {
+                    this.injectIds(capabilities);
                     settings.capabilities = capabilities;
                 } else { // reset...
                     this.restoreSettingsTopics(settings);
@@ -72,9 +73,22 @@ class MQTTDevice extends Homey.Device {
         }
     }
 
+    injectIds(capabilities) {
+        if (!capabilities) return;
+        for (let id in capabilities) {
+            capabilities[id].capability = id;
+        }
+    }
+    removeIds(capabilities) {
+        if (!capabilities) return;
+        for (let id in capabilities) {
+            delete capabilities[id].capability;
+        }
+    }
+
     restoreSettingsTopics(settings) {
         settings.topics = settings.capabilities
-            ? JSON.stringify(settings.capabilities, null, 2)
+            ? JSON.stringify(this.removeIds({ ...settings.capabilities }), null, 2)
             : '';
 
         // Fire & forget (wait 31 sec. to pass the settings timeout)
