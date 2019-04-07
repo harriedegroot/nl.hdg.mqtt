@@ -83,4 +83,14 @@ const parseValue = function (value, capability, percentageScale) {
     }
 };
 
-module.exports = { decimals, formatValue, parseValue };
+const formatOnOff = function (value, onOffValues) {
+    switch (onOffValues) {
+        case 'bool': return value;
+        case 'int': return value ? 1 : 0;
+        case 'onoff': return value ? 'on' : 'off';
+        case 'yesno': return value ? 'yes' : 'no';
+    }
+    return value;
+};
+
+module.exports = { decimals, formatValue, parseValue, formatOnOff };

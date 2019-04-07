@@ -99,6 +99,43 @@
           },
           "children": [
             {
+              "id": "onOffValues",
+              "type": "radio",
+              "label": {
+                "en": "On/Off values"
+              },
+              "value": "bool",
+              "values": [
+                {
+                  "id": "bool",
+                  "label": {
+                    "en": "true/false"
+                  }
+                },
+                {
+                  "id": "int",
+                  "label": {
+                    "en": "1/0"
+                  }
+                },
+                {
+                  "id": "onoff",
+                  "label": {
+                    "en": "on/off"
+                  }
+                },
+                {
+                  "id": "yesno",
+                  "label": {
+                    "en": "yes/no"
+                  }
+                }
+              ],
+              "hint": {
+                "en": "By default Homey uses the values 'true' and 'false' for the onoff capability. Choose different values when needed."
+              }
+            },
+            {
               "id": "percentageScale",
               "type": "radio",
               "label": {

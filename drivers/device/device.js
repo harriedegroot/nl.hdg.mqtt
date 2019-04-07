@@ -5,7 +5,7 @@ const delay = require('../../delay');
 const MQTTClient = require('../../mqtt/MQTTClient');
 const MessageQueue = require('../../mqtt/MessageQueue');
 const TopicsRegistry = require('../../mqtt/TopicsRegistry');
-const { formatValue, parseValue } = require('../../ValueParser');
+const { formatValue, parseValue, formatOnOff } = require('../../ValueParser');
 
 const HomeyLib = require('homey-lib');
 const CAPABILITIES = HomeyLib.getCapabilities();
@@ -61,6 +61,7 @@ class MQTTDevice extends Homey.Device {
         this._topics = new Map();
         this._capabilities = settings.capabilities;
         this.percentageScale = settings.percentageScale || 'int';
+        this.onOffValues = settings.onOffValues || 'bool';
 
         // Link state topics to capabilities
         for (let capabilityId in this._capabilities) {
@@ -155,7 +156,10 @@ class MQTTDevice extends Homey.Device {
 
                 const value = capabilities[capabilityId];
                 const topic = config.setTopic;
-                const payload = formatValue(value, CAPABILITIES[capabilityId], this.percentageScale);
+                const payload = capabilityId === 'onoff'
+                    ? formatOnOff(value, this.onOffValues)
+                    : formatValue(value, CAPABILITIES[capabilityId], this.percentageScale);
+
                 const retain = true;
                 const qos = 0;
 
