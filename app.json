@@ -1,6 +1,6 @@
 {
   "id": "nl.hdg.mqtt",
-  "version": "2.2.4",
+  "version": "2.2.5",
   "compatibility": ">=2.0.0",
   "sdk": 2,
   "name": {

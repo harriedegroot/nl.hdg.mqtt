@@ -132,6 +132,10 @@ The `v1.5` [branch](https://github.com/harriedegroot/nl.hdg.mqtt/tree/version1.5
   
 ## Change Log  
   
+#### 2.2.5  
+- Added MQTT device setting to modify the `onoff` capability output (`true`/`false`, `on`/`off`, etc.)
+- Cleanup MQTT Device topic settings
+  
 #### 2.2.4  
 - Manage topics after the device is installed (device `advanced settings` menu)
 - Added `percentage scaling` device setting
