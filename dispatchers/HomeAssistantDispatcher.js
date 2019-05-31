@@ -597,7 +597,7 @@ class HomeAssistantDispatcher {
             min_temp: 5,
             max_temp: 30,
             temp_step: 0.5,
-            //unit_of_measurement: unit || '°C'  // NOT Supported?
+            //unit_of_measurement: unit || 'Â°C'  // NOT Supported?
         };
 
         if (capabilities.hasOwnProperty('onoff')) {
@@ -847,7 +847,7 @@ class HomeAssistantDispatcher {
             config.value_template = config.value_template || '{{ value }}';
         }
 
-        this.publish(device.id, topic, config);
+        this.publish(device.id, topic, config, true);
     }
 
     publish(deviceId, topic, payload, retained) {
