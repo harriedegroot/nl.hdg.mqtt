@@ -1,8 +1,8 @@
 {
   "id": "nl.hdg.mqtt",
-  "version": "2.2.5",
-  "compatibility": ">=2.0.0",
-  "sdk": 2,
+  "version": "3.0.0",
+  "compatibility": ">=5.0.0",
+  "sdk": 3,
   "name": {
     "en": "MQTT Hub",
     "nl": "MQTT Hub"

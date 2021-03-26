@@ -5,8 +5,7 @@ Turn your Homey into a HUB and let external applications discover & control all 
 ## Introduction
 With this app you can communicate with all your devices connected to Homey using MQTT.  
 The MQTT Hub automatically broadcasts all your devices and their capabilities. 
-It will setup a communication channel per device, so external apps can find and control each one of them.
-Furthermore it provides an interface to read the full system state & and allows advanced control of your Homey, without the need to write your own app.  
+It will setup a communication channel per device, so external apps can find and control each one of them. Furthermore it provides an interface to read the full system state & and allows advanced control of your Homey, without the need to write your own app.  
 Auto discovery protocols are implemented to simplify the setup and connection with external apps.
   
 ## What can it be used for?
@@ -32,10 +31,10 @@ The functionality of the MQTT Hub:
 All can be configured via app settings.
   
 ## Is this app for me?
-*First*: This appp is NOT a plug & play solution. NOR is it the replacement for the desktop interface.  
+*First*: This appp is NOT a plug & play solution. 
 *Second*: You need some technical background to get things working. So, if you don't like to tinker with stuff, you don't like to try many different roads before you finally get your ultimate solution or you don't like to dive just a little deeper to get things up and running: it's probably not for you...
 
-If this meets your expectations and none of the above applies to you: Have fun!  
+If this meets your expectations and none of the above applies to you: **have fun**!  
   
 ## MQTT?
 [MQTT](http://mqtt.org/) is a lightweight communication protocol on top of TCP/IP and it's (becoming) the industry standard for IoT messaging (Internet of Things).
@@ -62,8 +61,7 @@ The default communication protocol is based on the [Homie Convention](https://ho
 From their website: *The Homie convention defines a standardized way of how IoT devices and services announce themselves and their data on the MQTT broker*.
   
 #### Auto discovery
-External apps can automatically discover your devices connected to Homey by auto discovery.
-The Homie Convention supports this by design. Additionally [HA Discovery](https://www.home-assistant.io/docs/mqtt/discovery/) is implemented.  
+External apps can automatically discover your devices connected to Homey by auto discovery. The Homie Convention supports this by design. Additionally [HA Discovery](https://www.home-assistant.io/docs/mqtt/discovery/) is implemented.  
   
 #### MQTT Topic
 The following message format is used for communication:  
@@ -80,58 +78,19 @@ The MQTT Hub also allows a `custom` communication protocol with the ability to c
 - enable/disable dispatching of device states
 - disable topic normalization
 - dimensions & value scaling  
-  
-#### Commands
-The hub provides two ways of controlling your devices over MQTT.  
-The first one is provided by the selected communication protocol.  
-Additionally the hub allows communication by message (payload). To command your Homey, you can send a payload to the topic `<homey devicd id>/$command`.  
-  
-E.g. These two messages will both dim the tv light to 30%:
-1. publish to topic 'homie/homey/tv/dim/set', with message payload: 0.3
-2. publish to topic 'homey/$command', with message payload:
-  
-```javascript
-{
-  "command": "set",
-  "device":{
-    "name": "tv"
-    "class": "light", // optional
-    "zone": "living", // optional
-    "id": "<your-device-guid>" // optional
-  },
-  "capability": "dim"
-  "value": 0.3
-}
-```  
      
 When using the command structure:
 - Device id's will automatically be resolved from the device id, name or topic (in this order).
 - The device name may contain either de original name or the normalized version.  
   
-  
 #### Birth & Last Will  
-The MQTT Hub is able to broadcast a `birth` message on startup and a `last will` message on shutdown.
-This can be used by external applications to act on the Hub availability (online/offline).
+The MQTT Hub is able to broadcast a `birth` message on startup and a `last will` message on shutdown. This can be used by external applications to act on the Hub availability (`online`/`offline`).
   
 #### MQTT Device
-An MQTT Device is available to control external MQTT devices from within Homey. This device can be added via the 'add Device' wizard.
-Select a custom device class and add functionality by adding capabilities mapped to MQTT topics.
-    
-## Homey firmware v1.5 and v2
-Starting from app version 2.0.0, this app can only run on Homey's v2 firmware. The reason for this is that this firmware has introduced backward incompatible changes that don't work on older versions of the firmware.
-  
-The `v1.5` [branch](https://github.com/harriedegroot/nl.hdg.mqtt/tree/version1.5) will remain and can be manually installed on Homey using [`athom-cli`](https://www.npmjs.com/package/athom-cli).
-    
-## Future
-- Trigger flows
-- Create the abillity to listen to app flow triggers
-- Discover devices from external apps
-- Expand the insights / device state broadcaster
-- Additional commands for advanced control
-- ...
-  
+An MQTT Device is available to control external MQTT devices from within Homey. This device can be added via the 'add Device' wizard. Select a custom device class and add functionality by adding capabilities mapped to MQTT topics.
+
 ## Change Log  
-see: [CHANGE_LOG.md](/CHANGE_LOG.md)
+Can be found here: [CHANGE_LOG.md](/CHANGE_LOG.md).
   
 ## Final note ##
 The repository is available at: https://github.com/harriedegroot/nl.hdg.mqtt  

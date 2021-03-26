@@ -1,5 +1,5 @@
 {
-	"homey:codec:mp3": {},
-	"homey:codec:ogg": {},
-	"homey:codec:flac": {}
+    "homey:codec:mp3": {},
+    "homey:codec:ogg": {},
+    "homey:codec:flac": {}
 }

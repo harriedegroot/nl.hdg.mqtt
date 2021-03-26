@@ -1,6 +1,6 @@
 # Homey Library
 
-This library contains shared code between Homey, Homey Apps, Athom CLI, Athom Developer and others.
+This library contains shared code between HCmomey, Homey Apps, Athom CLI, Athom Developer and others.
 
 This library can, among other things:
 

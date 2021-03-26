@@ -1,0 +1,109 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Closed",
+    "nl": "Gesloten",
+    "de": "Geschlossen",
+    "fr": "Fermé",
+    "it": "Chiuse",
+    "sv": "Stängd",
+    "no": "Lukket",
+    "es": "Cerrados",
+    "da": "Lukket"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "toggle",
+  "$flow": {
+    "triggers": [
+      {
+        "id": "garagedoor_closed_true",
+        "title": {
+          "en": "Closed",
+          "nl": "Gesloten",
+          "de": "Geschlossen",
+          "fr": "Fermé",
+          "it": "Chiuse",
+          "sv": "Stängd",
+          "no": "Lukket",
+          "es": "Cerrados",
+          "da": "Lukket"
+        }
+      },
+      {
+        "id": "garagedoor_closed_false",
+        "title": {
+          "en": "Opened",
+          "nl": "Geopend",
+          "de": "Offen",
+          "fr": "Ouvert",
+          "it": "Aperte",
+          "sv": "Öppen",
+          "no": "Åpen",
+          "es": "Abiertos",
+          "da": "Åben"
+        }
+      }
+    ],
+    "conditions": [
+      {
+        "id": "closed",
+        "title": {
+          "en": "Is !{{closed|open}}",
+          "nl": "Is !{{gesloten|geopend}}",
+          "de": "Ist !{{geschlossen|offen}}",
+          "fr": "Est !{{fermé|ouvert}}",
+          "it": "È !{{chiuso|aperto}}",
+          "sv": "Är !{{stängd|öppen}}",
+          "no": "Er !{{lukket|åpen}}",
+          "es": "Está !{{cerrado|abierto}}",
+          "da": "Er !{{lukket|åben}}"
+        }
+      }
+    ],
+    "actions": [
+      {
+        "id": "close",
+        "title": {
+          "en": "Close",
+          "nl": "Sluiten",
+          "de": "Schließen",
+          "fr": "Fermer",
+          "it": "Chiudi",
+          "sv": "Stäng",
+          "no": "Lukk",
+          "es": "Cerrar",
+          "da": "Luk"
+        }
+      },
+      {
+        "id": "open",
+        "title": {
+          "en": "Open",
+          "nl": "Openen",
+          "de": "Öffnen",
+          "fr": "Ouvrir",
+          "it": "Apri",
+          "sv": "Öppna",
+          "no": "Åpne",
+          "es": "Abrir",
+          "da": "Åbn"
+        }
+      },
+      {
+        "id": "toggle",
+        "title": {
+          "en": "Toggle open or closed",
+          "nl": "Schakel tussen geopend en gesloten",
+          "de": "Offen/Geschlossen umschalten",
+          "fr": "Alterner ouvert/fermé",
+          "it": "Alterna aperte/chiuse",
+          "sv": "Växla mellan öppen eller stängd",
+          "no": "Veksle mellom åpen og lukket",
+          "es": "Abrir o cerrar",
+          "da": "Skift mellem åben og lukket"
+        }
+      }
+    ]
+  }
+}

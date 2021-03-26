@@ -7,8 +7,13 @@ Settings:
 - Disable device capabilities
 - CHECK en.json translations
 - Configure messsage queue delay from settings
+- optionally use device id in topic path
+- topic normalisation: replace '/' char in device name
+- delay initial broadcast
+- flow card to trigger broadcast
 
 HASS:
+- remove icons
 - Include configuration overrides
 - Duplicate (unavailable) onoff entity (light & switch) for light devices
 - Color temperature (read & write)
@@ -87,6 +92,8 @@ MQTT Client app:
 
 
 ======= DONE =======
+- Upgrade to SDK v3
+- readme.txt & changelog
 - Normalize device name
 - Fix getDeviceName for homey 1.5.13
 - MQTT discovery (see OpenHAB / Domoticz)

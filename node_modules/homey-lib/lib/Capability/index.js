@@ -55,6 +55,11 @@ class Capability {
     return capability;  	
 	}
 	
+	static hasCapability(id) {
+    const capabilities = this.getCapabilities();
+    return !!capabilities[id];
+	}
+	
 	static _composeCapability( capabilityId, capability ) {
   	if( capability.flow ) console.warn(`Warning: using \`capability.flow\` (${capabilityId}), expected a \`capability.$flow\``);
   	if( capability.$flow ) {

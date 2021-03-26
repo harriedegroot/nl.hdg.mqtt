@@ -53,6 +53,7 @@
   "channel_down",
   "locked",
   "lock_mode",
+  "garagedoor_closed",
   "windowcoverings_state",
   "windowcoverings_tilt_up",
   "windowcoverings_tilt_down",
