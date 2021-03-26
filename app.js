@@ -5,6 +5,8 @@ if (DEBUG) {
     require('inspector').open(9229, '0.0.0.0', false);
 }
 
+const STARTUP_DELAY = 30 * 1000; // wait 30 sec. before starting the broadcasts
+
 const Homey = require('homey');
 const { HomeyAPI } = require('athom-api');
 const MQTTClient = require('./mqtt/MQTTClient');
@@ -119,8 +121,16 @@ class MQTTHub extends Homey.App {
             if (this.mqttClient.isRegistered()) {
                 Log.info('start Hub');
                 await this._sendBirthMessage();
-                await this.run();
-                Log.info('app running: true');
+
+                setTimeout(async () => {
+                    try {
+                        await this.run();
+                        Log.info('app running: true');
+                    } catch(e) {
+                        Log.error('[RUN] Hub initializasion failed');
+                        Log.error(e);
+                    }
+                }, STARTUP_DELAY);
             } else {
                 Log.debug("Waiting for MQTT Client...");
                 this.mqttClient.onRegistered.subscribe(() => this.start(), true); // NOTE: Recursive
