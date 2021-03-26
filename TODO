@@ -1,14 +1,10 @@
 === TODO ===
 
-SDK v3:
-- MQTT discovery
-
 Settings:
-- Configure messsage queue delay from settings
 - optionally use device id in topic path
 - topic normalisation: replace '/' char in device name
 - flow card to trigger broadcast
-- [BUG] initial topic
+
 - build warnings
 - Refactor jQuery hacks to Vue bindings
 - Seperate call for device enable/disable
@@ -96,7 +92,9 @@ MQTT Client app:
 
 
 ======= DONE =======
-- SDK 3 fix MQTT Device
+- initial topic: remove guid from deviceId
+- SDK v3: MQTT discovery
+- SDK v3: MQTT Device
 - delay initial broadcast
 - fix SDK 3 issues
 - Upgrade to SDK v3

@@ -91,7 +91,7 @@ class MQTTHub extends Homey.App {
     }
 
     initSettings() {
-        const systemName = this.system.name || 'Homey';
+        let systemName = this.system.name || 'Homey';
         if (this.settings.deviceId === undefined || this.settings.systemName !== systemName || this.settings.topicRoot) {
 
             // Backwards compatibility
@@ -101,7 +101,11 @@ class MQTTHub extends Homey.App {
             }
 
             this.settings.systemName = systemName;
-            this.settings.deviceId = this.settings.deviceId || this.settings.systemName;
+            if(!this.settings.deviceId) {
+                let idx = systemName.lastIndexOf('-');
+                this.settings.deviceId = idx === -1 ? systemName : systemName.substr(0, idx);
+            }
+
             Log.debug("Settings initial deviceId: " + this.settings.deviceId);
             this.homey.settings.set('settings', this.settings);
             Log.debug("Settings updated");
