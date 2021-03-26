@@ -6,6 +6,7 @@ Settings:
 - Show number of messages per device
 - Disable device capabilities
 - CHECK en.json translations
+- Configure messsage queue delay from settings
 
 HASS:
 - Include configuration overrides
