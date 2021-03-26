@@ -145,8 +145,8 @@ class HomieNode {
                     this.addProperty(attr, parts, payload);
             }
         } catch (e) {
-            console.log("Failed to parse topic for device: " + this.deviceId);
-            console.log(e);
+            this.log("Failed to parse topic for device: " + this.deviceId);
+            this.log(e);
         }
     }
 
@@ -187,43 +187,40 @@ class MQTTHomieDiscovery extends Homey.Driver {
         return MQTTDevice; // NOTE: Always create an MQTT Device
     }
 
-    async onPair(socket) {
+    async onPair(session) {
 
-        socket.on('log', function (msg, callback) {
-            console.log(msg);
-            callback(null, "ok");
+        session.setHandler('log', async (msg) => {
+            this.log(msg);
+            return "ok";
         });
 
-        socket.on('deviceClasses', function (data, callback) {
-            callback(null, { ...DEVICE_CLASSES });
+        session.setHandler('deviceClasses', async (data) => {
+            return { ...DEVICE_CLASSES };
         });
 
-        socket.on('capabilities', function (data, callback) {
-            callback(null, { ...CAPABILITIES });
+        session.setHandler('capabilities', async (data) => {
+            return { ...CAPABILITIES };
         });
 
-        socket.on('discover', ({ topic }, callback) => {
-            this._socket = socket;
-            console.log('discover');
-            this.discover(topic)
-                .then(() => {
-                    callback(null, 'ok');
-                    socket.showView('discover');
-                })
-                .catch(error => callback('failed to start discovery'));
+        session.setHandler('discover', async ({ topic }) => {
+            this._session = session;
+            this.log('discover');
+            await this.discover(topic);
+            session.showView('discover');
+            return 'ok';
         });
 
-        socket.on('create', (config, callback) => {
+        session.setHandler('create', async (config) => {
             if (config) {
-                callback(null, this.createDevice(config));
+                return this.createDevice(config);
             } else {
-                callback('Invalid config');
+                throw new Error('Invalid config');
             }
         });
 
-        socket.on('disconnect', function () {
+        session.setHandler('disconnect', async () => {
             // TODO: Disconnect MQTT client
-            console.log("User aborted or pairing is finished");
+            this.log("User aborted or pairing is finished");
         });
     }
 
@@ -301,8 +298,8 @@ class MQTTHomieDiscovery extends Homey.Driver {
     }
 
     detected(deviceName) {
-        if (deviceName && this._socket) {
-            this._socket.emit('detected', deviceName);
+        if (deviceName && this._session) {
+            this._session.emit('detected', deviceName);
         }
     }
 
@@ -347,7 +344,7 @@ class MQTTHomieDiscovery extends Homey.Driver {
             this._finished = true;
             await delay(1000); // wait 1 more sec to complete last device
             this.log("All nodes discovered");
-            this._socket.emit('done', true);
+            this._session.emit('done', true);
 
             this.stop();
         }
@@ -359,18 +356,18 @@ class MQTTHomieDiscovery extends Homey.Driver {
         try {
             if (!nodeId) return;
 
-            console.log('addHomieDevice: ' + nodeId);
-            console.log(message);
+            this.log('addHomieDevice: ' + nodeId);
+            this.log(message);
 
             const node = this._map.get(nodeId) || new HomieNode(nodeId);
             node.parse(parts, message);
             this._map.set(nodeId, node);
 
-            if (this._socket) {
+            if (this._session) {
                 try {
-                    this._socket.emit('device', node);
+                    this._session.emit('device', node);
                 } catch (e) {
-                    console.log(e);
+                    this.log(e);
                 }
             }
 

@@ -140,7 +140,7 @@ class MQTTDriver extends Homey.Driver {
         session.setHandler('install', async (data) => {
             const installed = await client.isInstalled();
             if (!installed) {
-                throw "MQTT Client app not installed";
+                throw new Error("MQTT Client app not installed");
             }
 
             return await this.homey.addDevice(pairingDevice);
