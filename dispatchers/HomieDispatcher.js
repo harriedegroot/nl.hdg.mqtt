@@ -815,8 +815,8 @@ class HomieDispatcher {
             case 'string':
                 return value ? value.toString() : undefined;
             case 'enum':
-                let numeric = Number(value);
-                return isNaN(numeric) ? (value ? value.toString() : undefined) : numeric.toString();
+                let num = Number(value);
+                return isNaN(num) ? (value ? value.toString() : undefined) : num.toString();
             case 'color':
             default:
                 let numeric = Number(value);
