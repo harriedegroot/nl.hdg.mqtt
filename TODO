@@ -1,17 +1,17 @@
 === TODO ===
 
 Settings:
-- Show number of messages per device
-- Seperate call for device enable/disable
-- CHECK en.json translations
-- Disable device capabilities
 - Refactor jQuery hacks to Vue bindings
+- Seperate call for device enable/disable
+- Show number of messages per device
+- Disable device capabilities
+- CHECK en.json translations
 
 HASS:
-! Include configuration overrides
-! Duplicate (unavailable) onoff entity (light & switch) for light devices
-! Update lights & dimming (prevent brightness sliders returning to previous position due 'onoff' call)
-! Color temperature (read & write)
+- Include configuration overrides
+- Duplicate (unavailable) onoff entity (light & switch) for light devices
+- Color temperature (read & write)
+- Update lights & dimming (prevent brightness sliders returning to previous position due 'onoff' call)
 - [BUG] Cover stop -> resume
 - Update correct HSV values when setting one of the values (color topic)
 - Set numeric values? input_number: https://www.home-assistant.io/components/input_number/?
@@ -25,7 +25,7 @@ HASS:
 Homie:
 - Use ValueParser
 - Do NOT retain messages for non-getable capabilities (button)
-! Introduce queue for updating device state (use brightness slider ha app)
+- Introduce queue for updating device state (use brightness slider ha app)
 - Device Aliasses (e.g. dim/brightness, light temperature, etc.)
 - Publish onoff message on dim && dim when switching onoff?
 - Fix RGB
@@ -33,45 +33,45 @@ Homie:
 - Zone depth > 1 (folder structure)
 
 App:
+! unsubscribe from topics on MQTT Client (e.g. Uninstall app / topic switch)
 - [BUG] disabling devices it removed them from the homie/homey topic tree but created another named literally homie/deviceID
 - [Check] Refresh devices on device/zone changes + Broadcast
-- unsubscribe from topics on MQTT Client (e.g. Uninstall app / topic switch)
-- Flow card for MQTT Device (i.e. to add scenes)
 - Flow card to trigger a broadcast
 - Translate to Dutch
 - Translate to German
 
 MQTT Device:
+! unsubscribe from topics on uninstall
+- Handle (un)installing of MQTT app
+- Icons (fa/mdi apps)
 - Display topics in capabilities list?
 - Edit topics during install
-- Icons (fa/mdi apps)
-- Handle (un)installing of MQTT app
 - availablility topic
 - Custom capabilities
 - Translations
-- unsubscribe from topics on uninstall
 - value templates
-- auto fill set topic
+- auto detect on/off values (setting) from state topic
+- auto fill set topic while typing state topic
 - Disconnect MQTT client on done
 - Color (+ device setting)
 
 Discovery (auto discover external devices):
-- Styling bug empty list discovered devices (empty row?)
+! Styling bug empty list discovered devices (empty row?)
+! [Check] Capability matches Nefit
+- Detect already configured devices & mark them created
 - [Bug] Close button does not react (discovered devices view)
-- [Check] Capability matches Nefit
 - Implement HA discovery
 - Keep a record of previous discovery topic
 - Disconnect MQTT client on done
-- Detect already configured devices & mark them created
 
 Commands:
 - Updating state for multiple devices (e.g. all devices in a room) == Homie broadcast?
+- Trigger flow
 - Info requests:
   * System
   * Device classes
   * Zones
   * ...
-- Trigger flow
 - Listen to scene flow triggers
 
 Insights / System info:
@@ -79,8 +79,8 @@ Insights / System info:
 - (All) Prometheus functionality
 
 MQTT Client app:
-- Api to unregister topics (ref counter)
-- send retained topic messages on (re)connect?
+! Api to unregister topics (ref counter)
+! send retained topic messages on (re)connect?
 - fix required app restarts
 - icon
 
