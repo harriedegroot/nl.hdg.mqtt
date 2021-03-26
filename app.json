@@ -53,6 +53,58 @@
     "url": "https://github.com/harriedegroot/nl.hdg.mqtt/issues"
   },
   "homeyCommunityTopicId": 6766,
+  "api": {
+    "getDevices": {
+      "method": "get",
+      "path": "/devices",
+      "public": false
+    },
+    "getZones": {
+      "method": "get",
+      "path": "/zones",
+      "public": false
+    },
+    "getRunning": {
+      "method": "get",
+      "path": "/running",
+      "public": true
+    },
+    "setRunning": {
+      "method": "post",
+      "path": "/running",
+      "public": false
+    },
+    "refresh": {
+      "method": "get",
+      "path": "/refresh",
+      "public": false
+    },
+    "getSettingsChanged": {
+      "method": "get",
+      "path": "/settings_changed",
+      "public": false
+    },
+    "getLog": {
+      "method": "get",
+      "path": "/log",
+      "public": false
+    },
+    "getLogLevel": {
+      "method": "get",
+      "path": "/loglevel",
+      "public": false
+    },
+    "setLogLevel": {
+      "method": "post",
+      "path": "/loglevel",
+      "public": false
+    },
+    "getState": {
+      "method": "get",
+      "path": "/state",
+      "public": false
+    }
+  },
   "drivers": [
     {
       "id": "device",
