@@ -33,7 +33,7 @@ class MQTTDriver extends Homey.Driver {
 
 	onInit() {
         this.log('MQTT Driver is initialized');
-        this.client = new MQTTClient();
+        this.client = new MQTTClient(this.homey);
         this.registerFlowCardAction('set_value');
     }
 

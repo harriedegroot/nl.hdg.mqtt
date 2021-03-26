@@ -173,7 +173,7 @@ class MQTTHomieDiscovery extends Homey.Driver {
         Object.keys(CAPABILITIES).forEach(id => CAPABILITIES[id].id = id);
 
         // init mqtt
-        this.mqttClient = new MQTTClient();
+        this.mqttClient = new MQTTClient(this.homey);
         this._messageHandler = this.onMessage.bind(this);
         this.mqttClient.onMessage.subscribe(this._messageHandler);
     }

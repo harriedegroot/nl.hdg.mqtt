@@ -1,11 +1,10 @@
 'use strict';
 
-const Homey = require('homey');
 const Log = require("../Log.js");
 const EventHandler = require('../EventHandler');
 const Message = require('./Message');
 
-const CLIENT = new Homey.ApiApp('nl.scanno.mqtt').register();
+const MQTT_CLIENT = 'nl.scanno.mqtt';
 const CLIENT_STARTUP_DELAY = 10000; // Wait 10 sec. before sending messages to the MQTT Client on app install
 
 class MQTTClient  {
@@ -16,8 +15,12 @@ class MQTTClient  {
         return await this.clientApp.getInstalled(); 
     }
 
-    constructor(autoConnect) {
-        this.clientApp = CLIENT;
+    constructor(homey, autoConnect) {
+
+        if(!this.clientApp){
+            this.clientApp = homey.api.getApiApp(MQTT_CLIENT);
+            //this.clientApp.register();
+        }
 
         this.onRegistered = new EventHandler('MQTTClient.registered');
         this.onUnRegistered = new EventHandler('MQTTClient.unregistered');

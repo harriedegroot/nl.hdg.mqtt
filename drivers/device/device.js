@@ -102,7 +102,7 @@ class MQTTDevice extends Homey.Device {
         this.log("Init MQTT");
 
         if (!STATIC.mqttClient) {
-            STATIC.mqttClient = new MQTTClient();
+            STATIC.mqttClient = new MQTTClient(this.homey);
         }
         if (!STATIC.messageQueue) {
             STATIC.messageQueue = new MessageQueue(STATIC.mqttClient);

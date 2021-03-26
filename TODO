@@ -1,16 +1,18 @@
 === TODO ===
 
 Settings:
-- Refactor jQuery hacks to Vue bindings
-- Seperate call for device enable/disable
-- Show number of messages per device
-- Disable device capabilities
-- CHECK en.json translations
 - Configure messsage queue delay from settings
 - optionally use device id in topic path
 - topic normalisation: replace '/' char in device name
 - delay initial broadcast
 - flow card to trigger broadcast
+- [BUG] initial topic
+- build warnings
+- Refactor jQuery hacks to Vue bindings
+- Seperate call for device enable/disable
+- Show number of messages per device
+- Disable device capabilities
+- CHECK en.json translations
 
 HASS:
 - remove icons

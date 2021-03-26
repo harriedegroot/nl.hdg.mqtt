@@ -39,15 +39,15 @@ class MQTTHub extends Homey.App {
         try {
             Log.info('MQTT Hub is running...');
 
-            Homey.on('unload', () => this.uninstall());
+            this.homey.on('unload', () => this.uninstall());
 
-            this.settings = Homey.ManagerSettings.get('settings') || {};
+            this.settings = this.homey.settings.get('settings') || {};
             this.birthWill = this.settings.birthWill !== false;
 
             Log.setLevel(DEBUG ? 'debug' : this.settings.loglevel || DEFAULT_LOG_LEVEL);
             Log.debug(this.settings, false, false);
 
-            this.api = await HomeyAPI.forCurrentHomey();
+            this.api = await HomeyAPI.forCurrentHomey(this.homey);
 
             try {
                 this.system = await this._getSystemInfo();
@@ -61,7 +61,7 @@ class MQTTHub extends Homey.App {
             this.initSettings();
 
             Log.debug("Initialize MQTT Client & Message queue");
-            this.mqttClient = new MQTTClient();
+            this.mqttClient = new MQTTClient(this.homey);
             this.messageQueue = new MessageQueue(this.mqttClient);
             this.topicsRegistry = new TopicsRegistry(this.messageQueue);
 
@@ -101,7 +101,7 @@ class MQTTHub extends Homey.App {
             this.settings.systemName = systemName;
             this.settings.deviceId = this.settings.deviceId || this.settings.systemName;
             Log.debug("Settings initial deviceId: " + this.settings.deviceId);
-            Homey.ManagerSettings.set('settings', this.settings);
+            this.homey.settings.set('settings', this.settings);
             Log.debug("Settings updated");
         }
     }
@@ -294,7 +294,7 @@ class MQTTHub extends Homey.App {
                 if (this.deviceManager && this.deviceManager.devices)
                     return this.deviceManager.devices;
 
-                const api = await HomeyAPI.forCurrentHomey();
+                const api = await HomeyAPI.forCurrentHomey(this.homey);
                 return await api.devices.getDevices();
             } catch (e) {
                 Log.info("Failed to get Homey's devices");
@@ -312,7 +312,7 @@ class MQTTHub extends Homey.App {
                 if (this.deviceManager && this.deviceManager.zones)
                     return this.deviceManager.zones;
 
-                const api = await HomeyAPI.forCurrentHomey();
+                const api = await HomeyAPI.forCurrentHomey(this.homey);
                 return await api.zones.getZones();
             } catch (e) {
                 Log.info("Failed to get Homey's zones");
@@ -376,7 +376,7 @@ class MQTTHub extends Homey.App {
 
         try {
             Log.info("Settings changed");
-            this.settings = Homey.ManagerSettings.get('settings') || {};
+            this.settings = this.homey.settings.get('settings') || {};
             Log.debug(this.settings);
 
             // birth & last will
