@@ -145,17 +145,14 @@ const configurations = {
     },
     measure_power: {
         payload: {
-            icon: 'mdi:flash'
         }
     },
     measure_voltage: {
         payload: {
-            icon: 'mdi:flash'
         }
     },
     measure_current: {
         payload: {
-            icon: 'mdi:flash'
         }
     },
     measure_luminance: {
@@ -180,7 +177,6 @@ const configurations = {
     //'sensor_cover': {
     //    type: 'sensor',
     //    payload: {
-    //        icon: 'mdi:view-array',
     //    },
     //},
 
@@ -538,10 +534,6 @@ class HomeAssistantDispatcher {
             on_command_type: device.class === 'light' ? 'first' : 'brightness'
         };
 
-        if (device.class !== 'light') {
-            payload.icon = 'mdi:toggle-switch-off-outline';
-        }
-
         if (capabilities.hasOwnProperty('dim')) {
             payload.brightness_state_topic = `${stateTopic}/dim`;
             payload.brightness_command_topic = `${stateTopic}/dim/set`;
@@ -800,9 +792,6 @@ class HomeAssistantDispatcher {
                         payload_off: "false"
                     }
                 };
-                if (capability.setable) {
-                    cfg.payload.icon = 'mdi:power';
-                }
                 return cfg;
             case 'number':
             case 'float':

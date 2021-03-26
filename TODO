@@ -1,10 +1,7 @@
 === TODO ===
 
 Settings:
-- optionally use device id in topic path
-- topic normalisation: replace '/' char in device name
 - flow card to trigger broadcast
-
 - build warnings
 - Refactor jQuery hacks to Vue bindings
 - Seperate call for device enable/disable
@@ -13,7 +10,6 @@ Settings:
 - CHECK en.json translations
 
 HASS:
-- remove icons
 - Include configuration overrides
 - Duplicate (unavailable) onoff entity (light & switch) for light devices
 - Color temperature (read & write)
@@ -92,6 +88,7 @@ MQTT Client app:
 
 
 ======= DONE =======
+- removed icons from HA dispatcher payload
 - initial topic: remove guid from deviceId
 - SDK v3: MQTT discovery
 - SDK v3: MQTT Device
@@ -139,7 +136,6 @@ x test internal MQTT client ('socket hang up' fix? duplicate mem usage, config &
 - [fixed] all devices are shown off @ first load (dispatch state @ registering devices)
 - HASS Discovery setup
 - HASS Devices
-- HASS icons
 - HASS Enum & string values
 - broadcast on hass birth
 - put HASS discovery before Homie
