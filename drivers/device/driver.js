@@ -42,12 +42,12 @@ class MQTTDriver extends Homey.Driver {
         return 'en';
     }
 
-    async onPair(socket) {
+    async onPair(session) {
         
         let edit = undefined;
 
         let pairingDevice = {
-            name: Homey.__('pair.default.name.device'),
+            name: this.homey.__('pair.default.name.device'),
             class: undefined,
             settings: {
                 topics: '', // used for device settings; to be able to change topics afterwards
@@ -60,15 +60,15 @@ class MQTTDriver extends Homey.Driver {
             capabilities: []
         };
 
-        socket.on('log', function (msg, callback) {
-            console.log(msg);
-            callback(null, "ok");
+        session.setHandler('log', async (msg) => {
+            this.log(msg);
+            return "ok";
         });
 
-        socket.on('deviceClasses', function (data, callback) {
-            callback(null, DEVICE_CLASSES);
+        session.setHandler('deviceClasses', async (data) => {
+            return DEVICE_CLASSES;
         });
-        socket.on('capabilities', function (data, callback) {
+        session.setHandler('capabilities', async (data) => {
             // filter already configured capabilities?
             const capabilities = { ...CAPABILITIES };
             if (data && data.filter === true) {
@@ -76,34 +76,34 @@ class MQTTDriver extends Homey.Driver {
                     delete capabilities[configured];
                 }
             }
-            callback(null, capabilities);
+            return capabilities;
         });
 
-        socket.on('capability', function (data, callback) {
-            callback(null, edit);
+        session.setHandler('capability', async (data) => {
+            return edit;
         });
 
-        socket.on('addCapability', function (data, callback) {
+        session.setHandler('addCapability', async (data) => {
             edit = undefined;
-            socket.showView('capability');    
-            callback(null, 'ok');
+            session.showView('capability');    
+            return 'ok';
         });
 
-        socket.on('editCapability', function (capabilityId, callback) {
+        session.setHandler('editCapability', async (capabilityId) => {
             edit = capabilityId;
-            socket.showView('capability');
-            callback(null, 'ok');
+            session.showView('capability');
+            return 'ok';
         });
-        socket.on('removeCapability', function (data, callback) {
+        session.setHandler('removeCapability', async (data) => {
             if (data && data.capabilityId) {
                 pairingDevice.capabilities = pairingDevice.capabilities.filter(c => c !== data.capabilityId);
                 delete pairingDevice.settings.capabilities[data.capabilityId];
             }
-            callback(null, pairingDevice);
+            return pairingDevice;
         });
 
-        socket.on('set', function (data, callback) {
-            console.log('set: ' + JSON.stringify(data, null, 2));
+        session.setHandler('set', async (data) => {
+            this.log('set: ' + JSON.stringify(data, null, 2));
             for (let key in data) {
                 if (pairingDevice.hasOwnProperty(key)) {
                     pairingDevice[key] = data[key];
@@ -111,12 +111,12 @@ class MQTTDriver extends Homey.Driver {
                     pairingDevice.settings[key] = data[key];
                 }
             }
-            console.log('pairingDevice: ' + JSON.stringify(pairingDevice));
-            callback(null, pairingDevice);
+            this.log('pairingDevice: ' + JSON.stringify(pairingDevice));
+            return pairingDevice;
         });
 
-        socket.on('setCapability', (data, callback) => {
-            console.log('setCapability: ' + JSON.stringify(data, null, 2));
+        session.setHandler('setCapability', async (data) => {
+            this.log('setCapability: ' + JSON.stringify(data, null, 2));
             if (data && data.capability) {
                 const id = data.capability;
                 if (!pairingDevice.capabilities.includes(data.capability)) {
@@ -129,38 +129,26 @@ class MQTTDriver extends Homey.Driver {
 
             pairingDevice.settings.topics = this.getSettingsTopics(pairingDevice);
 
-            console.log('pairingDevice: ' + JSON.stringify(pairingDevice));
-            callback(null, pairingDevice);
+            this.log('pairingDevice: ' + JSON.stringify(pairingDevice));
+            return pairingDevice;
         });
 
-        socket.on('getPairingDevice', function (data, callback) {
-            callback(null, pairingDevice);
+        session.setHandler('getPairingDevice', async (data) => {
+            return pairingDevice;
         });
 
-        socket.on('install', function (data, callback) {
+        session.setHandler('install', async (data) => {
+            const installed = await client.isInstalled();
+            if (!installed) {
+                throw "MQTT Client app not installed";
+            }
 
-            client.isInstalled()
-                .then(installed => {
-                    if (!installed) {
-                        calback("MQTT Client app not installed");
-                        return;
-                    }
-
-                    Homey.addDevice(pairingDevice, (err, res) => {
-                        if (err) {
-                            callback(err);
-                            return;
-                        }
-                        callback(null, pairingDevice);
-                        Homey.done();
-                    });
-                })
-                .catch(error => callback(error));
+            return await this.homey.addDevice(pairingDevice);
         });
 
-        socket.on('disconnect', function () {
+        session.setHandler('disconnect', async () => {
             // TODO: Disconnect MQTT client
-            console.log("User aborted or pairing is finished");
+            this.log("User aborted or pairing is finished");
         });
     }
 
@@ -175,9 +163,9 @@ class MQTTDriver extends Homey.Driver {
     }
 
     registerFlowCardAction(card_name) {
-        let flowCardAction = new Homey.FlowCardAction(card_name);
+        let flowCardAction = this.homey.flow.getActionCard(card_name);
+        flowCardAction.ma
         flowCardAction
-            .register()
             .registerRunListener((args, state) => {
                 try {
                     if (!args || typeof args !== 'object') return;

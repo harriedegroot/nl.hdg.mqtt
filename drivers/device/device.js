@@ -23,11 +23,8 @@ class MQTTDevice extends Homey.Device {
 
         this.onSettings(null, super.getSettings(), []);
 
-        this.thisDeviceChanged = new Homey.FlowCardTriggerDevice('change');
-        this.thisDeviceChanged.register();
-
-        this.someDeviceChanged = new Homey.FlowCardTrigger('device_changed');
-        this.someDeviceChanged.register();
+        this.thisDeviceChanged = this.homey.flow.getDeviceTriggerCard('change');
+        this.someDeviceChanged = this.homey.flow.getTriggerCard('device_changed');
 
         await this.initMQTT();
         await this.subscribeToTopics();

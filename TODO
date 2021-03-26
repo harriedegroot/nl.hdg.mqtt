@@ -1,10 +1,12 @@
 === TODO ===
 
+SDK v3:
+- MQTT discovery
+
 Settings:
 - Configure messsage queue delay from settings
 - optionally use device id in topic path
 - topic normalisation: replace '/' char in device name
-- delay initial broadcast
 - flow card to trigger broadcast
 - [BUG] initial topic
 - build warnings
@@ -94,6 +96,9 @@ MQTT Client app:
 
 
 ======= DONE =======
+- SDK 3 fix MQTT Device
+- delay initial broadcast
+- fix SDK 3 issues
 - Upgrade to SDK v3
 - readme.txt & changelog
 - Normalize device name
