@@ -1,6 +1,6 @@
 {
   "id": "nl.hdg.mqtt",
-  "version": "2.1.9",
+  "version": "2.2.5",
   "compatibility": ">=2.0.0",
   "sdk": 2,
   "name": {
@@ -8,14 +8,20 @@
     "nl": "MQTT Hub"
   },
   "description": {
-    "en":  "Turn your Homey into a HUB and let external applications discover & control all your connected devices.",
+    "en": "Turn your Homey into a HUB and let external applications discover & control all your connected devices.",
     "nl": "Maak van je Homey een HUB. Geef externe applicaties de mogelijkheid om al je apparaten te vinden en er mee te communiceren."
   },
   "category": [
     "tools",
     "internet"
   ],
-  "permissions": [ "homey:manager:api", "homey:app:nl.scanno.mqtt" ],
+  "tags": {
+    "en": [ "MQTT", "HUB", "gateway", "bridge", "discovery" ]
+  },
+  "permissions": [
+    "homey:manager:api",
+    "homey:app:nl.scanno.mqtt"
+  ],
   "images": {
     "large": "/assets/images/large.jpg",
     "small": "/assets/images/small.jpg"
@@ -45,5 +51,259 @@
   },
   "bugs": {
     "url": "https://github.com/harriedegroot/nl.hdg.mqtt/issues"
+  },
+  "homeyCommunityTopicId": 6766,
+  "drivers": [
+    {
+      "id": "device",
+      "name": {
+        "en": "MQTT Device",
+        "nl": "MQTT Apparaat"
+      },
+      "class": "other",
+      "capabilities": [
+        "onoff"
+      ],
+      "images": {
+        "large": "/drivers/device/assets/images/large.png",
+        "small": "/drivers/device/assets/images/small.png"
+      },
+      "pair": [
+        {
+          "id": "device",
+          "navigation": {
+            "next": "capabilities"
+          }
+        },
+        {
+          "id": "capabilities",
+          "navigation": {
+            "next": "done"
+          }
+        },
+        {
+          "id": "capability",
+          "navigation": {
+            "next": "capabilities"
+          }
+        },
+        {
+          "id": "done"
+        }
+      ],
+      "settings": [
+        {
+          "type": "group",
+          "label": {
+            "en": "General"
+          },
+          "children": [
+            {
+              "id": "onOffValues",
+              "type": "radio",
+              "label": {
+                "en": "On/Off values"
+              },
+              "value": "bool",
+              "values": [
+                {
+                  "id": "bool",
+                  "label": {
+                    "en": "true/false"
+                  }
+                },
+                {
+                  "id": "int",
+                  "label": {
+                    "en": "1/0"
+                  }
+                },
+                {
+                  "id": "onoff",
+                  "label": {
+                    "en": "on/off"
+                  }
+                },
+                {
+                  "id": "yesno",
+                  "label": {
+                    "en": "yes/no"
+                  }
+                }
+              ],
+              "hint": {
+                "en": "By default Homey uses the values 'true' and 'false' for the onoff capability. Choose different values when needed."
+              }
+            },
+            {
+              "id": "percentageScale",
+              "type": "radio",
+              "label": {
+                "en": "Percentage scaling"
+              },
+              "value": "int",
+              "values": [
+                {
+                  "id": "default",
+                  "label": {
+                    "en": "default (original value)"
+                  }
+                },
+                {
+                  "id": "int",
+                  "label": {
+                    "en": "int (0...100)"
+                  }
+                },
+                {
+                  "id": "float",
+                  "label": {
+                    "en": "float (0...1)"
+                  }
+                }
+              ],
+              "hint": {
+                "en": "By default all Homey values are represented as a floating point value between 0 and 1. Most other applications use an integer representation of 0 - 100 for percentages and cannot handle floating point percentages. To overcome this, all percentages are scaled between 0 and 100 by default; change when needed."
+              }
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Advanced"
+          },
+          "children": [
+            {
+              "id": "topics",
+              "type": "textarea",
+              "label": {
+                "en": "Topics"
+              },
+              "value": "",
+              "hint": {
+                "en": "WARNING: Messing up the topic config will break the device!"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "homie",
+      "name": {
+        "en": "Homie Discovery",
+        "nl": "Homie Discovery"
+      },
+      "class": "other",
+      "capabilities": [
+        "onoff"
+      ],
+      "images": {
+        "large": "/drivers/homie/assets/images/large.png",
+        "small": "/drivers/homie/assets/images/small.png"
+      },
+      "pair": [
+        {
+          "id": "topic"
+        },
+        {
+          "id": "discover"
+        }
+      ]
+    }
+  ],
+
+  "flow": {
+    "triggers": [
+      {
+        "id": "device_changed",
+        "title": {
+          "en": "An MQTT device changed",
+          "nl": "Een MQTT apparaat is veranderd"
+        },
+        "tokens": [
+          {
+            "name": "value",
+            "title": {
+              "en": "value",
+              "nl": "waarde"
+            },
+            "example": {
+              "en": "true",
+              "nl": "true"
+            }
+          },
+          {
+            "name": "Capability",
+            "title": {
+              "en": "capability",
+              "nl": "functionaliteit"
+            },
+            "example": {
+              "en": "onoff",
+              "nl": "aanuit"
+            }
+          },
+          {
+            "name": "device",
+            "title": {
+              "en": "device",
+              "nl": "apparaat"
+            },
+            "example": {
+              "en": "MQTT Lamp",
+              "nl": "MQTT Lamp"
+            }
+          }
+        ]
+      },
+      {
+        "id": "change",
+        "title": {
+          "en": "Value changed",
+          "nl": "Waarde is veranderd"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=device"
+          }
+        ]
+      }
+    ],
+    "actions": [
+      {
+        "id": "set_value",
+        "title": {
+          "en": "Set a capability value",
+          "nl": "Zet de waarde van een functionaliteit"
+        },
+        "args": [
+          {
+            "name": "capability",
+            "type": "text",
+            "placeholder": {
+              "en": "Capability",
+              "nl": "Functionaliteit"
+            }
+          },
+          {
+            "name": "value",
+            "type": "text",
+            "placeholder": {
+              "en": "Value",
+              "nl": "Waarde"
+            }
+          },
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=device"
+          }
+        ]
+      }
+    ]
   }
 }

@@ -106,7 +106,7 @@ const defaultSettings = {
 const ALL_DEVICES = {
     id: 'all',
     name: "# ALL DEVICES",
-    zone: "MQTT Hub",
+    zone: "___hub",
     iconObj: {
         url: "../assets/icon.svg"
     }
@@ -136,6 +136,7 @@ function onHomeyReady(homeyReady){
                 return Homey.api('GET', '/zones', null, (err, result) => {
                     if (err) return Homey.alert('getZones ' + err);
                     this.zones = result;
+                    this.zones['___hub'] = { id: '___hub', name: 'MQTT Hub', "order": 0 };
                 });
             },
             getDevices() {

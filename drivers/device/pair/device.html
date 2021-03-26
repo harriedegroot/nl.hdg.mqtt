@@ -1,0 +1,63 @@
+<link rel="stylesheet" type="text/css" href="../../../assets/styles.css" />
+<link rel="stylesheet" type="text/css" href="./styles.css" />
+<script src='../../../assets/vue.min.js'></script>
+<script src='../../../assets/lodash.min.js'></script>
+<script src='../../../assets/utils.js'></script>
+<script>
+    Homey.setTitle(__('pair.title.device'));
+    new Vue({
+        el: '#device',
+        data: {
+            name: __('pair.default.name.device'),
+            deviceClass: 'other',
+            deviceClasses: undefined,
+            sorted: undefined,
+        },
+        methods: {
+            save(data) {
+                Homey.emit('set', data, (err, result) => console.log(err || result));
+            }
+        },
+        watch: {
+            name(val) {
+                this.save({ name: val });
+            },
+            deviceClass(val) {
+                this.save({ class: val });
+            }
+        },
+        mounted() {
+            Homey.emit('deviceClasses', false, (err, result) => {
+                this.deviceClasses = result;
+                const lang = 'en';
+                this.sorted = Object.keys(result)
+                    .sort((a, b) => sortByTitle(result[a], result[b], lang))
+                    .map(key => { return { class: key, device: result[key] }; });
+            });
+        }
+    });
+</script>
+
+<div id="device">
+    <div class="setting">
+        <label class="settings-item-description" data-i18n="pair.select.name">-Device name-</label>
+        <div class="settings-itemgroup">
+            <input type="text" v-model="name">
+        </div>
+    </div>
+
+    <div class="setting">
+        <label class="settings-item-description" data-i18n="pair.select.class">-Select a device class-</label>
+        <div class="settings-itemgroup">
+            <select v-model="deviceClass" v-if="deviceClasses">
+                <option :value="item.class" v-for="item of sorted">
+                    {{item.device.title.en}}
+                </option>
+            </select>
+        </div>
+    </div>
+
+    <div class="setting">
+        <p>{{ deviceClass && deviceClasses && deviceClasses[deviceClass] ? deviceClasses[deviceClass].description.en : ''}}</p>
+    </div>
+</div>

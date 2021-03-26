@@ -1,0 +1,70 @@
+.homie-node {
+    margin: 10px 0;
+    border-bottom: 1px solid rgb(220,220,220);
+    overflow: hidden;
+}
+.homie-node.created {
+    background: #4BD763;
+    color: white;
+    border-radius: 7px;
+}
+.homie-node.created .device-icon {
+    filter: brightness(0) invert(1);
+}
+
+.homie-node.open {
+    border: 1px solid rgb(220,220,220);
+    border-radius: 7px;
+}
+.homie-node.open.created {
+    border: 1px solid #4BD763;
+    border-radius: 7px;
+}
+
+.device-header {
+    padding: 6px;
+    position: relative;
+    cursor: pointer;
+}
+.device-header-text {
+    margin-left: 40px;
+}
+.device-header .chevron {
+    position: absolute;
+    right: 10px;
+    top: 18px;
+    font-size: 16px;
+}
+.device-icon {
+    top: 13px;
+    left: 10px;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    max-width: 26px;
+    max-height: 26px;
+}
+.capabilities {
+    padding: 6px;
+    background: white;
+    border-radius: 0 0 7px 7px;
+    /*transform: scaleY(0);
+    height: auto;
+    transform-origin: top;
+    transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;*/
+}
+.open .capabilities {
+    /*transform: scaleY(1);*/
+}
+.capability {
+    margin:5px 0;
+}
+.create-button {
+    margin: 10px 0 5px 0 !important;
+    cursor: pointer;
+    display: block !important;
+}
+.created .create-button {
+    background: #4BD763 !important;
+    color: white !important;
+}

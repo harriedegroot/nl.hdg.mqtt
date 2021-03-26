@@ -1,6 +1,6 @@
 {
   "name": "nl.hdg.mqtt",
-  "version": "2.1.9",
+  "version": "2.2.5",
   "description": "MQTT Hub",
   "author": {
     "name": "Harrie de Groot"
@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "lodash": "^4.17.11",
-    "athom-api": "2.1.178"
+    "athom-api": "2.1.178",
+    "homey-lib": "2.3.30"
   }
 }

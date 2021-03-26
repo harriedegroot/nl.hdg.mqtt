@@ -16,6 +16,7 @@ Some of the many possibilities:
 - Create advanced flows and logic: [Node RED](https://nodered.org/), ...
 - Use native mobile apps (3rd party): [MQTT Dash](https://play.google.com/store/apps/details?id=net.routix.mqttdash), ...
 - Connect to virtual assistants (Google Home/Assistant): [gBridge](https://gBridge.io), ...
+- Control external devices over MQTT by adding a virtual Homie Device
 - ...
   
 ## Functionality
@@ -26,6 +27,7 @@ The functionality of the MQTT Hub:
 - Auto discovery of your Homey devices within external apps.
 - Add the ability to remotely update the state of any device.
 - Dispatch system info (memory, cpu, etc.) on a regular basis.
+- Add Virtual MQTT Devices
   
 All can be configured via app settings.
   
@@ -111,6 +113,10 @@ When using the command structure:
 The MQTT Hub is able to broadcast a `birth` message on startup and a `last will` message on shutdown.
 This can be used by external applications to act on the Hub availability (online/offline).
   
+#### MQTT Device
+An MQTT Device is available to control external MQTT devices from within Homey. This device can be added via the 'add Device' wizard.
+Select a custom device class and add functionality by adding capabilities mapped to MQTT topics.
+    
 ## Homey firmware v1.5 and v2
 Starting from app version 2.0.0, this app can only run on Homey's v2 firmware. The reason for this is that this firmware has introduced backward incompatible changes that don't work on older versions of the firmware.
   
@@ -119,12 +125,36 @@ The `v1.5` [branch](https://github.com/harriedegroot/nl.hdg.mqtt/tree/version1.5
 ## Future
 - Trigger flows
 - Create the abillity to listen to app flow triggers
-- Discover devices from external apps (& create virtual devices?)
+- Discover devices from external apps
 - Expand the insights / device state broadcaster
 - Additional commands for advanced control
 - ...
   
 ## Change Log  
+  
+#### 2.2.5  
+- Added MQTT device setting to modify the `onoff` capability output (`true`/`false`, `on`/`off`, etc.)
+- Cleanup MQTT Device topic settings
+  
+#### 2.2.4  
+- Manage topics after the device is installed (device `advanced settings` menu)
+- Added `percentage scaling` device setting
+- Fixed a bug in the device manager when adding or removing Homey devices
+- Increased max log lines to 1000 for debug level
+  
+#### 2.2.3  
+- Flowcard Triggers & Actions
+- Improved performance of Homie discovery devices list
+  
+#### 2.2.2  
+- Updated Icons & Images
+- Fixed a small styling issue in MQTT Device capabilities list
+  
+#### 2.2.1  
+- Homie MQTT Discovery
+  
+#### 2.2.0  
+- MQTT Device
   
 #### 2.1.9  
 - Retry topic subscriptions on failure & manual broadcast  

@@ -2,6 +2,7 @@ const Homey = require('homey');
 
 const logArray = [];
 const DEBUG = process.env.DEBUG === '1';
+let maxLines = DEBUG ? 1000 : 100;
 
 function getDateTime() {
 
@@ -87,8 +88,7 @@ function writelog(level, line, notification, functions, implementation) {
       case 'info':   
          var logLine = getDateTime() + "   " + line;
          console.log( logLine );
-
-         if (logArray.length >= 100) {
+         while (logArray.length && logArray.length >= maxLines) {
             logArray.pop();
          }
          logArray.unshift(logLine);
@@ -116,6 +116,7 @@ module.exports = {
             if (level === 0) {
                 clearLogLines();
             }
+            maxLines = this.level === 4 ? 1000 : 100;
         }
     },
     debug: function (line, functions, implementation) {

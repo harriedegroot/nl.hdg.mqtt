@@ -1,0 +1,167 @@
+<link rel="stylesheet" type="text/css" href="../../../assets/styles.css" />
+<link rel="stylesheet" type="text/css" href="./discover.css" />
+<script src='../../../assets/vue.min.js'></script>
+<script src='../../../assets/lodash.min.js'></script>
+<script src='../../../assets/utils.js'></script>
+<script>
+    Homey.setTitle(__('pair.title.discovery'));
+
+    const DEFAULT_CONFIG = {
+        icon: '../../../assets/icon.svg'
+    }
+
+    new Vue({
+        el: '#homie_discovery',
+        data: {
+            lang: 'en', // TODO: multi lang
+            searching: true,
+            deviceClasses: [],
+            capabilities: [],
+            homieDevice: undefined,
+            devices: undefined,
+        },
+        methods: {
+            initCapabilities(result) {
+                this.capabilities = Object.keys(result)
+                    .sort((a, b) => sortByTitle(result[a], result[b], this.lang))
+                    .map(id => result[id]);
+            },
+            initDeviceClasses(result) {
+                this.deviceClasses = Object.keys(result)
+                    .sort((a, b) => sortByTitle(result[a], result[b], this.lang))
+                    .map(id => result[id]);
+            },
+            onDevice(device) {
+                console.log(device);
+                if (!this.devices) {
+                    this.devices = {};
+                }
+                if (device && device.id) {
+                    let config = this.devices[device.id] || { ...DEFAULT_CONFIG };
+                    Object.assign(config, device);
+
+                    // pre-selected device class
+                    if (!config.deviceClass) {
+                        config.deviceClass = config.matchedClass || 'other';
+                    }
+
+                    // custom device name
+                    if (!config.deviceName) {
+                        config.deviceName = config.name;
+                    }
+
+                    // pre-selected capabilities
+                    if (config.properties) {
+                        for (let id of Object.keys(config.properties)) {
+                            const property = config.properties[id];
+                            if (property.capabilityId === undefined && property.capability) {
+                                property.capabilityId = property.capability.id;
+                            }
+                        }
+                    } 
+
+                    // display (updated) device 
+                    Vue.set(this.devices, device.id, config);
+                }
+            },
+            onDeviceClick(node) {
+                Vue.set(node, 'open', !node.open);
+            },
+            createDevice(node) {
+                Homey.emit('create', node, (err, result) => {
+                    if (!err) {
+                        Homey.createDevice(result, (err, result) => {
+                            if (!err) {
+                                Vue.set(node, 'created', true);
+                                Vue.set(node, 'open', false);
+                                Homey.alert(Homey.__('pair.discovery.success'));
+                            } else {
+                                Homey.alert(Homey.__('pair.discovery.failure'));
+                            }
+                        });
+                    } else {
+                        Homey.alert(Homey.__('pair.discovery.failure'));
+                    }
+                });
+            }
+        },
+        watch: {
+        },
+        mounted() {
+            Homey.emit('capabilities', null, (err, result) => this.initCapabilities(result));
+            Homey.emit('deviceClasses', null, (err, result) => this.initDeviceClasses(result));
+            Homey.on('detected', device => this.homieDevice = device);
+            Homey.on('device', this.onDevice.bind(this));
+            Homey.on('done', () => this.searching = false);
+        }
+    });
+</script>
+
+<div id="homie_discovery">
+
+    <div v-if="!devices && !homieDevice" class="waiting">
+        <p>{{__('pair.discovery.waiting')}}</p>
+    </div>
+
+    <div v-if="homieDevice" class="homie-device settings">
+        <span>{{__('pair.discovery.found')}}: <b>{{homieDevice}}</b></span>
+    </div>
+    <div v-if="devices" class="devices settings">
+        <p>{{__('pair.discovery.discovered')}}</p>
+        <div class="homie-node" v-for="(node, nodeId) in devices" v-bind:class="{ created: node.created, open:node.open }">
+
+            <div class="device-header" @click="onDeviceClick(node)">
+                <i class="fa chevron" v-bind:class="{ 'fa-chevron-down': !node.open, 'fa-chevron-up': node.open}"></i>
+                <img class="device-icon" :src="node.icon" />
+                <div class="device-header-text">
+                    <div><b>{{node.name}}</b></div>
+                    <div>{{node.type}}</div>
+                </div>
+            </div>
+            <div class="capabilities" v-if="node.open">
+                <div class="setting">
+                    <label class="settings-item-description">{{__('pair.select.name')}}</label>
+                    <div class="settings-itemgroup">
+                        <input type="text" v-model="node.deviceName">
+                    </div>
+                </div>
+                <div class="setting">
+                    <label class="settings-item-description">{{__('pair.select.class')}}</label>
+                    <div class="settings-itemgroup">
+                        <select v-model="node.deviceClass">
+                            <option :value="item.id" v-for="item of deviceClasses">
+                                {{item.title[lang]}}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="capability" v-for="(property, propertyId) in node.properties">
+                    <div class="setting">
+                        <label class="settings-item-description">{{property.name}}</label>
+                        <div class="settings-itemgroup">
+                            <select v-model="property.capabilityId">
+                                <option value="">{{__('pair.discovery.selectCapability')}}</option>
+                                <option :value="item.id" v-for="item of capabilities">
+                                    {{item.title[lang] + (item.id ? ` (${item.id})` : '')}}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <button class="hy-button visible create-button" @click="createDevice(node)">
+                    <i class="fa fa-plus"></i>&nbsp;
+                    <span>{{__('pair.discovery.add')}}</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="loader" v-if="searching">
+        <svg version="1.1" id="loader-1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="40px" height="40px" viewBox="0 0 40 40" enable-background="new 0 0 40 40" xml:space="preserve">
+            <path opacity="0.2" fill="#000" d="M20.201,5.169c-8.254,0-14.946,6.692-14.946,14.946c0,8.255,6.692,14.946,14.946,14.946 s14.946-6.691,14.946-14.946C35.146,11.861,28.455,5.169,20.201,5.169z M20.201,31.749c-6.425,0-11.634-5.208-11.634-11.634 c0-6.425,5.209-11.634,11.634-11.634c6.425,0,11.633,5.209,11.633,11.634C31.834,26.541,26.626,31.749,20.201,31.749z" />
+            <path fill="#000" d="M26.013,10.047l1.654-2.866c-2.198-1.272-4.743-2.012-7.466-2.012h0v3.312h0 C22.32,8.481,24.301,9.057,26.013,10.047z">
+                <animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 20 20" to="360 20 20" dur="0.5s" repeatCount="indefinite" />
+            </path>
+        </svg>
+    </div>
+    
+</div>

@@ -1,0 +1,73 @@
+<link rel="stylesheet" type="text/css" href="../../../assets/styles.css" />
+<link rel="stylesheet" type="text/css" href="./styles.css" />
+<script src='../../../assets/vue.min.js'></script>
+<script src='../../../assets/lodash.min.js'></script>
+<script>
+    Homey.setTitle(__('pair.title.capabilities'));
+    new Vue({
+        el: '#capabilities',
+        data: {
+            capabilities: undefined,
+            device: undefined,
+            stateTopic: '',
+            setTopic: ''
+        },
+        methods: {
+            save(data) {
+                Homey.emit('set', data, (err, result) => console.log(err || result));
+            },
+            addCapability() {
+                Homey.emit('addCapability', null, (err, result) => console.log(err || result));
+            },
+            editCapability(capabilityId) {
+                //Homey.emit('editCapability', capabilityId, (err, result) => console.log(err || result));
+            },
+            removeCapability(capabilityId) {
+                Homey.emit('removeCapability', { capabilityId }, (err, result) => {
+                    console.log(err || result);
+                    if (result) {
+                        this.device = result;
+                    }
+                });
+            }
+        },
+        watch: {
+            stateTopic(val) {
+                this.save({ stateTopic: val });
+            },
+            setTopic(val) {
+                this.save({ setTopic: val });
+            }
+        },
+        mounted() {
+            Homey.emit('capabilities', { filter: false }, (err, result) => this.capabilities = result);
+            Homey.emit('getPairingDevice', null, (err, result) => this.device = result);
+        },
+    });
+</script>
+
+<div id="capabilities">
+    <button class="hy-button visible" @click="addCapability($event)">
+        <i class="fa fa-plus"></i>&nbsp;
+        <span data-i18n="pair.select.add">Add capability</span>
+    </button>
+
+
+    <div class="setting" v-if="capabilities && device && device.capabilities.length">
+        <label class="settings-item-description" data-i18n="pair.select.capabilities">{{__('pair.select.capabilities')}}</label>
+        <div class="capabilities">
+            <div class="capability" v-for="capability of device.capabilities" style="clear:both; padding:5px 0">
+                <button style="float:left;max-width:calc(100% - 54px);text-align: left;" class="hy-button visible edit-button" @click="editCapability(capability)">
+                    <span >{{capabilities[capability] ? capabilities[capability].title.en : 'NOT FOUND'}} ({{capability}})</span>
+                </button>
+                <button class="hy-button visible remove-button" @click="removeCapability(capability)" style="max-width:50px">
+                    <i class="fa fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <!--<div class="setting">
+        <p v-if="device.capabilities.length === 0" data-i18n="pair.select.empty">-No capabilities added yet... -</p>
+    </div>-->
+
+</div>

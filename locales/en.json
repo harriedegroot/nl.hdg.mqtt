@@ -1,4 +1,52 @@
 {
+  "pair": {
+    "title": {
+      "capabilities": "Capabilities",
+      "capability": "Add capability",
+      "done": "Ready",
+      "icon": "Icon",
+      "name": "Device Name",
+      "device": "New MQTT Device",
+      "discovery": "Discover MQTT Devices"
+    },
+    "select": {
+      "add": "Add capability",
+      "capability": "Select a capability",
+      "capabilities": "Configured capabilities",
+      "class": "Select a device class",
+      "empty": "No capabilities added yet...",
+      "done": "The device is added to Homey",
+      "icon": "Select an icon",
+      "name": "Device name",
+      "details": "Specify the details"
+    },
+    "default": {
+      "name": {
+        "device": "MQTT Device"
+      },
+      "topic": {
+        "state": "State topic",
+        "set": "Set topic"
+      }
+    },
+    "device": {
+      "add": "Add device"
+    },
+    "warning": {
+      "not_changeable": " Warning: these settings cannot be changed afterwards"
+    },
+    "discovery": {
+      "homieTopic": "Homie Discovery Topic",
+      "start": "Discover devices",
+      "waiting": "Waiting for Homie device...",
+      "discovered": "Discovered Homie nodes",
+      "add": "Create device",
+      "capabilities": "Select capabilities",
+      "selectCapability": "Not mapped..",
+      "success": "MQTT device created",
+      "failure": "Failed to create MQTT device"
+    }
+  },
   "settings": {
     "benefit": "Turn your Homey into a HUB"
   },

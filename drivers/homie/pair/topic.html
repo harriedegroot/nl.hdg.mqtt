@@ -1,0 +1,38 @@
+<link rel="stylesheet" type="text/css" href="../../../assets/styles.css" />
+<script src='../../../assets/vue.min.js'></script>
+<script src='../../../assets/lodash.min.js'></script>
+<script>
+    Homey.setTitle(__('pair.title.discovery'));
+    Homey.setNavigationClose();
+
+    const DEFAULT_TOPIC = 'homie/<device name>';
+
+    new Vue({
+        el: '#homie_topic',
+        data: {
+            topic: ''
+        },
+        methods: {
+            discover() {
+                if (this.topic) {
+                    Homey.emit('discover', { topic: this.topic }, (err, result) => console.log(err || result));
+                }
+            }
+        }
+    });
+</script>
+
+<div id="homie_topic">
+    
+    <div class="setting">
+        <label class="settings-item-description" data-i18n="pair.discovery.homieTopic">-Homie Discovery Topic-</label>
+        <div class="settings-itemgroup">
+            <input type="text" v-model="topic" :placeholder="DEFAULT_TOPIC">
+        </div>
+    </div>
+
+    <button class="hy-button visible" v-if="!!topic" @click="discover()" style="margin-top:25px !important;">
+        <i class="fa fa-search"></i>&nbsp;
+        <span>{{__('pair.discovery.start')}}</span>
+    </button>
+</div>

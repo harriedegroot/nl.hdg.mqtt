@@ -99,7 +99,6 @@ input[type=text] {
 }
 
 button {
-    display: block !important;
     width: 99% !important;
     margin: 0 0 0 2px !important;
     padding: 10px !important;
@@ -128,19 +127,6 @@ button[disabled] {
     /*background: rgb(220,220,220) !important;
     opacity: 0.3;*/
      color: rgba(0, 0, 0, 0.50);
-}
-
-#progress {
-    width: 0%;
-    height: 200px;
-    background: #4BD763;
-    display: block;
-    margin: 0;
-    position: absolute;
-    padding: 0;
-    top: -10px;
-    left: 0;
-    z-index: -1;
 }
 
 .text-header {
@@ -671,7 +657,3 @@ a:active {
 .form-switch input:checked + i::before { transform: translate3d(18px, 2px, 0) scale3d(0, 0, 0); }
 
 .form-switch input:checked + i::after { transform: translate3d(22px, 2px, 0); }
-
-#log {
-    padding: 10px;
-}
