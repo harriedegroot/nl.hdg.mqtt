@@ -145,9 +145,11 @@ class MQTTDevice extends Homey.Device {
             }
 
             const value = parseValue(message, capability, this.percentageScale);
-            await this.setCapabilityValue(capabilityId, value);
-            await this._publishMessage(capabilityId, value);
-
+            const currentValue = await this.getCapabilityValue(capabilityId);
+            if(value !== currentValue) {
+                await this.setCapabilityValue(capabilityId, value);
+                await this._publishMessage(capabilityId, value);
+            }
         } catch (e) {
             this.log('Error handeling MQTT device message');
             this.log(e);
