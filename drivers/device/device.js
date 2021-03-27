@@ -146,6 +146,7 @@ class MQTTDevice extends Homey.Device {
 
             const value = parseValue(message, capability, this.percentageScale);
             await this.setCapabilityValue(capabilityId, value);
+            await this._publishMessage(capabilityId, value);
 
         } catch (e) {
             this.log('Error handeling MQTT device message');
@@ -158,45 +159,48 @@ class MQTTDevice extends Homey.Device {
             this.log(this.getName() + ' -> Capability changed: ' + JSON.stringify(capabilities, null, 2));
 
             for (var capabilityId in capabilities) {
-
-                const config = this._capabilities[capabilityId];
-                if (!config) {
-                    this.log('Capability config not found: ' + capabilityId);
-                    continue;
-                }
-
-                const value = capabilities[capabilityId];
-                const topic = config.setTopic;
-                const payload = capabilityId === 'onoff'
-                    ? formatOnOff(value, this.onOffValues)
-                    : formatValue(value, CAPABILITIES[capabilityId], this.percentageScale);
-
-                const retain = true;
-                const qos = 0;
-
-                this.log('capability: ' + capabilityId);
-                this.log('topic: ' + topic);
-                this.log('value: ' + payload);
-
-                this.messageQueue.add(topic, payload, { qos, retain: retain !== false });
-
-                process.nextTick(async () => {
-                    await delay(100);
-                    this.thisDeviceChanged.trigger(this, {}, capabilities) // Fire and forget
-                        .catch(this.error);
-                });
-
-                let tokens = {
-                    'device': this.getName(),
-                    'variable': capabilityId,
-                    'value': '' + value
-                };
-                this.someDeviceChanged.trigger(tokens) // Fire and forget
-                    .catch(this.error);
+                await this._publishMessage(capabilityId, capabilities[capabilityId], capabilities);
             }
 
             return Promise.resolve();
         }, 500);
+    }
+
+    async _publishMessage(capabilityId, value, capabilities){
+        const config = this._capabilities[capabilityId];
+        if (!config) {
+            this.log('Capability config not found: ' + capabilityId);
+            return;
+        }
+
+        const topic = config.setTopic;
+        const payload = capabilityId === 'onoff'
+            ? formatOnOff(value, this.onOffValues)
+            : formatValue(value, CAPABILITIES[capabilityId], this.percentageScale);
+
+        const retain = true;
+        const qos = 0;
+
+        this.log('capability: ' + capabilityId);
+        this.log('topic: ' + topic);
+        this.log('value: ' + payload);
+
+        this.messageQueue.add(topic, payload, { qos, retain: retain !== false });
+
+        process.nextTick(async () => {
+            await delay(100);
+            capabilities = capabilities || this.getCapabilities();
+            this.thisDeviceChanged.trigger(this, {}, capabilities) // Fire and forget
+                .catch(this.error);
+        });
+
+        let tokens = {
+            'device': this.getName(),
+            'variable': capabilityId,
+            'value': '' + value
+        };
+        this.someDeviceChanged.trigger(tokens) // Fire and forget
+            .catch(this.error);
     }
 
     onDeleted() {

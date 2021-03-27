@@ -25,8 +25,8 @@
         "device": "MQTT Device"
       },
       "topic": {
-        "state": "State topic",
-        "set": "Set topic"
+        "state": "Input topic (external device state)",
+        "set": "Output topic (MQTT device changes)"
       }
     },
     "device": {
