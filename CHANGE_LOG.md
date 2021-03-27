@@ -5,6 +5,8 @@
 - Added flow card to trigger a broadcast
 - Removed guid from default homie topic at app install
 - Delayed the initial broadcast by 30 sec.
+- Removed 'icon' from Home Assistant payloads
+- cast enum values to string
   
 #### 2.2.5  
 - Added MQTT device setting to modify the `onoff` capability output (`true`/`false`, `on`/`off`, etc.)
