@@ -1,5 +1,13 @@
 ## Change Log  
-
+  
+#### 3.0.1
+- FIX: changing settings of an MQTT Device
+- FIX: MQTT Device onoff values (false, 0) + state updates
+- Prevent message loops when the MQTT device state is updated by a message
+- Keep the MQTT device topics in sync
+- Add remove MQTT Device capabilities via advanced device config (json)
+- Change MQTT device topics in advanced device config (json)
+  
 #### 3.0.0  
 - Upgrade to Homey SDK v3
 - Added flow card to trigger a broadcast
