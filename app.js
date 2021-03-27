@@ -139,7 +139,7 @@ class MQTTHub extends Homey.App {
                 Log.info('start Hub');
                 await this._sendBirthMessage();
 
-                setTimeout(async () => {
+                this.homey.setTimeout(async () => {
                     try {
                         await this.run();
                         Log.info('app running: true');
