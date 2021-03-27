@@ -52,10 +52,10 @@ const parseValue = function (value, capability, percentageScale) {
         }
 
         // by data type
-        switch (capability.dataType) {
+        switch (capability.type) {
             case 'boolean':
                 if (typeof value === 'string') {
-                    value = value.toLowerCase();
+                    value = value.replace(/\'/gi,'').toLowerCase();
                 }
                 return value === true || value === 'true' || value === 1 || value === '1' || value === 'on' || value === 'yes';
             case 'number':
@@ -85,8 +85,8 @@ const parseValue = function (value, capability, percentageScale) {
 
 const formatOnOff = function (value, onOffValues) {
     switch (onOffValues) {
-        case 'bool': return value;
-        case 'int': return value ? 1 : 0;
+        case 'bool': return value ? 'true' : 'false';
+        case 'int': return value ? '1' : '0';
         case 'onoff': return value ? 'on' : 'off';
         case 'yesno': return value ? 'yes' : 'no';
     }
