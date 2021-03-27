@@ -193,7 +193,7 @@ function onHomeyReady(homeyReady){
             reset: function () {
                 // confirm?
                 //if(Homey.confirm("Reset default settings?")){
-                    const deviceId = hubSettings.systemName;
+                    const deviceId = hubSettings.deviceId;
                     hubSettings = { ...defaultSettings };
                     hubSettings.deviceId = deviceId || 'Homey';
                     updateValues();
