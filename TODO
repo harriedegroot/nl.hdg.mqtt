@@ -1,7 +1,6 @@
 === TODO ===
 
 Settings:
-- build warnings
 - Refactor jQuery hacks to Vue bindings
 - Seperate call for device enable/disable
 - Show number of messages per device
@@ -37,7 +36,6 @@ App:
 ! unsubscribe from topics on MQTT Client (e.g. Uninstall app / topic switch)
 - [BUG] disabling devices it removed them from the homie/homey topic tree but created another named literally homie/deviceID
 - [Check] Refresh devices on device/zone changes + Broadcast
-- Flow card to trigger a broadcast
 - Translate to Dutch
 - Translate to German
 

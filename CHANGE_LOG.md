@@ -1,5 +1,11 @@
 ## Change Log  
 
+#### 3.0.0  
+- Upgrade to Homey SDK v3
+- Added flow card to trigger a broadcast
+- Removed guid from default homie topic at app install
+- Delayed the initial broadcast by 30 sec.
+  
 #### 2.2.5  
 - Added MQTT device setting to modify the `onoff` capability output (`true`/`false`, `on`/`off`, etc.)
 - Cleanup MQTT Device topic settings
