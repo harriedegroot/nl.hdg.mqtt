@@ -1,7 +1,6 @@
 === TODO ===
 
 Settings:
-- flow card to trigger broadcast
 - build warnings
 - Refactor jQuery hacks to Vue bindings
 - Seperate call for device enable/disable
@@ -88,6 +87,7 @@ MQTT Client app:
 
 
 ======= DONE =======
+- flow card to trigger broadcast
 - removed icons from HA dispatcher payload
 - initial topic: remove guid from deviceId
 - SDK v3: MQTT discovery

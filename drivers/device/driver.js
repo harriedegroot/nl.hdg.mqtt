@@ -164,7 +164,6 @@ class MQTTDriver extends Homey.Driver {
 
     registerFlowCardAction(card_name) {
         let flowCardAction = this.homey.flow.getActionCard(card_name);
-        flowCardAction.ma
         flowCardAction
             .registerRunListener((args, state) => {
                 try {

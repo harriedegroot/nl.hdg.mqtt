@@ -82,6 +82,18 @@ class MQTTHub extends Homey.App {
             Log.debug("Launch!");
             await this.start();
 
+            // listen to broadcast flow card actions
+            this.homey.flow.getActionCard('broadcast')
+                .registerRunListener(async (args, state) => {
+                    this.log('Broadcast triggered from flow');
+                    try {
+                        await this.refresh();
+                    }
+                    catch (error) {
+                        this.log('Broadcast flow card trigger failed: ' + error.message);
+                    }
+                });
+
             this._initialized = true;
         }
         catch (e) {
@@ -89,6 +101,7 @@ class MQTTHub extends Homey.App {
             Log.error(e);
         }
     }
+    
 
     initSettings() {
         let systemName = this.system.name || 'Homey';

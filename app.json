@@ -327,6 +327,13 @@
     ],
     "actions": [
       {
+        "id": "broadcast",
+        "title": {
+          "en": "Trigger broadcast",
+          "nl": "Broadcast uitvoeren"
+        }
+      },
+      {
         "id": "set_value",
         "title": {
           "en": "Set a capability value",
