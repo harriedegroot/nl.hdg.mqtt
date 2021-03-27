@@ -34,48 +34,76 @@ class MQTTDevice extends Homey.Device {
         this.log('MQTTDevice is initialized');
     }
 
-    onSettings({oldSettings, newSettings, changedKeys}) {
+    async onSettings({oldSettings, newSettings, changedKeys}) {
         const settings = newSettings || {};
 
         this.log("Read settings:");
         this.log(JSON.stringify(settings, null, 2));
 
-        // Modified topics?
-        if (changedKeys && changedKeys.includes('topics') && settings.topics) {
-            try {
-                const capabilities = JSON.parse(settings.topics);
-                if (capabilities && typeof capabilities === 'object') {
-                    this.injectIds(capabilities);
-                    settings.capabilities = capabilities;
-                } else { // reset...
-                    this.restoreSettingsTopics(settings);
-                }
-            } catch(e) {
-                // probably invalid JSON
-                this.restoreSettingsTopics(settings);
-            }
-        }
-
-        this._topics = new Map();
-        this._capabilities = settings.capabilities;
         this.percentageScale = settings.percentageScale || 'int';
         this.onOffValues = settings.onOffValues || 'bool';
 
+        const capabilities = settings.topics ? JSON.parse(settings.topics) : null;
+        this._capabilities = capabilities;
+
+        // Modified topics?
+        if (changedKeys && changedKeys.includes('topics') && settings.topics) {
+            try {
+                await this.unsubscribeFromTopics();
+                await this._updateCapabilities(capabilities);
+                this.initTopics();
+                await this.subscribeToTopics();
+                await this.broadcast();
+            } catch(e) {
+                // probably invalid JSON
+                this.log("failed to update MQTT Device topics", e);
+                this.restoreSettingsTopics(settings);
+                this.initTopics();
+            }
+        } else {
+            this.initTopics();
+        }
+    }
+
+    initTopics() {
         // Link state topics to capabilities
-        for (let capabilityId in this._capabilities) {
-            const stateTopic = this._capabilities[capabilityId].stateTopic;
-            if (stateTopic) {
-                this._topics.set(stateTopic, capabilityId);
+        this._topics = new Map();
+        if(this._capabilities && typeof capabilities === 'object') {
+            for (let capabilityId in this._capabilities) {
+                const stateTopic = this._capabilities[capabilityId].stateTopic;
+                if (stateTopic) {
+                    this._topics.set(stateTopic, capabilityId);
+                }
             }
         }
     }
 
-    injectIds(capabilities) {
-        if (!capabilities) return;
-        for (let id in capabilities) {
-            capabilities[id].capability = id;
+    async _updateCapabilities(capabilities) {
+        const oldIds = new Set(this.getCapabilities());
+        const newIds = new Set(Object.keys(capabilities));
+
+        for(let oldId of oldIds) {
+            if(!newIds.has(oldId)) {
+                await this.removeCapability(oldId);
+            }
+        }
+
+        for (let newId of newIds) {
+            if(!oldIds.has(newId)) {
+                await this.addCapability(newId);
+            } 
+            await this.setCapabilityOptions(newId, capabilities[newId]);
         }
     }
+
+    async broadcast() {
+        const capabilities = this.getCapabilities();
+        for(let capabilityId of capabilities){
+            const value = await this.getCapabilityValue(capabilityId);
+            await this._publishMessage(capabilityId, value);
+        }
+    }
+
     removeIds(capabilities) {
         if (!capabilities) return;
         for (let id in capabilities) {
@@ -88,6 +116,13 @@ class MQTTDevice extends Homey.Device {
             ? JSON.stringify(this.removeIds({ ...settings.capabilities }), null, 2)
             : '';
 
+        try {
+            const capabilities = settings.topics ? JSON.parse(settings.topics) : null;
+            this._capabilities = capabilities;
+        } catch(e) {
+            this.log("Failed to restore settings topics");
+        }
+        
         // Fire & forget (wait 31 sec. to pass the settings timeout)
         // NOTE: This doesn't seem work...
         //setTimeout(() => {
@@ -124,6 +159,15 @@ class MQTTDevice extends Homey.Device {
         for (let topic of this._topics.keys()) {
             this.log('Subscribe to MQTT Device topic: ' + topic);
             await this.mqttClient.subscribe(topic);
+        }
+    }
+
+    async unsubscribeFromTopics() {
+        if(this._topics) {
+            for (let topic of this._topics.keys()) {
+                this.log('Unsubscribe from MQTT Device topic: ' + topic);
+                await this.mqttClient.unsubscribe(topic);
+            }
         }
     }
 
@@ -169,6 +213,10 @@ class MQTTDevice extends Homey.Device {
     }
 
     async _publishMessage(capabilityId, value, capabilities){
+        if(!this._capabilities) {
+            this.log('No MQTT Device capabilities configured');
+            return;
+        }
         const config = this._capabilities[capabilityId];
         if (!config) {
             this.log('Capability config not found: ' + capabilityId);
