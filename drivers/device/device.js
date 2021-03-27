@@ -21,7 +21,7 @@ class MQTTDevice extends Homey.Device {
 	async onInit() {
         this.log('Initializing MQTT Device...');
 
-        this.onSettings(null, super.getSettings(), []);
+        this.onSettings({oldSettings:null, newSettings:super.getSettings(), changedKeys:[]});
 
         this.thisDeviceChanged = this.homey.flow.getDeviceTriggerCard('change');
         this.someDeviceChanged = this.homey.flow.getTriggerCard('device_changed');
@@ -34,14 +34,14 @@ class MQTTDevice extends Homey.Device {
         this.log('MQTTDevice is initialized');
     }
 
-    onSettings(oldSettingsObj, newSettingsObj, changedKeysArr) {
-        const settings = newSettingsObj || {};
+    onSettings({oldSettings, newSettings, changedKeys}) {
+        const settings = newSettings || {};
 
         this.log("Read settings:");
         this.log(JSON.stringify(settings, null, 2));
 
         // Modified topics?
-        if (changedKeysArr && changedKeysArr.includes('topics') && settings.topics) {
+        if (changedKeys && changedKeys.includes('topics') && settings.topics) {
             try {
                 const capabilities = JSON.parse(settings.topics);
                 if (capabilities && typeof capabilities === 'object') {

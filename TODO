@@ -85,6 +85,7 @@ MQTT Client app:
 
 
 ======= DONE =======
+- FIX: changing advanced settings of an MQTT Device
 - flow card to trigger broadcast
 - removed icons from HA dispatcher payload
 - initial topic: remove guid from deviceId
