@@ -78,13 +78,12 @@ Insights / System info:
 - (All) Prometheus functionality
 
 MQTT Client app:
-! Api to unregister topics (ref counter)
+! Api to unregister topics by id gained at registration (ref counter)
 ! send retained topic messages on (re)connect?
-- fix required app restarts
-- icon
 
 
 ======= DONE =======
+- HA dispatchers cover set position fix
 - Change MQTT device capabilities and topics in advanced device config
 - prevent message loops when the MQTT device state is updated by a message
 - MQTT Device onoff values + state updates

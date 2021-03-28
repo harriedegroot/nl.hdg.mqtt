@@ -4,5 +4,8 @@
   },
   "3.0.1": {
     "en": "MQTT Device improvements"
+  },
+  "3.0.2": {
+    "en": "Fix for HA cover discovery (Fibaro shutters)"
   }
 }
