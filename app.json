@@ -1,6 +1,6 @@
 {
   "id": "nl.hdg.mqtt",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "name": {
@@ -16,7 +16,13 @@
     "internet"
   ],
   "tags": {
-    "en": [ "MQTT", "HUB", "gateway", "bridge", "discovery" ]
+    "en": [
+      "MQTT",
+      "HUB",
+      "gateway",
+      "bridge",
+      "discovery"
+    ]
   },
   "permissions": [
     "homey:manager:api",
@@ -265,7 +271,6 @@
       ]
     }
   ],
-
   "flow": {
     "triggers": [
       {
