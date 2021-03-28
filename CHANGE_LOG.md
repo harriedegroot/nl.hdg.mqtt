@@ -1,5 +1,8 @@
 ## Change Log  
 
+#### 3.0.3
+- [FIX] MQTT device topic registration
+  
 #### 3.0.2
 - HA discovery: set cover position fix (Fibaro shutters)
 - Removed benefit message from settings page
