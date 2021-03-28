@@ -85,6 +85,8 @@ MQTT Client app:
 
 
 ======= DONE =======
+- Change MQTT device capabilities and topics in advanced device config
+- prevent message loops when the MQTT device state is updated by a message
 - MQTT Device onoff values + state updates
 - FIX: changing advanced settings of an MQTT Device
 - flow card to trigger broadcast
