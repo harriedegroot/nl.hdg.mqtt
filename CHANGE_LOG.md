@@ -1,5 +1,9 @@
 ## Change Log  
 
+#### 3.1.0
+- MQTT device: grab input value from json messages (jsonPath)
+- MQTT device: format output message payload to json (JSON-T template)
+  
 #### 3.0.3
 - [FIX] MQTT device topic registration
   
