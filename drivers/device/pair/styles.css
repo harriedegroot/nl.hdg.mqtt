@@ -1,3 +1,11 @@
 #hy-nav-prev {
     display: none !important;
 }
+
+.section .sub-header {
+    background: lightgrey;
+    padding: 7px;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+}

@@ -83,6 +83,8 @@ MQTT Client app:
 
 
 ======= DONE =======
+- MQTT Device jsonp output template
+- MQTT Device jsonPath input value
 - HA dispatchers cover set position fix
 - Change MQTT device capabilities and topics in advanced device config
 - prevent message loops when the MQTT device state is updated by a message

@@ -25,8 +25,12 @@
         "device": "MQTT Device"
       },
       "topic": {
-        "state": "Input topic (external device state)",
-        "set": "Output topic (MQTT device changes)"
+        "input": "INPUT",
+        "output": "OUTPUT",
+        "state": "State topic - external device state mapped to this capability",
+        "set": "Set topic - published to on value changes",
+        "path": "[optional] value path - JSONPath within state message",
+        "template": "[optional] Output template - JSON-T style payload formatting"
       }
     },
     "device": {

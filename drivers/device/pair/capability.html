@@ -13,7 +13,9 @@
             capabilities: undefined,
             sorted: undefined,
             stateTopic: '',
-            setTopic: ''
+            setTopic: '',
+            jsonPath: '',
+            outputTemplate: '{{value}}'
         },
         methods: {
             save(data) {
@@ -22,13 +24,19 @@
         },
         watch: {
             capability(val) {
-                this.save({ capability: val, stateTopic: this.stateTopic, setTopic: this.setTopic });
+                this.save({ capability: val, stateTopic: this.stateTopic, setTopic: this.setTopic, jsonPath: this.jsonPath, outputTemplate: this.outputTemplate });
             },
             stateTopic(val) {
-                this.save({ capability: this.capability, stateTopic: val, setTopic: this.setTopic });
+                this.save({ capability: this.capability, stateTopic: val, setTopic: this.setTopic, jsonPath: this.jsonPath, outputTemplate: this.outputTemplate });
             },
             setTopic(val) {
-                this.save({ capability: this.capability, stateTopic: this.stateTopic, setTopic: val });
+                this.save({ capability: this.capability, stateTopic: this.stateTopic, setTopic: val, jsonPath: this.jsonPath, outputTemplate: this.outputTemplate });
+            },
+            jsonPath(val) {
+                this.save({ capability: this.capability, stateTopic: this.stateTopic, setTopic: this.setTopic, jsonPath: val, outputTemplate: this.outputTemplate });
+            },
+            outputTemplate(val) {
+                this.save({ capability: this.capability, stateTopic: this.stateTopic, setTopic: this.setTopic, jsonPath: this.jsonPath, outputTemplate: val });
             }
         },
         mounted() {
@@ -56,16 +64,36 @@
         </div>
     </div>
 
-    <div class="setting" v-if="capability && capabilities[capability].getable">
-        <label class="settings-item-description">{{__('pair.default.topic.state')}}</label>
-        <div class="settings-itemgroup">
-            <input type="text" v-model="stateTopic">
+    <div class="section" v-if="capability && capabilities[capability].getable">
+        <h3 class="sub-header">{{__('pair.default.topic.input')}}</h3>
+        <div class="setting" >
+            <label class="settings-item-description">{{__('pair.default.topic.state')}}</label>
+            <div class="settings-itemgroup">
+                <input type="text" v-model="stateTopic">
+            </div>
+        </div>
+        <div class="setting">
+            <label class="settings-item-description">{{__('pair.default.topic.path')}}</label>
+            <div class="settings-itemgroup">
+                <input type="text" v-model="jsonPath">
+            </div>
         </div>
     </div>
-    <div class="setting" v-if="capability && capabilities[capability].setable">
-        <label class="settings-item-description">{{__('pair.default.topic.set')}}</label>
-        <div class="settings-itemgroup">
-            <input type="text" v-model="setTopic">
+
+    <div class="section" v-if="capability && capabilities[capability].setable">
+        <h3 class="sub-header">{{__('pair.default.topic.output')}}</h3>
+        <div class="setting">
+            <label class="settings-item-description">{{__('pair.default.topic.set')}}</label>
+            <div class="settings-itemgroup">
+                <input type="text" v-model="setTopic">
+            </div>
+        </div>
+        <div class="setting">
+            <label class="settings-item-description">{{__('pair.default.topic.template')}}</label>
+            <div class="settings-itemgroup">
+                <input type="text" v-model="outputTemplate">
+            </div>
         </div>
     </div>
+
 </div>

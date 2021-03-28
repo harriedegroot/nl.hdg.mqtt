@@ -12,6 +12,8 @@
   "dependencies": {
     "athom-api": "^3.3.0",
     "homey-lib": "^2.8.3",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "jsonpath": "^1.1.0",
+    "json-templater": "^1.2.0"
   }
 }

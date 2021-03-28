@@ -6,6 +6,9 @@ const MQTTClient = require('../../mqtt/MQTTClient');
 const MessageQueue = require('../../mqtt/MessageQueue');
 const TopicsRegistry = require('../../mqtt/TopicsRegistry');
 const { formatValue, parseValue, formatOnOff } = require('../../ValueParser');
+const jsonpath = require('jsonpath');
+const jsontString = require('json-templater/string');
+const jsontObject = require('json-templater/object');
 
 const HomeyLib = require('homey-lib');
 const CAPABILITIES = HomeyLib.getCapabilities();
@@ -181,13 +184,26 @@ class MQTTDevice extends Homey.Device {
             this.log('MQTTDevice.onMessage');
             this.log(topic + ': ' + (typeof message === 'object' ? JSON.stringify(message, null, 2) : message));
 
-            // TODO: Value templates?
             const capability = CAPABILITIES[capabilityId];
             if (!capability) {
                 this.log('capability not found for topic');
                 return;
             }
 
+            // jsonPath?
+            if(this._capabilities) {
+                const config = this._capabilities[capabilityId];
+                if(config && config.jsonPath && config.jsonPath.trim()) {
+                    try {
+                        const json = typeof message === 'object' ? message : JSON.parse(message.toString());
+                        const result = jsonpath.query(json, config.jsonPath.trim());
+                        message = Array.isArray(result) ? result[0] : result;
+                    } catch(e) {
+                        this.log("failed to parse & query json message", e);
+                    }
+                }
+            }
+            
             const value = parseValue(message, capability, this.percentageScale);
             const currentValue = await this.getCapabilityValue(capabilityId);
             if(value !== currentValue) {
@@ -224,9 +240,25 @@ class MQTTDevice extends Homey.Device {
         }
 
         const topic = config.setTopic;
-        const payload = capabilityId === 'onoff'
+        let payload = capabilityId === 'onoff'
             ? formatOnOff(value, this.onOffValues)
             : formatValue(value, CAPABILITIES[capabilityId], this.percentageScale);
+
+        // output template?
+        if(config.outputTemplate && config.outputTemplate !== '{{value}}') {
+            const template = config.outputTemplate;
+            try {
+                let state = this.getState() || {};
+                state.value = payload;
+                if(template.startsWith('{') || template.startsWith('[')) {
+                    payload = jsontObject(template, state);
+                } else {
+                    payload = jsontString(template, state);
+                }
+            } catch(e) {
+                this.log("failed to format output message", e);
+            }
+        }
 
         const retain = true;
         const qos = 0;
