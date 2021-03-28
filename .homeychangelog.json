@@ -10,5 +10,8 @@
   },
   "3.0.3": {
     "en": "MQTT device topic lister fix"
+  },
+  "3.1.0": {
+    "en": "MQTT Device: Handling of JSON input & output message formats"
   }
 }
