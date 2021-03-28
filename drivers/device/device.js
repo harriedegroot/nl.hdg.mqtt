@@ -68,7 +68,7 @@ class MQTTDevice extends Homey.Device {
     initTopics() {
         // Link state topics to capabilities
         this._topics = new Map();
-        if(this._capabilities && typeof capabilities === 'object') {
+        if(this._capabilities && typeof this._capabilities === 'object') {
             for (let capabilityId in this._capabilities) {
                 const stateTopic = this._capabilities[capabilityId].stateTopic;
                 if (stateTopic) {
