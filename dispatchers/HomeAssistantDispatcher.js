@@ -679,7 +679,7 @@ class HomeAssistantDispatcher {
                 payload.position_closed = capabilities[position].min || 0;
                 payload.position_open = capabilities[position].max || 100;
                 if (capabilities[position].setable) {
-                    payload.position_command_topic = `${stateTopic}/${positonTopic}/set`;
+                    payload.set_position_topic = `${stateTopic}/${positonTopic}/set`;
                     payload.set_position_template = '{{ value }}';
                 }
             }
