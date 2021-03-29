@@ -1,5 +1,8 @@
 ## Change Log  
 
+#### 3.1.1
+- Fix for publishing '0' and 'false' payloads
+  
 #### 3.1.0
 - MQTT device: grab input value from json messages (jsonPath)
 - MQTT device: format output message payload to json (JSON-T template)

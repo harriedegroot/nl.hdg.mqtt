@@ -1,6 +1,10 @@
 === TODO ===
 
+
+
+
 Settings:
+- check handling of device renaming
 - Refactor jQuery hacks to Vue bindings
 - Seperate call for device enable/disable
 - Show number of messages per device
@@ -78,11 +82,11 @@ Insights / System info:
 - (All) Prometheus functionality
 
 MQTT Client app:
-! Api to unregister topics by id gained at registration (ref counter)
 ! send retained topic messages on (re)connect?
-
+! Api to unregister topics by id gained at registration (ref counter)
 
 ======= DONE =======
+- handling flase & 0 payloads
 - MQTT Device jsonp output template
 - MQTT Device jsonPath input value
 - HA dispatchers cover set position fix
