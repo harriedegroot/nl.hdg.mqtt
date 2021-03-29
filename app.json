@@ -1,8 +1,9 @@
 {
   "id": "nl.hdg.mqtt",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "compatibility": ">=5.0.0",
   "sdk": 3,
+  "brandColor": "#103b7a",
   "name": {
     "en": "MQTT Hub",
     "nl": "MQTT Hub"
