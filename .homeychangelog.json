@@ -13,5 +13,8 @@
   },
   "3.1.0": {
     "en": "MQTT Device: Handling of JSON input & output message formats"
+  },
+  "3.1.1": {
+    "en": "Fix for publishing '0' and 'false' payloads"
   }
 }
