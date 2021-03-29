@@ -156,9 +156,10 @@ class MQTTClient  {
         //Log.debug(msg);
         try {
             if (this.registered) {
-                if (msg.mqttMessage === undefined) {
-                    msg.mqttMessage = null;
-                }
+                if (msg.mqttMessage === undefined) msg.mqttMessage = null;
+                else if (msg.mqttMessage === false) msg.mqttMessage = 'false'; // Temp fix for MQTT client not publishing 'false'
+                else if (msg.mqttMessage === 0) msg.mqttMessage = '0';         // Temp fix for MQTT client not publishing '0'
+
                 return await this.clientApp.post('send', msg);
             }
         } catch (error) {
