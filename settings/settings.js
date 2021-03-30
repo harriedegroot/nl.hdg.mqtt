@@ -10,7 +10,7 @@ var FETCH_LOG_DELAY = 5000;
 var $progress = null;
 var devices = [];
 
-const STATUS_TOPIC = 'hass/status';
+const STATUS_TOPIC = 'homeassistant/status';
 const STATUS_ONLINE = 'online';
 const STATUS_OFFLINE = 'offline';
 
@@ -30,7 +30,7 @@ const defaultSettings = {
 
     "hass": false,
     "hassTopic": "homeassistant",
-    "hassStatusTopic": "hass/status",
+    "hassStatusTopic": "homeassistant/status",
     "hassOnlineMessage": "online",
     "hassOfflineMessage": "offline",
 

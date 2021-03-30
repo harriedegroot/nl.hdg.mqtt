@@ -267,7 +267,7 @@ const coverClasses = new Set([
 ]);
 
 const DEFAULT_TOPIC = 'homeassistant';
-const STATUS_TOPIC = 'hass/status';
+const STATUS_TOPIC = 'homeassistant/status';
 const STATUS_ONLINE = 'online';
 const STATUS_OFFLINE = 'offline';
 

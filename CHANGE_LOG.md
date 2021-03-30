@@ -1,5 +1,8 @@
 ## Change Log  
 
+#### 3.1.2
+- Changed default HA status topic to: homeassistant/status
+  
 #### 3.1.1
 - Fix for publishing '0' and 'false' payloads
   

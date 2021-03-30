@@ -1,8 +1,5 @@
 === TODO ===
 
-
-
-
 Settings:
 - check handling of device renaming
 - Refactor jQuery hacks to Vue bindings
@@ -86,6 +83,7 @@ MQTT Client app:
 ! Api to unregister topics by id gained at registration (ref counter)
 
 ======= DONE =======
+- changed default HA status topic to: homeassistant/status
 - handling flase & 0 payloads
 - MQTT Device jsonp output template
 - MQTT Device jsonPath input value
