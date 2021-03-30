@@ -1,5 +1,8 @@
 ## Change Log  
 
+#### 3.1.7
+- Skip non-homie device topics in homieDevice message handling
+  
 #### 3.1.6
 - Logging: parse objects to JSON string for debugging puposes
   

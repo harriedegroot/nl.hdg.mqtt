@@ -83,6 +83,7 @@ MQTT Client app:
 ! Api to unregister topics by id gained at registration (ref counter)
 
 ======= DONE =======
+- Skip non-homie device topics in homieDevice message handling
 - changed default HA status topic to: homeassistant/status
 - handling flase & 0 payloads
 - MQTT Device jsonp output template
