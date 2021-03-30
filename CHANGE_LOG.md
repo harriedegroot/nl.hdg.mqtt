@@ -1,5 +1,8 @@
 ## Change Log  
 
+#### 3.1.4
+- Homey lib update to v2.9.0
+  
 #### 3.1.3
 - Changed default HA status topic to: homeassistant/status
   
