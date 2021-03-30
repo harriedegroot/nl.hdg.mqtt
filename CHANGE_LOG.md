@@ -1,5 +1,8 @@
 ## Change Log  
-
+  
+#### 3.1.8
+- HA Dispatcher: removed device name from entity name
+  
 #### 3.1.7
 - Skip non-homie device topics in homieDevice message handling
   
