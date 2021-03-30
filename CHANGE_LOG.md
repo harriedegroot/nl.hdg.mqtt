@@ -1,5 +1,8 @@
 ## Change Log  
-
+  
+#### 3.1.5
+- lib bump: missing packages
+  
 #### 3.1.4
 - Homey lib update to v2.9.0
   
