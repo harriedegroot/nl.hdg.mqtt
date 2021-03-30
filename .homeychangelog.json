@@ -28,5 +28,8 @@
   },
   "3.1.5": {
     "en": "Homey library update + changed HA default status topic"
+  },
+  "3.1.6": {
+    "en": "Extended logging"
   }
 }

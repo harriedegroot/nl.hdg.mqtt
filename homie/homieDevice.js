@@ -130,12 +130,11 @@ proto.setup = function(quiet) {
   })
 
   t.mqttClient.on('message', function (topic, message) {
-    if(message != null) {
-      t.onMessage(topic, message.toString());
+    if(message != null && message != undefined) {
+      t.onMessage(topic, typeof message === 'string' ? message : JSON.stringify(message));
     } else {
       t.onMessage(topic, null);
     }
-    
   })
 
   t.mqttClient.subscribe(t.mqttTopic + '/#');
@@ -252,6 +251,9 @@ proto.onMessage = function(topic, msg) {
   var t = this;
   var parts = topic.split('/');
   var deviceTopic = parts.slice(2).join('/');
+
+  // No valid homie device topic
+  if(!deviceTopic) return;
 
   // Emit broadcast messages to broadcast listeners
   if (parts[1] == '$broadcast') {
