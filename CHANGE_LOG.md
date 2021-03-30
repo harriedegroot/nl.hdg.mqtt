@@ -1,7 +1,10 @@
 ## Change Log  
 
-#### 3.1.2
+#### 3.1.3
 - Changed default HA status topic to: homeassistant/status
+  
+#### 3.1.2
+- Added brand color
   
 #### 3.1.1
 - Fix for publishing '0' and 'false' payloads
