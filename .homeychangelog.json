@@ -31,5 +31,8 @@
   },
   "3.1.6": {
     "en": "Extended logging"
+  },
+  "3.1.7": {
+    "en": "Skip messages not meant for the HUB"
   }
 }
