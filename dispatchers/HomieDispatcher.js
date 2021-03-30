@@ -145,10 +145,10 @@ class HomieDispatcher {
         this.homieDevice.setFirmware(this.settings.deviceId || this.system.homeyModelName || 'Homey', this.system.homeyVersion || '2+');
 
         this._messageCallback = function (topic, value) {
-            Log.debug('message: ' + topic + ' with value: ' + value);
+            Log.debug('message: ' + topic + ' with value: ' + (value ? JSON.stringify(value) : value));
         };
         this._broadcastCallback = function (topic, value) {
-            Log.debug('broadcast: ' + topic + ' with value: ' + value);
+            Log.debug('broadcast: ' + topic + ' with value: ' + (value ? JSON.stringify(value) : value));
         };
         this.homieDevice.on('message', this._messageCallback);
         this.homieDevice.on('broadcast', this._broadcastCallback);

@@ -1,4 +1,7 @@
 ## Change Log  
+
+#### 3.1.6
+- Logging: parse objects to JSON string for debugging puposes
   
 #### 3.1.5
 - lib bump: missing packages
