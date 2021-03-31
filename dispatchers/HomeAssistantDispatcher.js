@@ -735,7 +735,7 @@ class HomeAssistantDispatcher {
         const stateTopic = this.homieDispatcher.getTopic(device, capability);
 
         const payload = {
-            name: `${capabilityName}`,
+            name: `${device.name} - ${capabilityName}`,
             unique_id: `${device.id}_${capability.id}`,
             state_topic: stateTopic
         };

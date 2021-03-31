@@ -1,5 +1,8 @@
 ## Change Log  
-  
+
+#### 3.1.9
+- HA Dispatcher: REVERTED: removed device name from entity name
+    
 #### 3.1.8
 - HA Dispatcher: removed device name from entity name
   

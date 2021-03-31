@@ -37,5 +37,8 @@
   },
   "3.1.8": {
     "en": "Resolved HA Entity names"
+  },
+  "3.1.9": {
+    "en": "Reverted name change"
   }
 }
