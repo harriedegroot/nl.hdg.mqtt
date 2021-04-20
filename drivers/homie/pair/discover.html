@@ -50,6 +50,9 @@
                         config.deviceName = config.name;
                     }
 
+                    // skip unknown devices
+                    if(!config.deviceName) return;
+
                     // pre-selected capabilities
                     if (config.properties) {
                         for (let id of Object.keys(config.properties)) {
