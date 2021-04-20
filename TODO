@@ -34,14 +34,12 @@ Homie:
 - Zone depth > 1 (folder structure)
 
 App:
-! unsubscribe from topics on MQTT Client (e.g. Uninstall app / topic switch)
 - [BUG] disabling devices it removed them from the homie/homey topic tree but created another named literally homie/deviceID
 - [Check] Refresh devices on device/zone changes + Broadcast
 - Translate to Dutch
 - Translate to German
 
 MQTT Device:
-! unsubscribe from topics on uninstall
 - Handle (un)installing of MQTT app
 - Icons (fa/mdi apps)
 - Display topics in capabilities list?
@@ -49,20 +47,15 @@ MQTT Device:
 - availablility topic
 - Custom capabilities
 - Translations
-- value templates
 - auto detect on/off values (setting) from state topic
 - auto fill set topic while typing state topic
-- Disconnect MQTT client on done
 - Color (+ device setting)
 
 Discovery (auto discover external devices):
-! Styling bug empty list discovered devices (empty row?)
 ! [Check] Capability matches Nefit
 - Detect already configured devices & mark them created
-- [Bug] Close button does not react (discovered devices view)
 - Implement HA discovery
 - Keep a record of previous discovery topic
-- Disconnect MQTT client on done
 
 Commands:
 - Updating state for multiple devices (e.g. all devices in a room) == Homie broadcast?
@@ -78,11 +71,13 @@ Insights / System info:
 - Publish system info on seperate topics (i.s.o. json)
 - (All) Prometheus functionality
 
-MQTT Client app:
-! send retained topic messages on (re)connect?
-! Api to unregister topics by id gained at registration (ref counter)
-
 ======= DONE =======
+- Discovery: Disconnect MQTT client on done
+- Discovery: [Bug] Close button does not react (discovered devices view)
+- Discovery: Styling bug empty list discovered devices (empty row?)
+- Disconnect MQTT client on done
+- MQTT Device: unsubscribe from topics on uninstall
+- unsubscribe from topics on MQTT Client (e.g. Uninstall app / topic switch)
 - Skip non-homie device topics in homieDevice message handling
 - changed default HA status topic to: homeassistant/status
 - handling flase & 0 payloads
