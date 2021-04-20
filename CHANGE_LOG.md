@@ -1,5 +1,9 @@
 ## Change Log  
 
+#### 3.2.0
+- Unsubscribe from topics
+- Discovery: skip unknown devices
+
 #### 3.1.9
 - HA Dispatcher: REVERTED: removed device name from entity name
     

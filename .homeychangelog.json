@@ -40,5 +40,8 @@
   },
   "3.1.9": {
     "en": "Reverted name change"
+  },
+  "3.2.0": {
+    "en": "Unsubscribe from topics"
   }
 }
