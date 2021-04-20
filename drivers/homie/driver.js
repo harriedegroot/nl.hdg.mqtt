@@ -7,6 +7,7 @@ const MQTTDevice = require('../device/device');
 const HomeyLib = require('homey-lib');
 const CAPABILITIES = HomeyLib.getCapabilities();
 const DEVICE_CLASSES = HomeyLib.getDeviceClasses();
+const MQTT_REFERENCE = "nl.hdg.mqtt.homie.discovery";
 
 // Mapping of device types to classes
 const CLASSES = {
@@ -173,7 +174,7 @@ class MQTTHomieDiscovery extends Homey.Driver {
         Object.keys(CAPABILITIES).forEach(id => CAPABILITIES[id].id = id);
 
         // init mqtt
-        this.mqttClient = new MQTTClient(this.homey);
+        this.mqttClient = new MQTTClient(this.homey, MQTT_REFERENCE);
         this._messageHandler = this.onMessage.bind(this);
         this.mqttClient.onMessage.subscribe(this._messageHandler);
     }
@@ -219,8 +220,8 @@ class MQTTHomieDiscovery extends Homey.Driver {
         });
 
         session.setHandler('disconnect', async () => {
-            // TODO: Disconnect MQTT client
             this.log("User aborted or pairing is finished");
+            await this.stop();
         });
     }
 
@@ -346,7 +347,7 @@ class MQTTHomieDiscovery extends Homey.Driver {
             this.log("All nodes discovered");
             this._session.emit('done', true);
 
-            this.stop();
+            await this.stop();
         }
 
         return Promise.resolve();
@@ -378,10 +379,9 @@ class MQTTHomieDiscovery extends Homey.Driver {
         }
     }
 
-    stop() {
-        // TODO: Unregister from topic (keep track of registration count within client?)
-        //this.mqttClient.unregister(this._topic + '#');
+    async stop() {
         delete this._running;
+        await this.mqttClient.release(); // unsubscribe
     }
 }
 

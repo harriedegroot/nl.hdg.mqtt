@@ -6,6 +6,7 @@ const Message = require('./Message');
 
 const MQTT_CLIENT = 'nl.scanno.mqtt';
 const CLIENT_STARTUP_DELAY = 10000; // Wait 10 sec. before sending messages to the MQTT Client on app install
+const TOPIC_KEY_DELIMITER = '_';
 
 class MQTTClient  {
 
@@ -15,12 +16,13 @@ class MQTTClient  {
         return await this.clientApp.getInstalled(); 
     }
 
-    constructor(homey, autoConnect) {
+    constructor(homey, reference, autoConnect) {
 
         if(!this.clientApp){
             this.clientApp = homey.api.getApiApp(MQTT_CLIENT);
-            //this.clientApp.register();
         }
+
+        this.reference = reference || 'nl.hdg.mqtt';
 
         this.onRegistered = new EventHandler('MQTTClient.registered');
         this.onUnRegistered = new EventHandler('MQTTClient.unregistered');
@@ -80,7 +82,8 @@ class MQTTClient  {
         }
     }
 
-    async subscribe(topic, force) {
+    async subscribe(topic, reference, force) {
+        reference = reference || this.reference;
         if (!topic) {
             Log.error("No topic provided to subscribe to");
             return;
@@ -88,13 +91,15 @@ class MQTTClient  {
         try {
             if (topic) {
                 this.topics = this.topics || new Set();
-                if (!force && this.topics.has(topic)) {
-                    Log.debug('[SKIP] Already subscribed to topic: ' + topic);
+                const topicKey = topic + TOPIC_KEY_DELIMITER + reference; // note: reference may not contain '_';
+                if (!force && this.topics.has(topicKey)) {
+                    Log.debug('[SKIP] Already subscribed to topic: ' + topic + " for reference " + reference);
                 }
-                this.topics.add(topic);
+                this.topics.add(topicKey);
 
                 Log.info('subscribing to topic: ' + topic);
-                return await this.clientApp.post('subscribe', { topic: topic }, error => {
+                
+                return await this.clientApp.post('subscribe', { topic: topic, reference: reference }, error => {
                     if (error) {
                         Log.error(error);
                     } else {
@@ -111,7 +116,7 @@ class MQTTClient  {
                 Log.info("Wait 5 sec. and rety to subscription to topic: " + topic);
                 setTimeout(async () => {
                     Log.info("Retry subscription to topic: " + topic);
-                    await this.subscribe(topic, true);
+                    await this.subscribe(topic, reference, true);
                 }, 5000);
             } else {
                 this._failedSubscriptions = true;
@@ -132,18 +137,41 @@ class MQTTClient  {
         }
     }
 
-    unsubscribe(topic) {
+    async unsubscribe(topic, reference) {
+        reference = reference || this.reference;
         if (!topic) {
             Log.error("No topic provided to unsubscribe");
             return;
         }
         try {
-            this.topics.delete(topic);
-
-            // TODO: implement topic unsubscription
-
+            this.topics.delete(topic + TOPIC_KEY_DELIMITER + reference);
+            
+            return await this.clientApp.post('unsubscribe', { topic: topic, reference: reference }, error => {
+                if (error) {
+                    Log.error(error);
+                } else {
+                    Log.info('sucessfully unsubscribed from topic: ' + topic);
+                }
+            });
         } catch (e) {
             Log.error("Failed to unsubscribe from topic: " + topic);
+            Log.error(e);
+        }
+    }
+
+    async release(reference) {
+        try {
+            reference = reference || this.reference;
+            return await this.clientApp.post('unsubscribe', { reference: reference }, error => {
+                if (error) {
+                    Log.error(error);
+                } else {
+                    Log.info('sucessfully released all topics for reference: ' + reference);
+                }
+            });
+        } catch(e) {
+            Log.error("Failed to release subscribed topics for reference: " + reference);
+            Log.error(e);
         }
     }
 
@@ -228,8 +256,11 @@ class MQTTClient  {
         if (!this.topics) return;
 
         Log.debug("Subscribing to previous registered topics");
-        for (let topic of this.topics.values()) {
-            await this.subscribe(topic, true);
+        for (let topicKey of this.topics.values()) {
+            let split = topicKey.split(TOPIC_KEY_DELIMITER);
+            const reference = split.pop(); // remove reference from topic key
+            const topic = split.join(TOPIC_KEY_DELIMITER);
+            await this.subscribe(topic, reference, true);
         }
         Log.debug("Topics registered");
     }

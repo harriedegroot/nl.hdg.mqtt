@@ -24,6 +24,8 @@ class MQTTDevice extends Homey.Device {
 	async onInit() {
         this.log('Initializing MQTT Device...');
 
+        this.id = this.getData().id;
+
         this.onSettings({oldSettings:null, newSettings:super.getSettings(), changedKeys:[]});
 
         this.thisDeviceChanged = this.homey.flow.getDeviceTriggerCard('change');
@@ -161,7 +163,7 @@ class MQTTDevice extends Homey.Device {
     async subscribeToTopics() {
         for (let topic of this._topics.keys()) {
             this.log('Subscribe to MQTT Device topic: ' + topic);
-            await this.mqttClient.subscribe(topic);
+            await this.mqttClient.subscribe(topic, this.id);
         }
     }
 
@@ -169,7 +171,11 @@ class MQTTDevice extends Homey.Device {
         if(this._topics) {
             for (let topic of this._topics.keys()) {
                 this.log('Unsubscribe from MQTT Device topic: ' + topic);
-                await this.mqttClient.unsubscribe(topic);
+                try {
+                    await this.mqttClient.unsubscribe(topic, this.id);
+                } catch(e) {
+                    this.log("Failed to unsubscribe from MQTT Device topic", e);
+                }
             }
         }
     }
@@ -285,13 +291,19 @@ class MQTTDevice extends Homey.Device {
             .catch(this.error);
     }
 
-    onDeleted() {
+    async onDeleted() {
         this._deleted = true;
 
         if (this._messageHandler) {
             // TODO: Unregister topics
             this.mqttClient.onMessage.unsubscribe(this.messageHandler);
             delete this._messageHandler;
+
+            try {
+                await this.mqttClient.release(this.id);
+            } catch(e) {
+                this.log("Failed to relase subscribed topics for MQTT Device", e);
+            }
         }
     }
 }

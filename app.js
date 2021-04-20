@@ -459,11 +459,13 @@ class MQTTHub extends Homey.App {
             return await this.mqttClient.publish(new Message(this._birthTopic, msg, 1, true));
         }
     }
-    async _sendLastWillMessage() {
+    async _sendLastWillMessageAndReleaseAllTopics() {
         Log.debug("Send last will message");
         if (this.mqttClient && this.settings.birthWill !== false) {
             const msg = this.settings.willMessage || WILL_MESSAGE;
-            return await this.mqttClient.publish(new Message(this._willTopic, msg, 1, true));
+            const result = await this.mqttClient.publish(new Message(this._willTopic, msg, 1, true));
+            await this.mqttClient.release(); // Notify client to release all topics used by the app
+            return result;
         }
     }
     async _clearBirthWill() {
@@ -473,15 +475,13 @@ class MQTTHub extends Homey.App {
 
     uninstall() {
         try {
-            this._sendLastWillMessage()
+            this._sendLastWillMessageAndReleaseAllTopics()
                 .then(() => this.mqttClient.disconnect().catch(e => Log.error(e)))
                 .catch(error => {
                     Log.error("Failed to send last will message at uninstall");
                     Log.error(error);
                     this.mqttClient.disconnect().catch(e => Log.error(e));
                 });
-            
-            // TODO: unregister topics from MQTTClient?
         } catch(e) {
             // nothing...
         }
