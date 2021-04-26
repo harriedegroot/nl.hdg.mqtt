@@ -9,6 +9,7 @@ Settings:
 - CHECK en.json translations
 
 HASS:
+- MQTT_eventstream, MQTT_statestream
 - Include configuration overrides
 - Duplicate (unavailable) onoff entity (light & switch) for light devices
 - Color temperature (read & write)
@@ -40,12 +41,13 @@ App:
 - Translate to German
 
 MQTT Device:
+- Use the same capability multiple times
+- Custom capabilities
 - Handle (un)installing of MQTT app
 - Icons (fa/mdi apps)
 - Display topics in capabilities list?
 - Edit topics during install
 - availablility topic
-- Custom capabilities
 - Translations
 - auto detect on/off values (setting) from state topic
 - auto fill set topic while typing state topic
@@ -69,6 +71,7 @@ Commands:
 
 Insights / System info:
 - Publish system info on seperate topics (i.s.o. json)
+- updates per 1, 5 & 15 minutes
 - (All) Prometheus functionality
 
 ======= DONE =======
