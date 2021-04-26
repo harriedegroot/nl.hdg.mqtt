@@ -1,5 +1,11 @@
 ## Change Log  
 
+#### 3.3.0
+MQTT Device additions:
+- allow the same capability to be added multiple times
+- provide a custom display name (capability title)
+- edit capabilities while creating a new MQTT Device
+
 #### 3.2.0
 - Unsubscribe from topics
 - Discovery: skip unknown devices
