@@ -6,10 +6,14 @@
 <script>
     
     Homey.setTitle(__('pair.title.capability'));
+    
     new Vue({
         el: '#capability',
         data: {
+            edit: false,
             capability: undefined,
+            capabilityId: undefined,
+            displayName: undefined,
             capabilities: undefined,
             sorted: undefined,
             stateTopic: '',
@@ -19,34 +23,74 @@
         },
         methods: {
             save(data) {
-                Homey.emit('setCapability', data, (err, result) => console.log(err || result));
+                if(!data) return;
+
+                Homey.emit('setCapability', data, (err, result) => {
+                    console.log('setCapability', err || result);
+                    if(result) {
+                        if(this.displayName !== result.displayName) {
+                            this.displayName = this.displayName;
+                        }
+                        if(this.capabilityId !== result.capabilityId) {
+                            this.capabilityId = result.capabilityId;
+                        }
+                    }
+                });
+            },
+            model() {
+                return { 
+                    capability: this.capability,
+                    capabilityId: this.capabilityId,
+                    displayName: this.displayName,
+                    stateTopic: this.stateTopic,
+                    setTopic: this.setTopic,
+                    jsonPath: this.jsonPath,
+                    outputTemplate: this.outputTemplate
+                }
             }
         },
         watch: {
             capability(val) {
-                this.save({ capability: val, stateTopic: this.stateTopic, setTopic: this.setTopic, jsonPath: this.jsonPath, outputTemplate: this.outputTemplate });
+                this.save({ ...this.model(), capability: val});
             },
             stateTopic(val) {
-                this.save({ capability: this.capability, stateTopic: val, setTopic: this.setTopic, jsonPath: this.jsonPath, outputTemplate: this.outputTemplate });
+                this.save({ ...this.model(), stateTopic: val});
             },
             setTopic(val) {
-                this.save({ capability: this.capability, stateTopic: this.stateTopic, setTopic: val, jsonPath: this.jsonPath, outputTemplate: this.outputTemplate });
+                this.save({ ...this.model(), setTopic: val});
+            },
+            displayName(val) {
+                this.save({ ...this.model(), displayName: val});
             },
             jsonPath(val) {
-                this.save({ capability: this.capability, stateTopic: this.stateTopic, setTopic: this.setTopic, jsonPath: val, outputTemplate: this.outputTemplate });
+                this.save({ ...this.model(), jsonPath: val});
             },
             outputTemplate(val) {
-                this.save({ capability: this.capability, stateTopic: this.stateTopic, setTopic: this.setTopic, jsonPath: this.jsonPath, outputTemplate: val });
+                this.save({ ...this.model(), outputTemplate: val});
             }
         },
         mounted() {
-            Homey.emit('capability', true, (err, result) => this.capability = result);
-            Homey.emit('capabilities', { filter: true }, (err, result) => {
+            Homey.emit('capabilities', { filter: false }, (err, result) => {
                 this.capabilities = result;
                 const lang = 'en';
                 this.sorted = Object.keys(result)
                     .sort((a, b) => sortByTitle(result[a], result[b], lang))
                     .map(key => { return { id: key, capability: result[key] }; });
+            });
+            Homey.emit('capability', true, (err, result) => { 
+                console.log('editing', err || result);
+                if(result) {
+                    Homey.setTitle(__('pair.title.edit_capability'));
+
+                    this.edit = true;
+                    this.capability = result.capability;
+                    this.capabilityId = result.capabilityId;
+                    this.displayName = result.displayName;
+                    this.stateTopic = result.stateTopic;
+                    this.setTopic = result.setTopic;
+                    this.jsonPath = result.jsonPath;
+                    this.outputTemplate = result.outputTemplate;
+                }
             });
         },
     });
@@ -61,6 +105,13 @@
                     {{item.capability.title.en}} ({{item.id}})
                 </option>
             </select>
+        </div>
+    </div>
+
+    <div class="setting" v-if="capability">
+        <label class="settings-item-description">{{__('pair.default.topic.name')}}</label>
+        <div class="settings-itemgroup">
+            <input type="text" v-model="displayName">
         </div>
     </div>
 

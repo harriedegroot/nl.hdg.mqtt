@@ -20,7 +20,7 @@
                 Homey.emit('addCapability', null, (err, result) => console.log(err || result));
             },
             editCapability(capabilityId) {
-                //Homey.emit('editCapability', capabilityId, (err, result) => console.log(err || result));
+                Homey.emit('editCapability', capabilityId, (err, result) => console.log(err || result));
             },
             removeCapability(capabilityId) {
                 Homey.emit('removeCapability', { capabilityId }, (err, result) => {
@@ -29,6 +29,16 @@
                         this.device = result;
                     }
                 });
+            },
+            getTitle(capability) {
+                if(!this.device || !capability) return capability;
+                
+                if(this.device.capabilitiesOptions && this.device.capabilitiesOptions[capability] && this.device.capabilitiesOptions[capability].title) {
+                    return this.device.capabilitiesOptions[capability].title;
+                }
+                
+                const capabilityId = capability.split('.')[0];
+                return this.capabilities[capabilityId] ? this.capabilities[capabilityId].title.en : 'UNKNOWN';
             }
         },
         watch: {
@@ -58,7 +68,7 @@
         <div class="capabilities">
             <div class="capability" v-for="capability of device.capabilities" style="clear:both; padding:5px 0">
                 <button style="float:left;max-width:calc(100% - 54px);text-align: left;" class="hy-button visible edit-button" @click="editCapability(capability)">
-                    <span >{{capabilities[capability] ? capabilities[capability].title.en : 'NOT FOUND'}} ({{capability}})</span>
+                    <span>{{ getTitle(capability) }}</span>
                 </button>
                 <button class="hy-button visible remove-button" @click="removeCapability(capability)" style="max-width:50px">
                     <i class="fa fa-trash"></i>

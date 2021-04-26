@@ -57,7 +57,8 @@ class MQTTDriver extends Homey.Driver {
                 id: guid(),
                 version: 1
             },
-            capabilities: []
+            capabilities: [],
+            capabilitiesOptions: {}
         };
 
         session.setHandler('log', async (msg) => {
@@ -80,7 +81,8 @@ class MQTTDriver extends Homey.Driver {
         });
 
         session.setHandler('capability', async (data) => {
-            return edit;
+            if(!edit) return;
+            return pairingDevice.settings.capabilities[edit];
         });
 
         session.setHandler('addCapability', async (data) => {
@@ -96,7 +98,8 @@ class MQTTDriver extends Homey.Driver {
         });
         session.setHandler('removeCapability', async (data) => {
             if (data && data.capabilityId) {
-                pairingDevice.capabilities = pairingDevice.capabilities.filter(c => c !== data.capabilityId);
+                pairingDevice.capabilities = (pairingDevice.capabilities || []).filter(id => id !== data.capabilityId);
+                delete pairingDevice.capabilitiesOptions[data.capabilityId];
                 delete pairingDevice.settings.capabilities[data.capabilityId];
             }
             return pairingDevice;
@@ -117,20 +120,57 @@ class MQTTDriver extends Homey.Driver {
 
         session.setHandler('setCapability', async (data) => {
             this.log('setCapability: ' + JSON.stringify(data, null, 2));
-            if (data && data.capability) {
-                const id = data.capability;
-                if (!pairingDevice.capabilities.includes(data.capability)) {
-                    pairingDevice.capabilities.push(data.capability);
+            let capabilityId = undefined;
+            if(data) {
+                capabilityId = data.capabilityId;
+
+                // new capability selected?
+                if(capabilityId && data.capability && capabilityId.split('.')[0] !== data.capability) {
+                    pairingDevice.capabilities = (pairingDevice.capabilities || []).filter(id => id === capabilityId);
+                    delete pairingDevice.capabilitiesOptions[capabilityId];
+                    delete pairingDevice.settings.capabilities[capabilityId];
+                    capabilityId = undefined;
                 }
-                const config = pairingDevice.settings.capabilities[id] || {};
-                Object.assign(config, data);
-                pairingDevice.settings.capabilities[id] = config;
+
+                // new capability?
+                if(!capabilityId && data.capability) {
+
+                    // get next available id
+                    capabilityId = this._getCapabilityId(pairingDevice, data.capability);
+                    data.capabilityId = capabilityId;
+                    
+                    // register capability
+                    pairingDevice.capabilities.push(capabilityId);
+
+                    // displayName?
+                    if(!data.displayName) {
+                        data.displayName = CAPABILITIES[data.capability] ? CAPABILITIES[data.capability].title.en : undefined;
+                    }
+                }
+
+                // update settings
+                if(capabilityId) {
+
+                    // update custom display name
+                    if(data.displayName) {
+                        pairingDevice.capabilitiesOptions[capabilityId] = {
+                            title: data.displayName
+                        };
+                    } else if(pairingDevice.capabilitiesOptions[capabilityId]) {
+                        delete pairingDevice.capabilitiesOptions[capabilityId].title;
+                    }
+
+                    // update config
+                    const config = pairingDevice.settings.capabilities[capabilityId] || {};
+                    Object.assign(config, data);
+                    pairingDevice.settings.capabilities[capabilityId] = config;
+                }
             }
 
             pairingDevice.settings.topics = this.getSettingsTopics(pairingDevice);
 
             this.log('pairingDevice: ' + JSON.stringify(pairingDevice));
-            return pairingDevice;
+            return data;
         });
 
         session.setHandler('getPairingDevice', async (data) => {
@@ -143,7 +183,7 @@ class MQTTDriver extends Homey.Driver {
                 throw new Error("MQTT Client app not installed");
             }
 
-            return await this.homey.addDevice(pairingDevice);
+            return await this.homey.createDevice(pairingDevice);
         });
 
         session.setHandler('disconnect', async () => {
@@ -152,12 +192,29 @@ class MQTTDriver extends Homey.Driver {
         });
     }
 
+    _getCapabilityId(pairingDevice, capability) {
+
+        // already has a postfix?
+        if(capability.indexOf('.') !== -1) {
+            return capability;
+        }
+
+        // multiple of the same capability? => add index postfix
+        if (pairingDevice.capabilities.includes(capability)) {
+            let idx = 0;
+            while(pairingDevice.capabilities.includes(capability + '.' + (++idx))){}
+            capability += '.'  + idx;
+        }
+        return capability;
+    }
+
     getSettingsTopics(pairingDevice) {
         if (!pairingDevice || !pairingDevice.settings || !pairingDevice.settings.capabilities) return '';
 
-        let topics = { ...pairingDevice.settings.capabilities };
+        // clone
+        let topics = JSON.parse(JSON.stringify(pairingDevice.settings.capabilities || {})); 
         for (let id in topics) {
-            delete topics[id].capability;
+            delete topics[id].capabilityId;
         }
         return JSON.stringify(topics, null, 2);
     }
