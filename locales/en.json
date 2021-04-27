@@ -3,6 +3,7 @@
     "title": {
       "capabilities": "Capabilities",
       "capability": "Add capability",
+      "edit_capability": "Edit capability",
       "done": "Ready",
       "icon": "Icon",
       "name": "Device Name",
@@ -29,6 +30,7 @@
         "output": "OUTPUT",
         "state": "State topic - external device state mapped to this capability",
         "set": "Set topic - published to on value changes",
+        "name": "Display name - clear to display the default local translation",
         "path": "[optional] value path - JSONPath within state message",
         "template": "[optional] Output template - JSON-T style payload formatting"
       }

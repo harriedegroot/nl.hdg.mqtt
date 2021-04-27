@@ -23,7 +23,7 @@
     }
     console.log(device);
 
-    Homey.addDevice(device, (err, res) => {
+    Homey.createDevice(device, (err, res) => {
       if (err) {
         console.log(err);
         return;

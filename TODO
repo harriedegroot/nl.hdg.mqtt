@@ -41,7 +41,6 @@ App:
 - Translate to German
 
 MQTT Device:
-- Use the same capability multiple times
 - Custom capabilities
 - Handle (un)installing of MQTT app
 - Icons (fa/mdi apps)
@@ -75,6 +74,9 @@ Insights / System info:
 - (All) Prometheus functionality
 
 ======= DONE =======
+- MQTT DEVICE: edit capabilities while creating a device
+- MQTT DEVICE: Custom display names
+- MQTT DEVICE: Use the same capability multiple times
 - Discovery: Disconnect MQTT client on done
 - Discovery: [Bug] Close button does not react (discovered devices view)
 - Discovery: Styling bug empty list discovered devices (empty row?)

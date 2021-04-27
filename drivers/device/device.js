@@ -130,12 +130,6 @@ class MQTTDevice extends Homey.Device {
         } catch(e) {
             this.log("Failed to restore settings topics");
         }
-        
-        // Fire & forget (wait 31 sec. to pass the settings timeout)
-        // NOTE: This doesn't seem work...
-        //setTimeout(() => {
-        //    this.setSettings(settings).catch(error => this.log(error));
-        //}, 31000);
     }
 
     async initMQTT() {
@@ -159,8 +153,6 @@ class MQTTDevice extends Homey.Device {
         if (!this.mqttClient.isRegistered()) {
             await this.mqttClient.connect();
         }
-
-        // TODO: Handle (un)install of client (subscribe topics)
     }
     
     async subscribeToTopics() {
@@ -292,8 +284,11 @@ class MQTTDevice extends Homey.Device {
         process.nextTick(async () => {
             await delay(100);
             capabilities = capabilities || this.getCapabilities();
-            this.thisDeviceChanged.trigger(this, {}, capabilities) // Fire and forget
-                .catch(this.error);
+            try {
+                await this.thisDeviceChanged.trigger(this, {}, capabilities);
+            } catch(e) {
+                this.error(e);
+            }
         });
 
         let tokens = {
@@ -301,15 +296,17 @@ class MQTTDevice extends Homey.Device {
             'variable': capabilityId,
             'value': '' + value
         };
-        this.someDeviceChanged.trigger(tokens) // Fire and forget
-            .catch(this.error);
+        try {
+            await this.someDeviceChanged.trigger(tokens);
+        } catch(e) {
+            this.error(e);
+        }
     }
 
     async onDeleted() {
         this._deleted = true;
 
         if (this._messageHandler) {
-            // TODO: Unregister topics
             this.mqttClient.onMessage.unsubscribe(this.messageHandler);
             delete this._messageHandler;
 
