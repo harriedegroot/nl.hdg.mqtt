@@ -45,7 +45,6 @@ MQTT Device:
 - Handle (un)installing of MQTT app
 - Icons (fa/mdi apps)
 - Display topics in capabilities list?
-- Edit topics during install
 - availablility topic
 - Translations
 - auto detect on/off values (setting) from state topic
@@ -74,6 +73,7 @@ Insights / System info:
 - (All) Prometheus functionality
 
 ======= DONE =======
+- MQTT DEVICE: allow the same topic to be used for multiple capabilities
 - MQTT DEVICE: edit capabilities while creating a device
 - MQTT DEVICE: Custom display names
 - MQTT DEVICE: Use the same capability multiple times

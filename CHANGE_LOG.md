@@ -1,5 +1,8 @@
 ## Change Log  
 
+#### 3.3.1
+- MQTT Device: allow the same topic to be used for multiple capabilities
+
 #### 3.3.0
 MQTT Device additions:
 - allow the same capability to be added multiple times
