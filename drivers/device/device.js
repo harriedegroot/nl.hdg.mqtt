@@ -77,7 +77,10 @@ class MQTTDevice extends Homey.Device {
             for (let capabilityId in this._capabilities) {
                 const stateTopic = this._capabilities[capabilityId].stateTopic;
                 if (stateTopic) {
-                    this._topics.set(stateTopic, capabilityId);
+                    if(!this._topics.get(stateTopic)){
+                        this._topics.set(stateTopic,[])
+                    }
+                    this._topics.get(stateTopic).push(capabilityId);
                 }
             }
         }
@@ -180,15 +183,8 @@ class MQTTDevice extends Homey.Device {
         }
     }
 
-    async onMessage(topic, message) {
-        if (this._deleted) return;
-
+    parseMessageFor(message,capabilityId) {
         try {
-            const capabilityId = this._topics.get(topic);
-            if (!capabilityId) return;
-
-            this.log('MQTTDevice.onMessage');
-            this.log(topic + ': ' + (typeof message === 'object' ? JSON.stringify(message, null, 2) : message));
 
             const capability = CAPABILITIES[capabilityId];
             if (!capability) {
@@ -216,6 +212,24 @@ class MQTTDevice extends Homey.Device {
                 await this.setCapabilityValue(capabilityId, value);
                 await this._publishMessage(capabilityId, value);
             }
+        } catch (e) {
+            this.log('Error handeling MQTT device message');
+            this.log(e);
+        }
+    }
+
+    async onMessage(topic, message) {
+        if (this._deleted) return;
+
+        try {
+            const capabilityIds = this._topics.get(topic);
+            if (!capabilityIds || capabilityIds.length==0) return;
+
+            this.log('MQTTDevice.onMessage');
+            this.log(topic + ': ' + (typeof message === 'object' ? JSON.stringify(message, null, 2) : message));
+
+            capabilityIds.map(capabilityId=>this.parseMessageFor(capabilityId,message));
+
         } catch (e) {
             this.log('Error handeling MQTT device message');
             this.log(e);
