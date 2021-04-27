@@ -77,10 +77,10 @@ class MQTTDevice extends Homey.Device {
             for (let capabilityId in this._capabilities) {
                 const stateTopic = this._capabilities[capabilityId].stateTopic;
                 if (stateTopic) {
-                    if(!this._topics[stateTopic]){
-                        this._topics[stateTopic]=[]
+                    if(!this._topics.get(stateTopic)){
+                        this._topics.set(stateTopic,[])
                     }
-                    this._topics[stateTopic].push(capabilityId);
+                    this._topics.get(stateTopic).push(capabilityId);
                 }
             }
         }
