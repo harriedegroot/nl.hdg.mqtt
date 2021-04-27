@@ -77,10 +77,11 @@ class MQTTDevice extends Homey.Device {
             for (let capabilityId in this._capabilities) {
                 const stateTopic = this._capabilities[capabilityId].stateTopic;
                 if (stateTopic) {
-                    if(!this._topics.get(stateTopic)){
-                        this._topics.set(stateTopic,[])
+                    let topics = this._topics.get(stateTopic) || [];
+                    if(!topics.includes(capabilityId)){
+                        topics.push(capabilityId);
+                        this._topics.set(stateTopic, topics);
                     }
-                    this._topics.get(stateTopic).push(capabilityId);
                 }
             }
         }
@@ -175,10 +176,10 @@ class MQTTDevice extends Homey.Device {
         }
     }
 
-    parseMessageFor(message,capabilityId) {
+    async parseMessageFor(capabilityId, message) {
         try {
-
-            const capability = CAPABILITIES[capabilityId];
+            const id = capabilityId.split('.')[0];
+            const capability = CAPABILITIES[id];
             if (!capability) {
                 this.log('capability not found for topic');
                 return;
@@ -220,7 +221,9 @@ class MQTTDevice extends Homey.Device {
             this.log('MQTTDevice.onMessage');
             this.log(topic + ': ' + (typeof message === 'object' ? JSON.stringify(message, null, 2) : message));
 
-            capabilityIds.map(capabilityId=>this.parseMessageFor(capabilityId,message));
+            for(let capabilityId of capabilityIds) {
+                await this.parseMessageFor(capabilityId, message);
+            }
 
         } catch (e) {
             this.log('Error handeling MQTT device message');
