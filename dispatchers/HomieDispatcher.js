@@ -16,6 +16,7 @@ const DEFAULT_COLOR_FORMAT = "hsv";
 
 const NODE_COMMANDS = ['$type', '$name', '$properties'];
 const PROPERTY_COMMANDS = ['$name', '$retained', '$settable', '$unit', '$datatype', '$format'];
+const COLOR_CAPABILITIES = ['light_hue', 'light_saturation', 'light_temperature'];
 
 const round = function (value, min, max) {
     if (typeof value !== 'number') return value;
@@ -319,19 +320,25 @@ class HomieDispatcher {
         NODE_COMMANDS.forEach(command => this.topicsRegistry.register(device.id, node.mqttTopic + '/' + command));
 
         const capabilities = device.capabilitiesObj;
+        
         if (capabilities) {
+            let colorHandled = false;
             for (let key in capabilities) {
                 if (capabilities.hasOwnProperty(key)) {
                     const capability = capabilities[key];
                     const id = capability.id;
-                    const color = (this.colorFormat !== 'values' && id === 'light_hue') ? 'color' : null;
+                    const color = (this.colorFormat !== 'values' && COLOR_CAPABILITIES.includes(id)) ? 'color' : null;
                     const value = capability.value;
                     const capabilityTitle = color ? 'Color' : (capability.title && typeof capability.title === 'object') ? capability.title['en'] : capability.title;
                     const capabilityName = capabilityTitle || capability.desc || id;
                     const name = _.replace([device.name, capabilityName].filter(x => x).join(' - '), "_", " ");
                     const dataType = this._convertDataType(capability);
 
-                    if (dataType) { // NOTE: undefined for filtered color formats
+                    if (dataType && !(colorHandled && dataType === 'color')) {
+                        if(dataType === 'color') {
+                            colorHandled = true;
+                        }
+
                         const property = node.advertise(color || (this.normalize ? normalize(id) : id))
                             .setName(name)
                             .setUnit(this._convertUnit(capability))
@@ -503,10 +510,9 @@ class HomieDispatcher {
         if (this.colorFormat !== 'values') {
             switch (capability.id) {
                 case 'light_hue':
-                    return 'color';         // Catch 'color' type
                 case 'light_saturation':
                 case 'light_temperature':
-                    return undefined;       // NOTE: Skip additional color value. The color dataType is already created from 'light_hue'
+                    return 'color';         // Catch 'color' type
             }
         }
 
@@ -594,9 +600,13 @@ class HomieDispatcher {
 
         // Catch colors
         //if (this.colorFormat !== 'values') {
-            if (capability.id === 'light_hue') {
+            if (capability.id === 'light_hue' || capability.id === 'light_temperature') {
                 let device = await this.api.devices.getDevice({ id: deviceId });
                 if (device) {
+                    // HACK: fix for bulbs with temperature, but without hue color
+                    if(capability.id === 'light_temperature' && device.capabilitiesObj.hasOwnProperty('light_hue')) {
+                        return; // NOTE: Skip additional color value. The color dataType is already handled by 'light_hue'
+                    }
                     if (this.broadcast) {
                         const property = node.setProperty('color');
                         if (property) {
