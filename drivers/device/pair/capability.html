@@ -18,7 +18,7 @@
             sorted: undefined,
             stateTopic: '',
             setTopic: '',
-            jsonPath: '',
+            valueTemplate: '',
             outputTemplate: '{{value}}'
         },
         methods: {
@@ -44,7 +44,7 @@
                     displayName: this.displayName,
                     stateTopic: this.stateTopic,
                     setTopic: this.setTopic,
-                    jsonPath: this.jsonPath,
+                    valueTemplate: this.valueTemplate,
                     outputTemplate: this.outputTemplate
                 }
             }
@@ -62,8 +62,8 @@
             displayName(val) {
                 this.save({ ...this.model(), displayName: val});
             },
-            jsonPath(val) {
-                this.save({ ...this.model(), jsonPath: val});
+            valueTemplate(val) {
+                this.save({ ...this.model(), valueTemplate: val});
             },
             outputTemplate(val) {
                 this.save({ ...this.model(), outputTemplate: val});
@@ -88,7 +88,7 @@
                     this.displayName = result.displayName;
                     this.stateTopic = result.stateTopic;
                     this.setTopic = result.setTopic;
-                    this.jsonPath = result.jsonPath;
+                    this.valueTemplate = result.valueTemplate;
                     this.outputTemplate = result.outputTemplate;
                 }
             });
@@ -124,9 +124,9 @@
             </div>
         </div>
         <div class="setting">
-            <label class="settings-item-description">{{__('pair.default.topic.path')}}</label>
+            <label class="settings-item-description">{{__('pair.default.topic.value_template')}}</label>
             <div class="settings-itemgroup">
-                <input type="text" v-model="jsonPath">
+                <input type="text" v-model="valueTemplate">
             </div>
         </div>
     </div>
@@ -140,7 +140,7 @@
             </div>
         </div>
         <div class="setting">
-            <label class="settings-item-description">{{__('pair.default.topic.template')}}</label>
+            <label class="settings-item-description">{{__('pair.default.topic.output_template')}}</label>
             <div class="settings-itemgroup">
                 <input type="text" v-model="outputTemplate">
             </div>

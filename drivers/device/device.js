@@ -14,6 +14,9 @@ const HomeyLib = require('homey-lib');
 const CAPABILITIES = HomeyLib.getCapabilities();
 //const DEVICE_CLASSES = HomeyLib.getDeviceClasses();
 
+const  { create, all } = require('mathjs')
+const math = create(all);
+
 const STATIC = {
     mqttClient: null,
     messageQueue: null
@@ -24,6 +27,7 @@ class MQTTDevice extends Homey.Device {
 	async onInit() {
         this.log('Initializing MQTT Device...');
 
+        this.compiled = new Map();
         this.id = this.getData().id;
 
         this.onSettings({oldSettings:null, newSettings:super.getSettings(), changedKeys:[]});
@@ -51,6 +55,8 @@ class MQTTDevice extends Homey.Device {
         const capabilities = settings.topics ? JSON.parse(settings.topics) : null;
         this._capabilities = capabilities;
 
+        this._compile(); // compile value templates
+
         // Modified topics?
         if (changedKeys && changedKeys.includes('topics') && settings.topics) {
             try {
@@ -67,6 +73,28 @@ class MQTTDevice extends Homey.Device {
             }
         } else {
             this.initTopics();
+        }
+    }
+
+    /**
+     * compile mathjs expressions
+     */
+    _compile() {
+        this.compiled.clear();
+        if(this._capabilities && typeof this._capabilities === 'object') {
+            for (let capabilityId in this._capabilities) {
+                const config = this._capabilities[capabilityId];
+                if(config && config.valueTemplate && !config.valueTemplate.startsWith('$') && !this.compiled.has(config.valueTemplate)) {
+                    try {
+                        let compiled = math.compile(config.valueTemplate);
+                        if(compiled) {
+                            this.compiled.set(config.valueTemplate, compiled);
+                        }
+                    } catch(e) {
+                        this.log(e);
+                    }
+                }
+            }
         }
     }
 
@@ -176,6 +204,19 @@ class MQTTDevice extends Homey.Device {
         }
     }
 
+    _parseMessageData(msg) {
+        switch(typeof msg)
+        {
+            case 'object':
+                return msg;
+            case 'string':
+                let data = JSON.parse(msg);
+                return typeof data === 'object' ? data : { value: data };
+            default:
+                return { value: msg }
+        }
+    }
+
     async parseMessageFor(capabilityId, message) {
         try {
             const id = capabilityId.split('.')[0];
@@ -185,16 +226,22 @@ class MQTTDevice extends Homey.Device {
                 return;
             }
 
-            // jsonPath?
+            // value template?
             if(this._capabilities) {
                 const config = this._capabilities[capabilityId];
-                if(config && config.jsonPath && config.jsonPath.trim()) {
-                    try {
-                        const json = typeof message === 'object' ? message : JSON.parse(message.toString());
-                        const result = jsonpath.query(json, config.jsonPath.trim());
-                        message = Array.isArray(result) ? result[0] : result;
-                    } catch(e) {
-                        this.log("failed to parse & query json message", e);
+                if(config) {
+                    let template = (config.valueTemplate || config.jsonPath || '').trim();
+                    if(template) {
+                        try {
+                            const data = this._parseMessageData(message);
+                            const mathjs = this.compiled.get(template);
+                            const result = mathjs
+                                ? mathjs.evaluate(data)  // mathJS
+                                : jsonpath.query(data, template); // jsonPath
+                            message = Array.isArray(result) ? result[0] : result;
+                        } catch(e) {
+                            this.log("failed to parse & query json message", e);
+                        }
                     }
                 }
             }

@@ -31,8 +31,8 @@
         "state": "State topic - external device state mapped to this capability",
         "set": "Set topic - published to on value changes",
         "name": "Display name - clear to display the default local translation",
-        "path": "[optional] value path - JSONPath within state message",
-        "template": "[optional] Output template - JSON-T style payload formatting"
+        "value_template": "[optional] Value template - JSONPath or MathJS expression",
+        "output_template": "[optional] Output template - JSON-T style payload formatting"
       }
     },
     "device": {
