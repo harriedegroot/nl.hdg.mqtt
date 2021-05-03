@@ -13,3 +13,4 @@ node_modules/ws/
 
 inspector_modules
 build
+package-lock.json
