@@ -25,6 +25,7 @@ HASS:
 - [REFACTOR] De-couple parse & format logic. Refactor data processing. Create handlers per type?
 
 Homie:
+- refactor color handling
 - Use ValueParser
 - Do NOT retain messages for non-getable capabilities (button)
 - Introduce queue for updating device state (use brightness slider ha app)
@@ -73,6 +74,7 @@ Insights / System info:
 - (All) Prometheus functionality
 
 ======= DONE =======
+- color temperature fix
 - MQTT DEVICE: allow the same topic to be used for multiple capabilities
 - MQTT DEVICE: edit capabilities while creating a device
 - MQTT DEVICE: Custom display names

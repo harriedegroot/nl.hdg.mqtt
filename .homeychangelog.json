@@ -49,5 +49,8 @@
   },
   "3.3.1": {
     "en": "MQTT Device improvements"
+  },
+  "3.3.2": {
+    "en": "Color temperature fix"
   }
 }

@@ -1,5 +1,8 @@
 ## Change Log  
 
+#### 3.3.2
+- Color temperature fix
+
 #### 3.3.1
 - MQTT Device: allow the same topic to be used for multiple capabilities
 
