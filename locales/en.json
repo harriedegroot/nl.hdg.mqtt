@@ -32,7 +32,7 @@
         "set": "Set topic - published to on value changes",
         "name": "Display name - clear to display the default local translation",
         "value_template": "[optional] Value template - JSONPath or MathJS expression",
-        "output_template": "[optional] Output template - JSON-T style payload formatting"
+        "output_template": "[optional] Output template - JSON-T format or MathJS expression"
       }
     },
     "device": {

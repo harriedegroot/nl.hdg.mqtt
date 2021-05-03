@@ -84,14 +84,26 @@ class MQTTDevice extends Homey.Device {
         if(this._capabilities && typeof this._capabilities === 'object') {
             for (let capabilityId in this._capabilities) {
                 const config = this._capabilities[capabilityId];
-                if(config && config.valueTemplate && !config.valueTemplate.startsWith('$') && !this.compiled.has(config.valueTemplate)) {
-                    try {
-                        let compiled = math.compile(config.valueTemplate);
-                        if(compiled) {
-                            this.compiled.set(config.valueTemplate, compiled);
+                if(config) {
+                    if(config.valueTemplate && !config.valueTemplate.startsWith('$') && !this.compiled.has(config.valueTemplate)) {
+                        try {
+                            let compiled = math.compile(config.valueTemplate);
+                            if(compiled) {
+                                this.compiled.set(config.valueTemplate, compiled);
+                            }
+                        } catch(e) {
+                            this.log(e);
                         }
-                    } catch(e) {
-                        this.log(e);
+                    }
+                    if(config.outputTemplate && !config.outputTemplate.includes('{{') && !this.compiled.has(config.outputTemplate)) {
+                        try {
+                            let compiled = math.compile(config.outputTemplate);
+                            if(compiled) {
+                                this.compiled.set(config.outputTemplate, compiled);
+                            }
+                        } catch(e) {
+                            this.log(e);
+                        }
                     }
                 }
             }
@@ -307,16 +319,22 @@ class MQTTDevice extends Homey.Device {
             : formatValue(value, CAPABILITIES[capabilityId], this.percentageScale);
 
         // output template?
-        if(config.outputTemplate && config.outputTemplate !== '{{value}}') {
+        if(config.outputTemplate && config.outputTemplate.replace("{{", "").replace("}}", "").trim() !== 'value') {
             const template = config.outputTemplate;
             try {
                 let state = this.getState() || {};
                 state.value = payload;
-                if(template.startsWith('{') || template.startsWith('[')) {
-                    payload = jsontObject(template, state);
-                } else {
-                    payload = jsontString(template, state);
+                const mathjs = this.compiled.get(template);
+                if(mathjs) { // math?
+                    payload = mathjs.evaluate(state);
+                } else { // json-t
+                    if(!template.startsWith('{{') && (template.startsWith('{') || template.startsWith('['))) {
+                        payload = jsontObject(template, state);
+                    } else {
+                        payload = jsontString(template, state);
+                    }
                 }
+                
             } catch(e) {
                 this.log("failed to format output message", e);
             }
