@@ -52,5 +52,8 @@
   },
   "3.3.2": {
     "en": "Color temperature fix"
+  },
+  "3.3.3": {
+    "en": "HA Discovery color temperature fix"
   }
 }

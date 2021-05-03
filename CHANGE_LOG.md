@@ -1,7 +1,10 @@
 ## Change Log  
 
+#### 3.3.3
+- Color temperature fix (HA => Homey)
+
 #### 3.3.2
-- Color temperature fix
+- Color temperature fix (Homey => HA)
 
 #### 3.3.1
 - MQTT Device: allow the same topic to be used for multiple capabilities
