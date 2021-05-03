@@ -1,5 +1,8 @@
 ## Change Log  
 
+#### 3.4.0
+- MQTTDevice: allow mathJS expressions as value template for incoming messages
+
 #### 3.3.3
 - Color temperature fix (HA => Homey)
 
