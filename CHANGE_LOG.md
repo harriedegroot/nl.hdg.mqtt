@@ -1,5 +1,9 @@
 ## Change Log  
 
+#### 3.4.1
+- MQTTDevice: allow mathJS expressions as output template for outgoing messages
+- MQTTDevice: removed default '{{value}}' output template
+
 #### 3.4.0
 - MQTTDevice: allow mathJS expressions as value template for incoming messages
 

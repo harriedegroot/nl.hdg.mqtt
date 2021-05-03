@@ -74,7 +74,7 @@ Insights / System info:
 - (All) Prometheus functionality
 
 ======= DONE =======
-- MQTT Device: value template with mathJS expressions
+- MQTT Device: value & output templates with mathJS expressions
 - color temperature fix
 - MQTT DEVICE: allow the same topic to be used for multiple capabilities
 - MQTT DEVICE: edit capabilities while creating a device
