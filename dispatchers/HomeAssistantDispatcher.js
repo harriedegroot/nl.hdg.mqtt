@@ -546,7 +546,7 @@ class HomeAssistantDispatcher {
 
             // Homie values are 0...100
             // HASS: The color temperature command slider has a range of 153 to 500 mireds (micro reciprocal degrees).
-            payload.color_temp_value_template = "{{ ((value | float / 100) * (500 - 153)) + 153  }}";
+            payload.color_temp_value_template = "{{ ((((value | float / 100) * (500 - 153)) + 153)) | round(0) }}";
         }
         if (capabilities.hasOwnProperty('light_hue') || capabilities.hasOwnProperty('light_saturation')) {
             payload.hs_state_topic = `${stateTopic}/color/hsv`;
