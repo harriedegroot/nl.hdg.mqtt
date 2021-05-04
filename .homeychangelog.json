@@ -61,5 +61,8 @@
   },
   "3.4.1": {
     "en": " MQTT Device: output template math expressions"
+  },
+  "3.4.2": {
+    "en": "MQTT Device: Display capability details"
   }
 }

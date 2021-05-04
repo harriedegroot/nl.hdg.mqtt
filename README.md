@@ -20,7 +20,7 @@ The functionality of the MQTT Hub:
 - Dispatch system info (memory, cpu, etc.) on a regular interval.
 - Add Virtual MQTT Devices with mappings between Homey capabilities and mqtt topics.
   
-All can be configured via extensive app settings.
+All can be configured via extensive app settings and connection wizards.
   
 ## What can it be used for?
 Some of the many possibilities:
