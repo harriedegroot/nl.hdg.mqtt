@@ -47,6 +47,21 @@
                     valueTemplate: this.valueTemplate,
                     outputTemplate: this.outputTemplate
                 }
+            },
+            unit(capability, expandEnum) {
+                if(capability.units && capability.units.en) return capability.units.en;
+                switch(capability.type) {
+                    case 'string': return 'text';
+                    case 'boolean': return 'true | false';
+                    case 'enum': return expandEnum ? capability.values.map(v => v.id).join(' | ') : 'enum';
+                    default: return capability.type;
+                }
+            },
+            getDisplayType(capability) {
+                switch(capability.type) {
+                    case 'enum': return "enum: " + capability.values.map(v => v.id).join(' | ');
+                    default: return capability.type;
+                }
             }
         },
         watch: {
@@ -75,7 +90,16 @@
                 const lang = 'en';
                 this.sorted = Object.keys(result)
                     .sort((a, b) => sortByTitle(result[a], result[b], lang))
-                    .map(key => { return { id: key, capability: result[key] }; });
+                    .map(key => { 
+                        const capability = result[key];
+                        return { 
+                            id: key, 
+                            capability: capability,
+                            title: capability.title.en,
+                            unit: this.unit(capability)
+                        }; 
+                    }
+                );
             });
             Homey.emit('capability', true, (err, result) => { 
                 console.log('editing', err || result);
@@ -102,9 +126,33 @@
         <div class="settings-itemgroup">
             <select v-model="capability" v-if="capabilities">
                 <option :value="item.id" v-for="item of sorted">
-                    {{item.capability.title.en}} ({{item.id}})
+                    {{item.title}} ({{item.unit}})
                 </option>
             </select>
+        </div>
+    </div>
+    <div class="setting" v-if="capability">
+        <label class="settings-item-description">{{__('pair.select.capability_details')}}</label>
+        <div class="settings-itemgroup capability-details">
+            <div>
+                <span class="details-label">id:</span><span class="details-value">{{capability}}</span>
+            </div>
+            <div>
+                <span class="details-label">type:</span><span class="details-value">{{getDisplayType(capabilities[capability])}}</span>
+            </div>
+            <div v-if="capabilities[capability].hasOwnProperty('min')">
+                <span class="details-label">min:</span><span class="details-value">{{capabilities[capability].min}}</span>
+            </div>
+            <div v-if="capabilities[capability].hasOwnProperty('max')">
+                <span class="details-label">max:</span><span class="details-value">{{capabilities[capability].max}}</span>
+            </div>
+            <div v-if="capabilities[capability].hasOwnProperty('decimals')">
+                <span class="details-label">decimals:</span><span class="details-value">{{capabilities[capability].decimals}}</span>
+            </div>
+            <div v-if="capabilities[capability].desc">
+                <span class="details-label">description:</span><span class="details-value">{{capabilities[capability].desc.en}}</span>
+            </div>
+            <!-- <div><span class="details-label">value:      </span><span class="details-value">{{unit(capabilities[capability], true)}}</span></div> -->
         </div>
     </div>
 

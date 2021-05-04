@@ -9,3 +9,18 @@
     font-weight: bold;
     text-align: center;
 }
+
+.capability-details {
+    padding: 10px;
+    color: var(--color-text-light)
+}
+
+.capability-details .details-label {
+    position: absolute;
+    font-style: italic;
+}
+
+.capability-details .details-value {
+    display: block;
+    margin-left: 75px;
+}

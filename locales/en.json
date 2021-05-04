@@ -13,6 +13,7 @@
     "select": {
       "add": "Add capability",
       "capability": "Select a capability",
+      "capability_details": "Capability details",
       "capabilities": "Configured capabilities",
       "class": "Select a device class",
       "empty": "No capabilities added yet...",
@@ -30,7 +31,7 @@
         "output": "OUTPUT",
         "state": "State topic - external device state mapped to this capability",
         "set": "Set topic - published to on value changes",
-        "name": "Display name - clear to display the default local translation",
+        "name": "Display name - Leave empty to display the capability title in local translation",
         "value_template": "[optional] Value template - JSONPath or MathJS expression",
         "output_template": "[optional] Output template - JSON-T format or MathJS expression"
       }
