@@ -9,10 +9,10 @@ Settings:
 - CHECK en.json translations
 
 HASS:
-- MQTT_eventstream, MQTT_statestream
+- light modes
+- HA Discovery (MQTT_statestream + BluePrint)
 - Include configuration overrides
 - Duplicate (unavailable) onoff entity (light & switch) for light devices
-- Color temperature (read & write)
 - Update lights & dimming (prevent brightness sliders returning to previous position due 'onoff' call)
 - [BUG] Cover stop -> resume
 - Update correct HSV values when setting one of the values (color topic)
@@ -42,6 +42,7 @@ App:
 - Translate to German
 
 MQTT Device:
+- show capability name (unit)
 - Custom capabilities
 - Handle (un)installing of MQTT app
 - Icons (fa/mdi apps)
