@@ -99,8 +99,10 @@ input[type=text] {
 }
 
 button {
-    width: 99% !important;
-    margin: 0 0 0 2px !important;
+    width: 99%;
+    position: relative;
+    margin: 2px 0 0 2px;
+    
     padding: 10px !important;
     font-size: large !important;
     vertical-align: middle !important;
@@ -109,9 +111,26 @@ button {
     background: none !important;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
 
-    position: relative !important;
     overflow: hidden !important;
 }
+button:hover {
+    cursor: pointer;
+}
+
+#hy-nav-prev,
+#hy-nav-next {
+    display: block !important;
+    width:40% !important;
+    margin: 6px !important;
+}
+
+#hy-nav-prev.visible,
+#hy-nav-prev.visible {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
 /*button:hover {
     background:  rgb(220,220,220) !important;
 }*/

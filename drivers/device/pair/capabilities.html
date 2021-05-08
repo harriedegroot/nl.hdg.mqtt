@@ -67,7 +67,7 @@
         <label class="settings-item-description" data-i18n="pair.select.capabilities">{{__('pair.select.capabilities')}}</label>
         <div class="capabilities">
             <div class="capability" v-for="capability of device.capabilities" style="clear:both; padding:5px 0">
-                <button style="float:left;max-width:calc(100% - 54px);text-align: left;" class="hy-button visible edit-button" @click="editCapability(capability)">
+                <button style="float:left;max-width:calc(100% - 56px);text-align: left;" class="hy-button visible edit-button" @click="editCapability(capability)">
                     <span>{{ getTitle(capability) }}</span>
                 </button>
                 <button class="hy-button visible remove-button" @click="removeCapability(capability)" style="max-width:50px">

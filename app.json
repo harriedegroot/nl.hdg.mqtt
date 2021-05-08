@@ -131,12 +131,20 @@
         {
           "id": "device",
           "navigation": {
+            "next": "icon"
+          }
+        },
+        {
+          "id": "icon",
+          "navigation": {
+            "prev": "device",
             "next": "capabilities"
           }
         },
         {
           "id": "capabilities",
           "navigation": {
+            "prev": "icon",
             "next": "done"
           }
         },

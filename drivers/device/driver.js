@@ -7,6 +7,51 @@ const CAPABILITIES = HomeyLib.getCapabilities();
 const DEVICE_CLASSES = HomeyLib.getDeviceClasses();
 const { formatValue, parseValue } = require('../../ValueParser');
 
+// files
+const http = require('http');
+const https = require('https');
+const fs = require('fs');
+
+const DEBUG = process.env.DEBUG === '1';
+
+function listFiles( path ) {
+    console.log("listFiles: ");
+    return new Promise((resolve, reject) => {
+      try {
+        fs.readdirSync(path).forEach(file => {
+          console.log(file);
+        });
+      } catch (error) {
+        return reject(error);
+      }
+    })
+  }
+
+function download(url, path, encoding){
+    var file = fs.createWriteStream(path);
+    return new Promise((resolve, reject) => {
+      var responseSent = false;
+      const action = url.startsWith('https') ? https.get : http.get;
+      action(url, response => {
+        if(encoding) {
+            response.setEncoding(encoding);
+        }
+        response.pipe(file);
+        file.on('finish', () =>{
+          file.close(() => {
+            if(responseSent)  return;
+            responseSent = true;
+            resolve();
+          });
+        });
+      }).on('error', err => {
+          if(responseSent)  return;
+          responseSent = true;
+          reject(err);
+      });
+    });
+}
+
 function guid() {
     function s4() {
         return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
@@ -177,6 +222,46 @@ class MQTTDriver extends Homey.Driver {
             return pairingDevice;
         });
 
+        session.setHandler('setIcon', async (svg) => {
+            console.log('setIcon: ' + svg);
+            pairingDevice.data.icon = svg;
+            pairingDevice.icon = svg
+            
+            return svg;
+        });
+
+        session.setHandler('setRemoteIcon', async (item) => {
+            console.log('setRemoteIcon: ' + item.url);
+            // if(DEBUG) listFiles("./userdata");
+
+            const root = "../../";
+            const file  = await this.downloadIcon(item.url, pairingDevice.data.id);
+            const path = root + file;
+            pairingDevice.data.icon = path;
+            pairingDevice.icon = path;
+            
+            return file;
+        });
+    
+        session.setHandler('saveIcon', async (data) => {
+          try {
+            console.log('saveIcon: ' + JSON.stringify(data));
+            // if(DEBUG) listFiles("./userdata");
+            
+            await this.uploadIcon(data, pairingDevice.data.id);
+            const root = '../../';
+            const deviceIcon = "../userdata/"+ pairingDevice.data.id +".svg";
+    
+            pairingDevice.data.icon = root + deviceIcon;
+            pairingDevice.icon = root + deviceIcon;
+            
+            return deviceIcon;
+    
+          } catch (error) {
+            console.log('saveIcon ERROR ' + JSON.stringify(error));
+          }
+        });
+
         session.setHandler('install', async (data) => {
             const installed = await client.isInstalled();
             if (!installed) {
@@ -190,6 +275,19 @@ class MQTTDriver extends Homey.Driver {
             // TODO: Disconnect MQTT client
             this.log("User aborted or pairing is finished");
         });
+    }
+
+    async downloadIcon(url, id) {
+        const path = `../userdata/${id}.svg`;
+        await download(url, path);
+        //await download(url, path, 'base64');
+        return path;
+    }
+
+    async uploadIcon(img, id) {
+        const path = "../userdata/"+ id +".svg";
+        const base64 = img.replace("data:image/svg+xml;base64,", '');
+        await fs.writeFileAsync(path, base64, 'base64');
     }
 
     _getCapabilityId(pairingDevice, capability) {
