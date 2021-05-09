@@ -79,6 +79,14 @@ input[type="file"] {
     overflow-y: auto;
 }
 
+.icons-container .selected {
+  /* border: 1px solid #ACADB0; */
+  border-radius: 10px;
+  background: rgb(63 199 0);
+  color: white;
+  padding: 0 10px;
+}
+
   .flex-cell{
     float: left;
     display: block;

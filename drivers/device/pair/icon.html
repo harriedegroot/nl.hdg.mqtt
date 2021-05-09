@@ -36,10 +36,12 @@
     // Icon picker component
     Vue.component('icon-picker', {
         template: '#icon-picker',
-        props: ['items','query','selected'],
+        props: ['items'],
+        data() {
+            return { query: '', selected: undefined };
+        },
         created() {
             this.query='';
-            this.selected='';
         },
         computed: {
             filteredItems() {
@@ -56,7 +58,10 @@
                 return `search ${this.items.length} icons...`;
             },
             iconClass(item){
-                let clazz = { "mdi": true };
+                let clazz = { 
+                    "mdi": true,
+                    "selected": item == this.selected 
+                };
                 clazz['mdi-'+item.name] = true;
                 return clazz;
             },
@@ -66,10 +71,11 @@
                 }
                 return item.url;
             },
-            select(selection) {
-                this.selected = selection;
-                this.getUrl(selection);
-                this.$emit('selection', selection);
+            select(item) {
+                console.log('selected', item);
+                this.selected = item;
+                this.getUrl(item);
+                this.$emit('selection', item);
             }
         }
     })
