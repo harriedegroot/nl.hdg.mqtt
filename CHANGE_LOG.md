@@ -1,5 +1,8 @@
 ## Change Log  
 
+#### 3.5.0
+- MQTT Device icons
+
 #### 3.4.2
 - MQTTDevice: Display capability details
 - Readme update

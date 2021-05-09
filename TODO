@@ -42,11 +42,8 @@ App:
 - Translate to German
 
 MQTT Device:
-- show capability name (unit)
-- Custom capabilities
+- fetch retained value when configuring topics
 - Handle (un)installing of MQTT app
-- Icons (fa/mdi apps)
-- Display topics in capabilities list?
 - availablility topic
 - Translations
 - auto detect on/off values (setting) from state topic
@@ -75,6 +72,7 @@ Insights / System info:
 - (All) Prometheus functionality
 
 ======= DONE =======
+- MQTT Device: custom icon
 - MQTT Device: Capability details
 - MQTT Device: value & output templates with mathJS expressions
 - color temperature fix
