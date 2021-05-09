@@ -1,5 +1,9 @@
 ## Change Log  
 
+#### 3.5.1
+- Upload custom icon fixes
+- Remove uploaded icons on cancel pairing OR uninstall of MQTT Device
+
 #### 3.5.0
 - MQTT Device icons
 
