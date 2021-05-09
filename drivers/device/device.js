@@ -374,6 +374,8 @@ class MQTTDevice extends Homey.Device {
     async onDeleted() {
         this._deleted = true;
 
+        this.driver.tryRemoveIcon(this.id);
+
         if (this._messageHandler) {
             this.mqttClient.onMessage.unsubscribe(this.messageHandler);
             delete this._messageHandler;

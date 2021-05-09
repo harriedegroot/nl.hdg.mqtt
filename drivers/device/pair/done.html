@@ -8,24 +8,26 @@
     }
   });
   
-  //Homey.emit('install', null, function (err, device) {
-  //  if (err) {
-  //      // TODO: Display error
-  //      this.instructions = '[ERROR] ' + err;
-  //      console.log(err);
-  //      return;
-  //  }
-  //}
-  Homey.emit('getPairingDevice', null, function (err, device) {
+  // Homey.emit('install', null, (err, device) => {
+  //   if (err) {
+  //     this.instructions = '[ERROR] ' + err;
+  //     console.log(err);
+  //   } else {
+  //     Homey.done();
+  //   }
+  // });
+  Homey.emit('install', null, function (err, device) {
     if (err) {
-      console.log(err);
+      this.instructions = '[ERROR] ' + err;
+      console.error(err);
       return;
     }
     console.log(device);
 
     Homey.createDevice(device, (err, res) => {
       if (err) {
-        console.log(err);
+        this.instructions = '[ERROR] ' + err;
+        console.error(err);
         return;
       }
 
