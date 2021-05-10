@@ -1,5 +1,9 @@
 ## Change Log  
 
+#### 3.5.2
+- HA Discovery: Cover position template fix for HA version 2021.6+ ([issue 56](https://github.com/harriedegroot/nl.hdg.mqtt/issues/56))
+- Security: Homey, jsonPath & lodash NPM package upgrades
+
 #### 3.5.1
 - Upload custom icon fixes
 - Remove uploaded icons on cancel pairing OR uninstall of MQTT Device
