@@ -651,7 +651,7 @@ class HomeAssistantDispatcher {
         const payload = {
             name: device.name,
             unique_id: `${device.id}_${type}`,
-            value_template: '{{ value }}',
+            //value_template: '{{ value }}',
         };
 
         const hasState = capabilities.hasOwnProperty('windowcoverings_state');
@@ -676,6 +676,7 @@ class HomeAssistantDispatcher {
             if (position) {
                 const positonTopic = this.normalize ? normalize(position) : position;
                 payload.position_topic = `${stateTopic}/${positonTopic}`;
+                payload.position_template = '{{ value }}',
                 payload.position_closed = capabilities[position].min || 0;
                 payload.position_open = capabilities[position].max || 100;
                 if (capabilities[position].setable) {
