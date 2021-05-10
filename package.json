@@ -10,10 +10,10 @@
     "inspector": "^0.5.0"
   },
   "dependencies": {
-    "athom-api": "^3.3.0",
-    "homey-lib": "^2.9.0",
+    "athom-api": "^3.4.1",
+    "homey-lib": "^2.9.2",
     "lodash": "^4.17.21",
-    "jsonpath": "^1.1.0",
+    "jsonpath": "^1.1.1",
     "mathjs": "9.3.2",
     "json-templater": "^1.2.0"
   }

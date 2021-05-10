@@ -11,19 +11,19 @@
     "es": "PM2,5"
   },
   "units": {
-    "en": "ppm"
+    "en": "μg/m³"
   },
   "insights": true,
   "desc": {
-    "en": "Atmospheric Particulate Matter (μg/m3)",
-    "nl": "Deeltjesvormige luchtverontreiniging (μg/m3)",
-    "de": "Atmosphärischer Feinstaub (μg/m3)",
-    "fr": "Particules en suspension (μg/m3)",
-    "it": "Particolato atmosferico (μg/m3)",
-    "sv": "Atmosfäriskt partikelämne (μg/m3)",
-    "no": "Atmosfæriske partikler (μg/m3)",
-    "es": "Partículas atmosféricas (μg/m3)",
-    "da": "Atmosfæriske partikler (μg/m3)"  
+    "en": "Atmospheric Particulate Matter (μg/m³)",
+    "nl": "Deeltjesvormige luchtverontreiniging (μg/m³)",
+    "de": "Atmosphärischer Feinstaub (μg/m³)",
+    "fr": "Particules en suspension (μg/m³)",
+    "it": "Particolato atmosferico (μg/m³)",
+    "sv": "Atmosfäriskt partikelämne (μg/m³)",
+    "no": "Atmosfæriske partikler (μg/m³)",
+    "es": "Partículas atmosféricas (μg/m³)",
+    "da": "Atmosfæriske partikler (μg/m³)"  
   },
   "chartType": "spline",
   "decimals": 2,
