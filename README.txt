@@ -1,8 +1,8 @@
-With this app you can communicate with all your devices connected to Homey using MQTT.  
-The MQTT Hub automatically broadcasts all your devices and capabilities. 
-It will setup mqtt communication channels for external apps to discover and control the Homey devices.
+With this app you can communicate with all your devices connected to Homey using MQTT.
+
+The MQTT Hub automatically broadcasts all your devices and capabilities. It will setup mqtt communication channels for external apps to discover and control the Homey devices.
 Auto discovery protocols are implemented to simplify the setup and connection with external apps. 
-Finally this app includes an MQTT Device, which can be used to add Virtual Devices with mappings between Homey capabilities and mqtt topics. 
+This app also includes an MQTT Device, which can be used to add Virtual Devices with mappings between Homey capabilities and mqtt topics. 
   
 All functionality of the MQTT Hub:
 - Broadcast all available Homey devices and capabilities.
