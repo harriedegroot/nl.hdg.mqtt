@@ -22,7 +22,7 @@
             </div>
         </div>
         <div class="flex-row icons-container" v-if="items">
-            <div class="flex-cell icon-container" v-for="item in filteredItems">
+            <div :class="{ selected:item==selected }" class="flex-cell icon-container" v-for="item in filteredItems">
                 <div class="iconbox" @click="select(item)">
                     <span :class="iconClass(item)"></span>
                 </div>
@@ -146,7 +146,7 @@
             <span id="selected-icon-mdi" :class="iconClass(selected)" v-if="selected"></span>
         </span>
         <label class="custom-file-upload">
-            <input id="custom-icon" type="file" accept="image/svg" name="image" @change="loadIcon" />
+            <input id="custom-icon" type="file" accept="image/svg+xml" name="image" @change="loadIcon" />
             <img id="upload-icon" src="../assets/images/cloud-upload-outline.svg"></img>Upload custom SVG
         </label>
     </div>
