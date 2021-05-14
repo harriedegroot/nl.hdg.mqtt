@@ -339,7 +339,7 @@ class MQTTDevice extends Homey.Device {
 
         const topic = config.setTopic;
         let payload = capabilityId === 'onoff'
-            ? formatOnOff(value, this.onOffValues)
+            ? (config.outputTemplate ? value : formatOnOff(value, this.onOffValues))
             : formatValue(value, CAPABILITIES[capabilityId], this.percentageScale);
 
         // output template?
