@@ -228,8 +228,12 @@ class MQTTDevice extends Homey.Device {
             case 'object':
                 return msg;
             case 'string':
-                let data = JSON.parse(msg);
-                return typeof data === 'object' ? data : { value: data };
+                try {
+                    let data = JSON.parse(msg);
+                    return typeof data === 'object' ? data : { value: data };
+                } catch {
+                    return { value: msg }
+                }
             default:
                 return { value: msg }
         }
