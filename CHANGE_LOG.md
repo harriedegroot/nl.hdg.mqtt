@@ -1,11 +1,14 @@
 ## Change Log  
 
+#### 3.5.5
+- Resolved an issue for boolean handling in output templates
+
 #### 3.5.4
 MQTT Device:
 - Selected icon styling improvements
 - Prevent calling the set topic for state changes from mqtt
 - Resolved a parsing error for string messages send to topics with an output template
-- mathJS equality expression fix for comparing strings in value tempplates
+- MathJS equality expression fix for comparing strings in value templates
 
 #### 3.5.3
 - MQTT Device: mimetype fix for uploading SVG icons

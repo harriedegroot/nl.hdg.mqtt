@@ -79,5 +79,8 @@
   },
   "3.5.4": {
     "en": "MQTT Device improvements"
+  },
+  "3.5.5": {
+    "en": "MQTT Device improvements"
   }
 }
