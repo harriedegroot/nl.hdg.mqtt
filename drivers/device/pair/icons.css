@@ -80,11 +80,10 @@ input[type="file"] {
 }
 
 .icons-container .selected {
-  /* border: 1px solid #ACADB0; */
   border-radius: 10px;
   background: rgb(63 199 0);
-  color: white;
-  padding: 0 10px;
+  color: white !important;
+  font-weight: bold;
 }
 
   .flex-cell{
@@ -122,9 +121,16 @@ input[type="file"] {
       text-overflow: ellipsis;
       white-space: nowrap;
   }
+
+  .selected .caption {
+    color: white;
+    font-weight: bold;
+  }
+
   .iconbox{
     word-wrap:break-word;
     font-size: 48px;
     padding: 16px 0;
+    margin-top: 10px;
   } 
 

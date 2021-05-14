@@ -58,10 +58,7 @@
                 return `search ${this.items.length} icons...`;
             },
             iconClass(item){
-                let clazz = { 
-                    "mdi": true,
-                    "selected": item == this.selected 
-                };
+                let clazz = { "mdi": true };
                 clazz['mdi-'+item.name] = true;
                 return clazz;
             },
