@@ -28,6 +28,7 @@ class MQTTDevice extends Homey.Device {
         this.log('Initializing MQTT Device...');
 
         this.compiled = new Map();
+        this.mqttValues = new Map();
         this.id = this.getData().id;
 
         this.onSettings({oldSettings:null, newSettings:super.getSettings(), changedKeys:[]});
@@ -229,7 +230,7 @@ class MQTTDevice extends Homey.Device {
         }
     }
 
-    async parseMessageFor(capabilityId, message) {
+    async _updateCapabilityFromMessage(capabilityId, message) {
         try {
             const id = capabilityId.split('.')[0];
             const capability = CAPABILITIES[id];
@@ -261,8 +262,11 @@ class MQTTDevice extends Homey.Device {
             const value = parseValue(message, capability, this.percentageScale);
             const currentValue = await this.getCapabilityValue(capabilityId);
             if(value !== currentValue) {
+                // keep track of values changed from an mqtt message on the state topic
+                this.mqttValues.set(capabilityId, value);
+
+                // update device
                 await this.setCapabilityValue(capabilityId, value);
-                await this._publishMessage(capabilityId, value);
             }
         } catch (e) {
             this.log('Error handeling MQTT device message');
@@ -281,7 +285,7 @@ class MQTTDevice extends Homey.Device {
             this.log(topic + ': ' + (typeof message === 'object' ? JSON.stringify(message, null, 2) : message));
 
             for(let capabilityId of capabilityIds) {
-                await this.parseMessageFor(capabilityId, message);
+                await this._updateCapabilityFromMessage(capabilityId, message);
             }
 
         } catch (e) {
@@ -295,7 +299,18 @@ class MQTTDevice extends Homey.Device {
             this.log(this.getName() + ' -> Capability changed: ' + JSON.stringify(capabilities, null, 2));
 
             for (var capabilityId in capabilities) {
-                await this._publishMessage(capabilityId, capabilities[capabilityId], capabilities);
+                const value = capabilities[capabilityId];
+
+                // Skip if the value was set by an mqtt messate on the state topic
+                const fromMqtt = this.mqttValues.has(capabilityId) && this.mqttValues.get(capabilityId) === value;
+                this.mqttValues.delete(capabilityId);
+                if(fromMqtt) {
+                    this.log("[SKIP] Value updated from mqtt (state topic), don't publish state change to set topic");
+                    continue;
+                } 
+
+                // publish state on the 'set' topic
+                await this._publishMessage(capabilityId, value, capabilities);
             }
 
             return Promise.resolve();
