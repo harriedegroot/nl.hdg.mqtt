@@ -16,6 +16,11 @@ const CAPABILITIES = HomeyLib.getCapabilities();
 
 const  { create, all } = require('mathjs')
 const math = create(all);
+math.import({
+    equal: (a, b) => a === b
+  },
+  { override: true }
+)
 
 const STATIC = {
     mqttClient: null,
