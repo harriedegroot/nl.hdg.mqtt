@@ -58,7 +58,7 @@ class MQTTDevice extends Homey.Device {
         this.percentageScale = settings.percentageScale || 'int';
         this.onOffValues = settings.onOffValues || 'bool';
 
-        const capabilities = settings.topics ? JSON.parse(settings.topics) : null;
+        const capabilities = settings.topics ? JSON.parse(settings.topics) : settings.capabilities;
         this._capabilities = capabilities;
 
         this._compile(); // compile value templates
