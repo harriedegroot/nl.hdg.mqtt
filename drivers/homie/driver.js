@@ -166,7 +166,7 @@ class HomieNode {
 class MQTTHomieDiscovery extends Homey.Driver {
 	
 	onInit() {
-        this.log('MQTT Driver is initialized');
+        this.log('MQTT HA Driver is initialized');
         this._map = new Map();
 
         // Add id property to all device classes & capabilities
@@ -225,6 +225,18 @@ class MQTTHomieDiscovery extends Homey.Driver {
         });
     }
 
+    // NOTE: copy from MQTT Device driver.js
+    getSettingsTopics(pairingDevice) {
+        if (!pairingDevice || !pairingDevice.settings || !pairingDevice.settings.capabilities) return '';
+
+        // clone
+        let topics = JSON.parse(JSON.stringify(pairingDevice.settings.capabilities || {})); 
+        for (let id in topics) {
+            delete topics[id].capabilityId;
+        }
+        return JSON.stringify(topics, null, 2);
+    }
+
     createDevice(config) {
         const capabilities = {};
         if (config.properties) {
@@ -244,10 +256,10 @@ class MQTTHomieDiscovery extends Homey.Driver {
                 }
 
                 if (!capability || capability.getable !== false) {
-                    settings.stateTopic = `${this._topic}${config.id}/${propertyId}`;
+                    settings.stateTopic = `${this._rootTopic}${config.id}/${propertyId}`;
                 }
                 if ((capability && capability.setable) || property.settable) {
-                    settings.setTopic = `${this._topic}${config.id}/${propertyId}/set`;
+                    settings.commandTopic = `${this._rootTopic}${config.id}/${propertyId}/set`;
                 }
                 capabilities[capabilityId] = settings;
             }
@@ -256,11 +268,16 @@ class MQTTHomieDiscovery extends Homey.Driver {
         return {
             name: config.deviceName || config.name,
             class: config.deviceClass,
+            icon: '../../../assets/icon.svg',
             data: {
                 id: guid(),
                 version: 1
             },
-            settings: { capabilities },
+            settings: { 
+                //percentageScale: 'default',
+                capabilities: capabilities,
+                topics: this.getSettingsTopics(capabilities) 
+            },
             capabilities: Object.keys(capabilities)
         };
     }
@@ -269,15 +286,15 @@ class MQTTHomieDiscovery extends Homey.Driver {
         this._running = true;
         this._finished = false;
         topic = trim(trim(topic || '', '#'), '/'); // NOTE: remove '/#'
-        let discoveryTopic = `${topic}/#`; // listen to all messages within root topic
-        topic = `${topic}/`; // NOTE: force tailing /
+        const rootTopic = `${topic}/`; // NOTE: force tailing /
 
-        if (!topic || this._topic === topic) return;
+        // release any previous topic subscriptions
+        await this.mqttClient.release();
 
-        if (this._topic) {
-            // TODO: unregister?
-        }
-        this._topic = topic;
+        if (!topic) return;
+
+        this._discoveryTopic = `${topic}/#`; // listen to all messages within root topic
+        this._rootTopic = rootTopic;
 
         try {
             if (!this.mqttClient.isRegistered()) {
@@ -287,10 +304,10 @@ class MQTTHomieDiscovery extends Homey.Driver {
 
             if (this.mqttClient.isRegistered()) {
                 this.log('start discovery');
-                await this.mqttClient.subscribe(discoveryTopic);
+                await this.mqttClient.subscribe(this._discoveryTopic);
             } else {
                 this.log("Waiting for MQTT Client...");
-                this.mqttClient.onRegistered.subscribe(async () => await this.mqttClient.subscribe(discoveryTopic));
+                this.mqttClient.onRegistered.subscribe(async () => await this.mqttClient.subscribe(this._discoveryTopic));
             }
         } catch (e) {
             this.log('Failed to start dicovery');
@@ -305,11 +322,11 @@ class MQTTHomieDiscovery extends Homey.Driver {
     }
 
     async onMessage(topic, message) {
-        if (!topic || !this._topic || !this._running) return;
-        if (!topic.startsWith(this._topic)) return;
+        if (!topic || !this._rootTopic || !this._running) return;
+        if (!topic.startsWith(this._rootTopic)) return;
 
         this.log('onHomieMessage: ' + topic);
-        const relativeTopic = topic.substring(this._topic.length); // remove root
+        const relativeTopic = topic.substring(this._rootTopic.length); // remove root
         const parts = relativeTopic.split('/');
 
         const part = parts.shift();
@@ -381,6 +398,9 @@ class MQTTHomieDiscovery extends Homey.Driver {
 
     async stop() {
         delete this._running;
+        delete this._discoveryTopic;
+        delete this._rootTopic;
+
         await this.mqttClient.release(); // unsubscribe
     }
 }

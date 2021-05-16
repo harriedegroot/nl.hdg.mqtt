@@ -52,6 +52,17 @@
       "selectCapability": "Not mapped..",
       "success": "MQTT device created",
       "failure": "Failed to create MQTT device"
+    },
+    "ha_discovery": {
+      "discoveryTopic": "Home Assistant Discovery Topic",
+      "start": "Discover devices",
+      "waiting": "Waiting for Home Assistant...",
+      "discovered": "Discovered Home Assistant device configurations",
+      "add": "Create device",
+      "capabilities": "Select capabilities",
+      "selectCapability": "Not mapped..",
+      "success": "MQTT device created",
+      "failure": "Failed to create MQTT device"
     }
   },
   "settings": {

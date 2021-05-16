@@ -60,6 +60,38 @@
     "url": "https://github.com/harriedegroot/nl.hdg.mqtt/issues"
   },
   "homeyCommunityTopicId": 6766,
+  "capabilities": {
+    "measure_text": {
+      "type": "string",
+      "title": {
+          "nl": "Waarde",
+          "en": "Value"
+      },
+      "getable": true,
+      "setable": false
+    },
+    "measure_numeric": {
+      "type": "number",
+      "title": {
+          "nl": "Waarde",
+          "en": "Value"
+      },
+      "getable": true,
+      "setable": false,
+      "icon": "/assets/icons/eye.svg"
+    },
+    "measure_binary": {
+      "type": "boolean",
+      "title": {
+          "nl": "Waarde",
+          "en": "Value"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "toggle",
+      "icon": "/assets/icons/check-circle-outline.svg"
+    }
+  },
   "api": {
     "getDevices": {
       "method": "get",
@@ -119,14 +151,18 @@
         "en": "MQTT Device",
         "nl": "MQTT Apparaat"
       },
+      "icon": "assets/icon.svg",
+      "images": {
+        "small": "drivers/device/assets/images/small.png",
+        "large": "drivers/device/assets/images/large.png"
+      },
       "class": "other",
       "capabilities": [
-        "onoff"
+        "onoff", 
+        "measure_text", 
+        "measure_numeric",
+        "measure_binary"
       ],
-      "images": {
-        "large": "/drivers/device/assets/images/large.png",
-        "small": "/drivers/device/assets/images/small.png"
-      },
       "pair": [
         {
           "id": "device",
@@ -262,14 +298,45 @@
         "en": "Homie Discovery",
         "nl": "Homie Discovery"
       },
+      "icon": "drivers/homie/assets/icon.svg",
+      "images": {
+        "small": "drivers/homie/assets/images/small.png",
+        "large": "drivers/homie/assets/images/large.png"
+      },
       "class": "other",
       "capabilities": [
-        "onoff"
+        "onoff",
+        "measure_text", 
+        "measure_numeric",
+        "measure_binary"
       ],
-      "images": {
-        "large": "/drivers/homie/assets/images/large.png",
-        "small": "/drivers/homie/assets/images/small.png"
+      "pair": [
+        {
+          "id": "topic"
+        },
+        {
+          "id": "discover"
+        }
+      ]
+    },
+    {
+      "id": "hass",
+      "name": {
+        "en": "Home Assistant Discovery",
+        "nl": "Home Assistant Discovery"
       },
+      "icon": "drivers/hass/assets/icon.svg",
+      "images": {
+        "small": "drivers/hass/assets/images/hass_small.png",
+        "large": "drivers/hass/assets/images/hass_large.png"
+      },
+      "class": "other",
+      "capabilities": [
+        "onoff",
+        "measure_text", 
+        "measure_numeric",
+        "measure_binary"
+      ],
       "pair": [
         {
           "id": "topic"
