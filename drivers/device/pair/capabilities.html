@@ -10,7 +10,7 @@
             capabilities: undefined,
             device: undefined,
             stateTopic: '',
-            setTopic: ''
+            commandTopic: ''
         },
         methods: {
             save(data) {
@@ -45,8 +45,8 @@
             stateTopic(val) {
                 this.save({ stateTopic: val });
             },
-            setTopic(val) {
-                this.save({ setTopic: val });
+            commandTopic(val) {
+                this.save({ commandTopic: val });
             }
         },
         mounted() {

@@ -17,7 +17,7 @@
             capabilities: undefined,
             sorted: undefined,
             stateTopic: '',
-            setTopic: '',
+            commandTopic: '',
             valueTemplate: '',
             outputTemplate: ''
         },
@@ -43,7 +43,7 @@
                     capabilityId: this.capabilityId,
                     displayName: this.displayName,
                     stateTopic: this.stateTopic,
-                    setTopic: this.setTopic,
+                    commandTopic: this.commandTopic,
                     valueTemplate: this.valueTemplate,
                     outputTemplate: this.outputTemplate
                 }
@@ -71,8 +71,8 @@
             stateTopic(val) {
                 this.save({ ...this.model(), stateTopic: val});
             },
-            setTopic(val) {
-                this.save({ ...this.model(), setTopic: val});
+            commandTopic(val) {
+                this.save({ ...this.model(), commandTopic: val});
             },
             displayName(val) {
                 this.save({ ...this.model(), displayName: val});
@@ -111,7 +111,7 @@
                     this.capabilityId = result.capabilityId;
                     this.displayName = result.displayName;
                     this.stateTopic = result.stateTopic;
-                    this.setTopic = result.setTopic;
+                    this.commandTopic = result.commandTopic;
                     this.valueTemplate = result.valueTemplate;
                     this.outputTemplate = result.outputTemplate;
                 }
@@ -184,7 +184,7 @@
         <div class="setting">
             <label class="settings-item-description">{{__('pair.default.topic.set')}}</label>
             <div class="settings-itemgroup">
-                <input type="text" v-model="setTopic">
+                <input type="text" v-model="commandTopic">
             </div>
         </div>
         <div class="setting">

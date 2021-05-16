@@ -337,7 +337,7 @@ class MQTTDevice extends Homey.Device {
             return;
         }
 
-        const topic = config.setTopic;
+        const topic = config.commandTopic || config.setTopic; // NOTE: setTopic is deprecated, included for backwards compatibility
         let payload = capabilityId === 'onoff'
             ? (config.outputTemplate ? value : formatOnOff(value, this.onOffValues))
             : formatValue(value, CAPABILITIES[capabilityId], this.percentageScale);
