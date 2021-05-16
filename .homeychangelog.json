@@ -82,5 +82,8 @@
   },
   "3.5.5": {
     "en": "MQTT Device improvements"
+  },
+  "3.6.0": {
+    "en": "added Home Assistant Discovery"
   }
 }

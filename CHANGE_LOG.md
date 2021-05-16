@@ -1,5 +1,12 @@
 ## Change Log  
 
+#### 3.6.0
+- Home Assistant Discovery driver
+- Renamed `setTopic` to `commandTopic`
+- Fixed topic configuration for MQTT Devices created from discovery
+- Improved discovery topic subscription
+- Removed success popup when a new device is added from descovery
+
 #### 3.5.5
 - Resolved an issue for boolean handling in output templates
 
