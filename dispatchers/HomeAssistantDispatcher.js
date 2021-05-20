@@ -844,7 +844,7 @@ class HomeAssistantDispatcher {
         this.topicsRegistry.register(deviceId, topic);
         this._topics.register(deviceId, topic);
         
-        this.messageQueue.add(topic, payload, { qos:0, retained: retained !== false });
+        this.messageQueue.add(topic, payload, { qos:0, retain: retained !== false });
     }
 
     _unregisterDevice(device) {
