@@ -45,7 +45,7 @@
     "discovery": {
       "homieTopic": "Homie Discovery Topic",
       "start": "Discover devices",
-      "waiting": "Waiting for Homie device...",
+      "waiting": "Waiting for Homie devices...",
       "discovered": "Discovered Homie nodes",
       "add": "Create device",
       "capabilities": "Select capabilities",
@@ -56,11 +56,13 @@
     "ha_discovery": {
       "discoveryTopic": "Home Assistant Discovery Topic",
       "start": "Discover devices",
-      "waiting": "Waiting for Home Assistant...",
+      "waiting": "Waiting for devices...",
       "discovered": "Discovered Home Assistant device configurations",
       "add": "Create device",
       "capabilities": "Select capabilities",
+      "capability": "Capability",
       "selectCapability": "Not mapped..",
+      "propertyName": "Display name",
       "success": "MQTT device created",
       "failure": "Failed to create MQTT device"
     }

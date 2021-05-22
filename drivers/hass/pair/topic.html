@@ -27,7 +27,7 @@
     <div class="setting">
         <label class="settings-item-description" data-i18n="pair.ha_discovery.discoveryTopic">-Homie Discovery Topic-</label>
         <div class="settings-itemgroup">
-            <input type="text" v-model="topic" :placeholder="DEFAULT_TOPIC" value="homeassistant_state">
+            <input type="text" v-model="topic" :placeholder="DEFAULT_TOPIC" value="homeassistant_state" @keyup.enter="discover()" />
         </div>
     </div>
 

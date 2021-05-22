@@ -12,6 +12,7 @@
     new Vue({
         el: '#hass_discovery',
         data: {
+            CAPABILITIES: {},
             lang: 'en', // TODO: multi lang
             searching: true,
             deviceClasses: [],
@@ -21,6 +22,7 @@
         },
         methods: {
             initCapabilities(result) {
+                this.CAPABILITIES = result;
                 this.capabilities = Object.keys(result)
                     .sort((a, b) => sortByTitle(result[a], result[b], this.lang))
                     .map(id => result[id]);
@@ -30,48 +32,51 @@
                     .sort((a, b) => sortByTitle(result[a], result[b], this.lang))
                     .map(id => result[id]);
             },
-            onDevice({ type, config, deviceClass, icon }) {
-                console.log(type, config, deviceClass, icon);
+            onDevice(device) {
+                console.log(device);
                 if (!this.devices) {
                     this.devices = {};
                 }
-                const id = config.id;
-                if (id) {
-                    let device = this.devices[id] || { ...DEFAULT_CONFIG };
-                    Object.assign(device, config);
+                if (device && device.id && device.name) {
 
-                    device.type = type;
+                    let config = this.devices[device.id];
+                    if(config) {
+                        // custom device name?
+                        device.deviceName = config.deviceName || device.name;
 
-                    // pre-selected device class
-                    if (!device.deviceClass) {
-                        device.deviceClass = deviceClass || 'other';
-                    }
+                        // custom device class?
+                        if (config.deviceClass) {
+                            device.deviceClass = config.deviceClass;
+                        }
 
-                    // custom device name
-                    if (!device.deviceName) {
-                        device.deviceName = config.name;
-                    }
+                        // custom icon
+                        if (!config.icon) {
+                            device.icon = config.icon;
+                        }
 
-                    // custom icon
-                    if (!device.icon) {
-                        device.icon = icon || HASS_ICON;
-                    }
-
-                    // skip unknown devices
-                    if(!device.deviceName) return;
-
-                    // pre-selected capabilities
-                    if (device.properties) {
-                        for (let id of Object.keys(device.properties)) {
-                            const property = device.properties[id];
-                            if (property.capabilityId === undefined && property.capability) {
-                                property.capabilityId = property.capability.id;
+                        // pre-selected capabilities
+                        if (device.properties) {
+                            for (let property of device.properties) {
+                                const configProp = config.properties ? config.properties.find(p => p.id == property.id) : undefined;
+                                property.capabilityId = configProp ? configProp.capabilityId : (property.capabilityId || property.capability);
+                                property.displayName = configProp ? configProp.displayName : (property.displayName || property.name);
                             }
                         }
-                    } 
+                    } else {
+                        // custom device name?
+                        device.deviceName = device.deviceName || device.name;
+
+                        // parse capabilities
+                        if (device.properties) {
+                            for (let property of device.properties) {
+                                property.capabilityId = property.capabilityId || property.capability;
+                                property.displayName = property.displayName || property.name;
+                            }
+                        }
+                    }
 
                     // display (updated) device 
-                    Vue.set(this.devices, id, device);
+                    Vue.set(this.devices, device.id, device);
                 }
             },
             onDeviceClick(node) {
@@ -93,6 +98,28 @@
                         Homey.alert(Homey.__('pair.ha_discovery.failure'));
                     }
                 });
+            },
+            unit(capability, expandEnum) {
+                if(capability.units && capability.units[this.lang]) return capability.units[this.lang];
+                switch(capability.type) {
+                    case 'string': return 'text';
+                    case 'boolean': return 'true | false';
+                    case 'enum': return expandEnum ? capability.values.map(v => v.id).join(' | ') : 'enum';
+                    default: return capability.type;
+                }
+            },
+            showDisplayName(property) {
+                return true;
+                //return property && ['measere_text', 'measure_numeric', 'measure_binary'].includes(property.capabilityId);
+            },
+            getPlaceholder(property) {
+                if(property.capabilityId) {
+                    let capability = this.CAPABILITIES[property.capabilityId];
+                    if(capability) {
+                        return capability.title[this.lang];
+                    }
+                }
+                return '';
             }
         },
         watch: {
@@ -145,16 +172,25 @@
                         </select>
                     </div>
                 </div>
+                <!-- <h2 class="capabilities-header" v-if="node.properties && node.properties.length">PROPERTIES</h2> -->
                 <div class="capability" v-for="property in node.properties">
+                    <h3 class="capabilities-header">{{property.name}}</h3>
                     <div class="setting">
-                        <label class="settings-item-description">{{property.name}}</label>
+                        <label class="settings-item-description">{{__('pair.ha_discovery.capability')}}<span v-if=property.unit> ({{property.unit}})</span></label>
                         <div class="settings-itemgroup">
                             <select v-model="property.capabilityId">
                                 <option value="">{{__('pair.ha_discovery.selectCapability')}}</option>
                                 <option :value="item.id" v-for="item of capabilities">
-                                    {{item.title[lang] + (item.id ? ` (${item.id})` : '')}}
+                                    {{item.title[lang] + (item.id ? ` (${ unit(item)})` : '')}}
                                 </option>
                             </select>
+                            
+                        </div>
+                    </div>
+                    <div class="setting" v-if="showDisplayName(property)">
+                        <label class="settings-item-property-displayname">{{__('pair.ha_discovery.propertyName')}}</label>
+                        <div class="settings-itemgroup">
+                            <input type="text" v-model="property.displayName" :placeholder="getPlaceholder(property)">
                         </div>
                     </div>
                 </div>

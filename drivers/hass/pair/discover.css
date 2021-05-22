@@ -44,6 +44,15 @@
     max-width: 26px;
     max-height: 26px;
 }
+
+.capabilities-header {
+    background: rgb(220,220,220);
+    color: white;
+    padding: 10px;
+    text-align: center;
+    font-size: larger;
+}
+
 .capabilities {
     padding: 6px;
     background: white;
@@ -58,6 +67,8 @@
 }
 .capability {
     margin:5px 0;
+    padding-bottom: 5px;
+    /* border-bottom: 1px dashed rgb(220,220,220); */
 }
 .create-button {
     margin: 10px 0 5px 0 !important;

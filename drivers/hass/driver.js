@@ -4,7 +4,9 @@ const Homey = require('homey');
 const MQTTClient = require('../../mqtt/MQTTClient');
 const MQTTDevice = require('../device/device');
 const HomeyLib = require('homey-lib');
-const CAPABILITIES = HomeyLib.getCapabilities();
+const HOMEY_CAPABILITIES = HomeyLib.getCapabilities();
+const APP_CAPABILITIES = require('../../capabilities');
+const CAPABILITIES = { ...APP_CAPABILITIES, ...HOMEY_CAPABILITIES };
 const CAPABILITY_IDS = Object.keys(CAPABILITIES);
 const DEVICE_CLASSES = HomeyLib.getDeviceClasses();
 const MQTT_REFERENCE = "nl.hdg.mqtt.hass.discovery";
@@ -77,8 +79,8 @@ class MQTTHomeAssistantDiscovery extends Homey.Driver {
         session.setHandler('discover', async ({ topic }) => {
             this._session = session;
             this.log('discover');
-            await this.discover(topic);
             session.showView('discover');
+            await this.discover(topic);
             return 'ok';
         });
 
@@ -99,6 +101,8 @@ class MQTTHomeAssistantDiscovery extends Homey.Driver {
     async discover(topic) {
         this._running = true;
         this._finished = false;
+        this._devices = {};
+
         topic = trim(trim(topic || '', '#'), '/'); // NOTE: remove '/#'
         const rootTopic = `${topic}/`; // NOTE: force tailing /
         
@@ -107,8 +111,10 @@ class MQTTHomeAssistantDiscovery extends Homey.Driver {
 
         if (!topic) return;
         
-        this._discoveryTopic = topic.endsWith('/config') ? topic : `${topic}/+/+/config`; // listen to all config messages within root topic;
         this._rootTopic = rootTopic;
+        let discoveryTopics = topic.endsWith('/config') 
+            ? [topic] 
+            : [`${topic}/+/+/config`, `${topic}/+/+/+/config`];
 
         try {
             if (!this.mqttClient.isRegistered()) {
@@ -118,10 +124,16 @@ class MQTTHomeAssistantDiscovery extends Homey.Driver {
 
             if (this.mqttClient.isRegistered()) {
                 this.log('start discovery');
-                await this.mqttClient.subscribe(this._discoveryTopic);
+                for(let topic of discoveryTopics) {
+                    await this.mqttClient.subscribe(topic);
+                }
             } else {
                 this.log("Waiting for MQTT Client...");
-                this.mqttClient.onRegistered.subscribe(async () => await this.mqttClient.subscribe(this._discoveryTopic));
+                this.mqttClient.onRegistered.subscribe(async () => {
+                    for(let topic of discoveryTopics) {
+                        await this.mqttClient.subscribe(topic);
+                    }
+                });
             }
         } catch (e) {
             this.log('Failed to start Home Assistant dicovery');
@@ -135,25 +147,80 @@ class MQTTHomeAssistantDiscovery extends Homey.Driver {
         }
     }
 
+    getDeviceId(config) {
+        if(!config) return undefined;
+        if(config.device && config.device.identifiers) {
+            return Array.isArray(config.device.identifiers) 
+                ? config.device.identifiers[0]
+                : config.device.identifiers;
+        }
+
+        return config.id || config.unique_id || config.uniq_id;
+    }
+
     async onMessage(topic, message) {
-        if(!this._session) return;
+        if (!this._session) return;
         if (!topic || !this._rootTopic || !this._running) return;
+        if (!message) return;
         if (!topic.startsWith(this._rootTopic) || !topic.endsWith('config')) return;
 
-        this.log('on HomeAssistant Discovery Message: ' + topic);
-        const type = topic.split('/').slice(-3, -2)[0]; // root/type/device/config
-        const config = typeof message === 'string' ? JSON.parse(message) : message;
-        const icon = this.getIcon(type);
-        config.id = config.id || config.unique_id || config.uniq_id;
-        config.properties = this.getProperties(type, config);
+        const type = topic.replace(this._rootTopic, '').split('/')[0];
+        if(!type) return;
 
-        if(type && config) {
-            try {
-                const deviceClass = this.getDeviceClass(type);
-                this._session.emit('device', { type, config, deviceClass, icon });
-            } catch (e) {
-                this.log(e);
+        this.log('on HomeAssistant Discovery Message: ' + topic);
+        
+        try {
+            const config = typeof message === 'string' ? JSON.parse(message) : message;
+            if(!config || typeof config !== 'object') return;
+
+            const deviceId = this.getDeviceId(config);
+            const deviceName = config.device && config.device.name ? config.device.name : config.name;
+            const properties = this.createProperties(type, config) || [];
+            
+            // Remove device name from property names
+            if(deviceName && properties) {
+                for(let property of properties) {
+                    property.name = (property.name || "").replace(deviceName, "").replace(/[\W_]+/g," ").trim();
+                    if(!property.name) {
+                        property.name = CAPABILITIES[property.capability].title.en;
+                    }
+                }
             }
+
+            var device = this._devices[deviceId];
+            if(!device) {
+                device = {
+                    id: deviceId,
+                    type: type,
+                    name: deviceName,
+                    deviceClass: this.getDeviceClass(type),
+                    icon: this.getIcon(type),
+                    properties: properties
+                }
+                this._devices[deviceId] = device;
+            } else { // merge with existing device
+                device = { ...device }; // clone
+                this._devices[deviceId] = device;
+
+                if(['light', 'cover'].includes(type)) {
+                    device.type = type;
+                } else if(['sensor', 'binary_sensor'].includes(device.type)) {
+                    device.type = type;
+                }
+                device.deviceClass = device.deviceClass || this.getDeviceClass(device.type);
+                device.icon = device.icon || this.getIcon(device.type);
+                device.name = device.name || deviceName;
+
+                for(let property of properties) {
+                    if(!device.properties.some(p => p.id == property.id)) {
+                        device.properties.push(property);
+                    }
+                }
+            }
+
+            this._session.emit('device', device);
+        } catch (e) {
+            this.log(e);
         }
     }
 
@@ -186,62 +253,18 @@ class MQTTHomeAssistantDiscovery extends Homey.Driver {
         }
     }
 
-    getProperties(type, config) {
-        switch(type) {
-            case 'light':
-                return {
-                    state : {name: CAPABILITIES['onoff'].title.en, capabilityId: 'onoff' },
-                    brightness: { name: 'Brightness', capabilityId: 'dim' }
-                };
-            case 'switch':
-                return {
-                    state : {name: CAPABILITIES['onoff'].title.en, capabilityId: 'onoff' }
-                };
-            case 'sensor':
-                return {
-                    state : {
-                        name: (config.dev_cla || config.device_class || 'sensor').replace('_', ' '),
-                        capabilityId: this.detectSensorCapability(config, 'number')
-                    }
-                };
-            case 'binary_sensor':
-                return {
-                    state : {
-                        name: (config.dev_cla || config.device_class || 'binary sensor').replace('_', ' '),
-                        capabilityId: this.detectSensorCapability(config, 'boolean')
-                    }
-                };
-            default:
-                return {};
-        }
-    }
-
-    // NOTE: copy from MQTT Device driver.js
-    getSettingsTopics(pairingDevice) {
-        if (!pairingDevice || !pairingDevice.settings || !pairingDevice.settings.capabilities) return '';
-
-        // clone
-        let topics = JSON.parse(JSON.stringify(pairingDevice.settings.capabilities || {})); 
-        for (let id in topics) {
-            delete topics[id].capabilityId;
-        }
-        return JSON.stringify(topics, null, 2);
-    }
-
     createDevice(config) {
         try {
-            this.log(`add HomeAssistant Device`);
+            this.log(`create HomeAssistant Device`);
             this.log(config);
 
-            const capabilities = this.createCapabilities(config);
-            if(!capabilities) return null;
+            const capabilities = this.parseCapabilities(config.properties);
 
-            return {
+            let device = {
                 name: config.deviceName || config.name,
                 class: config.deviceClass,
                 icon: config.icon,
                 data: {
-                    //id: config.id || guid(),
                     id: guid(),
                     externalId: config.id,
                     version: 1
@@ -249,10 +272,20 @@ class MQTTHomeAssistantDiscovery extends Homey.Driver {
                 settings: { 
                     percentageScale: 'default',
                     capabilities: capabilities,
-                    topics: this.getSettingsTopics(capabilities)
                 },
-                capabilities: Object.keys(capabilities)
+                capabilities: Object.keys(capabilities),
+                capabilitiesOptions: {}
             };
+
+            for(let property of config.properties) {
+                if(property.displayName) {
+                    device.capabilitiesOptions[property.capabilityId] = {
+                        title: property.displayName
+                    };
+                }
+            }
+
+            return device;
 
         } catch (e) {
             this.log('Error handeling MQTT home assistant discovery message');
@@ -260,189 +293,230 @@ class MQTTHomeAssistantDiscovery extends Homey.Driver {
         }
     }
 
-    createCapabilities(config){
-        switch(config.type) {
+    parseCapabilities(properties) {
+        if(!properties) return null;
+        var capabilities = {};
+        for(let property of properties) {
+            let idx = 0;
+            let capabilityId = property.capabilityId;
+            while(capabilities[property.capabilityId]) {
+                property.capabilityId = `${capabilityId}.${++idx}`;
+            }
+            capabilities[property.capabilityId] = {
+                capability: property.capabilityId,
+                stateTopic: property.stateTopic,
+                commandTopic: property.commandTopic,
+                valueTemplate: property.valueTemplate,
+                outputTemplate: property.outputTemplate,
+                displayName: property.displayName,
+            }
+        }
+        return capabilities;
+    }
+
+    createProperties(type, config){
+        if(!config) return null;
+        switch(type) {
             case 'light':
-                return this.createLight(config);
+                return this.createLight(type, config);
             case 'switch':
-                return this.createSwitch(config);
+                return this.createSwitch(type, config);
             case 'sensor':
-                return this.createSensor(config);
+                return this.createSensor(type, config);
             case 'binary_sensor':
-                return this.createBinarySensor(config);
+                return this.createBinarySensor(type, config);
             default:
                 this.log('HA Device type is not yet supported: ' + type);
-                return undefined;
-                break;
+                return null;
         }
     }
 
-    getSelectedCapabilityId(config, id) {
-        if(!config || !config.properties) return undefined;
-        return config.properties[id].capabilityId;
-    }
-
-    createLight(config) {
-        
-        const capabilityId = this.getSelectedCapabilityId(config, 'state') || 'onoff';
-        const brightnessCapabilityId = this.getSelectedCapabilityId(config, 'brightness') || 'dim';
+    createLight(type, config) {
         
         const on = config.pl_on || config.payload_on || 'on';
         const off = config.pl_off || config.payload_off || 'off';
         
-        let device = {};
-        device[capabilityId] = {
-            capability: capabilityId,
-            stateTopic: config.state_topic,
-            commandTopic: config.command_topic,
-            valueTemplate: `value == '${on}'`,
-            outputTemplate: `value ? '${on}' : '${off}'`,
-            //displayName: CAPABILITIES[stateCapabilityId]  // TODO: displayname / translate?
-        };
+        return [{
+                id: `${config.unique_id || config.uniq_id}_onoff`,
+                type: type,
+                config: config,
+                capability: 'onoff',
+                name: config.device && config.name ? config.name : CAPABILITIES['onoff'].title.en,
+                stateTopic: config.state_topic,
+                commandTopic: config.command_topic,
+                valueTemplate: `value == '${on}'`,
+                outputTemplate: `value ? '${on}' : '${off}'`,
+            }, {
+                id: `${config.unique_id || config.uniq_id}_dim`,
+                type: type,
+                config: config,
+                capability: 'dim',
+                name: config.device && config.name ? config.name : CAPABILITIES['dim'].title.en,
+                stateTopic: config.bri_stat_t || config.brightness_state_topic,
+                commandTopic: config.bri_cmd_t || config.brightness_command_topic,
+                valueTemplate: "value / 255",
+                outputTemplate: "round(value * 255)",
+            }
+        ];
 
-        device[brightnessCapabilityId] = {
-            capability: brightnessCapabilityId,
-            stateTopic: config.bri_stat_t || config.brightness_state_topic,
-            commandTopic: config.bri_cmd_t || config.brightness_command_topic,
-            valueTemplate: "value / 255",
-            outputTemplate: "round(value * 255)",
-            //displayName: CAPABILITIES[brightnessCapabilityId]  // TODO: displayname / translate?
-            //displayName: "Brightness" // TODO: displayname / translate?
-        };
-
-        return device;
-
-        // TODO: DisplayName
-        // TODO: icon
         // TODO: value templates (state_value_template, brightness_value_template)
         // TODO: brightness_scale
         // TODO: temperature (color_temp_state_topic, color_temp_command_topic)
         // TODO: color
     }
 
-    createSwitch(config) {
-
-        const capabilityId = this.getSelectedCapabilityId(config, 'state') || 'onoff';
+    createSwitch(type, config) {
 
         const on = config.pl_on || config.payload_on || 'on';
         const off = config.pl_off || config.payload_off || 'off';
-        
-        let device = {};
-        device[capabilityId] = {
-            capability: capabilityId,
+
+        return [{
+            id: config.unique_id || config.uniq_id,
+            type: type,
+            config: config,
+            capability: 'onoff',
+            name: config.device && config.name ? config.name : CAPABILITIES['onoff'].title.en,
             stateTopic: config.state_topic,
             commandTopic: config.command_topic,
             valueTemplate: `value == '${on}'`,
             outputTemplate: `value ? '${on}' : '${off}'`,
-            //displayName: CAPABILITIES[capabilityId]  // TODO: displayname / translate?
-        };
+        }];
 
-        return device;
-
-        // TODO: DisplayName
-        // TODO: icon
         // TODO: value templates (state_value_template, brightness_value_template)
     }
     
-    createSensor(config) {
+    createSensor(type, config) {
 
-        let capabilityId = this.getSelectedCapabilityId(config, 'state') || this.this.detectSensorCapability(config, 'number');
-        
-        let device = {};
-        device[capabilityId] = {
+        const capabilityId = this.detectSensorCapability(type, config, 'number');
+        const entity = {
+            id: config.unique_id || config.uniq_id,
+            type: type,
+            config: config,
             capability: capabilityId,
+            name: config.device ? config.name : (config.dev_cla || config.device_class || 'sensor').replace('_', ' '),
+            unit: config.unit_of_meas || config.unit_of_measurement,
             stateTopic: config.state_topic,
-            //displayName: CAPABILITIES[capabilityId]  // TODO: displayname / translate?
         };
 
-        if(DEFAULT_CAPABILITIES.includes(capabilityId) && config.name) {
-            device[capabilityId].displayName = config.name;
-        }
+        // if(config.name && (!entity.displayName || DEFAULT_CAPABILITIES.includes(capabilityId))) {
+        //     entity.displayName = config.name;
+        // }
 
-        return device;
+        return [entity];
 
-        // TODO: DisplayName
         // TODO: value template
     }
 
-    createBinarySensor(config) {
-        let capabilityId = this.getSelectedCapabilityId(config, 'state') || this.this.detectSensorCapability(config, 'boolean') || 'onoff';
-        
+    createBinarySensor(type, config) {
+        const capabilityId = this.detectSensorCapability(type, config, 'boolean') || 'onoff';
         const on = config.pl_on || config.payload_on || 'on';
         
-        let device = {};
-        device[capabilityId] = {
+        let entity = {};
+        entity = {
+            id: config.unique_id || config.uniq_id,
+            type: type,
+            config: config,
             capability: capabilityId,
+            name: config.device ? config.name : (config.dev_cla || config.device_class || 'binary sensor').replace('_', ' '),
+            unit: config.unit_of_meas || config.unit_of_measurement,
             stateTopic: config.state_topic,
             valueTemplate: `value == '${on}'`
-            //displayName: CAPABILITIES[capabilityId]  // TODO: displayname / translate?
         };
 
-        if(DEFAULT_CAPABILITIES.includes(capabilityId) && config.name) {
-            device[capabilityId].displayName = config.name;
-        }
+        // if(config.name && (!entity.displayName || DEFAULT_CAPABILITIES.includes(capabilityId))) {
+        //     entity.displayName = config.name;
+        // }
 
-        return device;
+        return [entity];
 
-        // TODO: DisplayName
         // TODO: value template
     }
 
-    detectSensorCapability(config, type) {
+    detectSensorCapability(type, config) {
         const deviceClass = config.dev_cla || config.device_class;
         const unit = config.unit_of_meas || config.unit_of_measurement;
-        return this._matchSensorCapability(deviceClass, type, unit);
-    }
+        let capabilities = this._matchSensorCapabilities(deviceClass, type, unit);
 
-    _matchSensorCapability(deviceClass, type, unit) {
-        if (!type || !deviceClass) return undefined;
-
-        unit = unit ? unit.toLowerCase() : undefined;
-
-        // match by device class name
-        let capabilities = CAPABILITY_IDS.filter(id => id.includes(deviceClass));
-        // include aliasses
-        if(ALIASSES[deviceClass]) {
-            for(let alias in ALIASSES[deviceClass]) {
-                for(let capabilityId in CAPABILITY_IDS.filter(id => id.includes(alias))){
-                    if(!capabilities.includes(capabilityId)) {
-                        capabilities.push(capabilityId);
-                    }
+        if(capabilities.length == 0) return undefined;
+        if(capabilities.length == 1) return capabilities[0];
+        
+        // match by sate topic (sensor name)
+        if(config.state_topic) {
+            let parts = (config.state_topic || '').split('/');
+            let sensorName = parts[parts.length-1];
+            if(sensorName) {
+                let tags = sensorName.split(/[\s,-_ ]+/);
+                const getTags = (capability) => {
+                    let s = capability.split('_');
+                    if(s.length > 1) s.shift();
+                    return s;
+                }
+                var matches = capabilities.filter(c => getTags(c).some(t => tags.includes(t)));
+                if(matches.length > 0) {
+                    capabilities = matches;
                 }
             }
         }
-        
-        let matches = this._filterSensorCapabilities(capabilities, type, unit);
-        if(matches.length > 0) return matches[0];
+        return capabilities[0];
+    }
+
+    _matchSensorCapabilities(deviceClass, type, unit) {
+
+        unit = unit ? unit.toLowerCase() : undefined;
+
+        let capabilities;
+        let matches;
+
+        // match by device class name
+        if(deviceClass) {
+            capabilities = CAPABILITY_IDS.filter(id => id.includes(deviceClass));
+            // include aliasses
+            if(ALIASSES[deviceClass]) {
+                for(let alias in ALIASSES[deviceClass]) {
+                    for(let capabilityId in CAPABILITY_IDS.filter(id => id.includes(alias))){
+                        if(!capabilities.includes(capabilityId)) {
+                            capabilities.push(capabilityId);
+                        }
+                    }
+                }
+            }
+
+            matches = this._filterSensorCapabilities(capabilities, type, unit);
+            if(matches.length > 0) return matches;
+        }
 
         // match by unit
         if(unit) {
             capabilities = CAPABILITY_IDS.filter(id => CAPABILITIES[id].units && (CAPABILITIES[id].units.en || '').toLowerCase() === unit);
             matches = this._filterSensorCapabilities(capabilities, type);
-            if(matches.length > 0) return matches[0];
+            if(matches.length > 0) return matches;
         }
 
         // fallback: measure_binary, measure_text, measure_numeric
         switch(type) {
-            case 'number': return 'measure_numeric';
-            case 'boolean': return 'measure_binary';
-            default: return 'measure_text';
+            case 'string': 
+            case 'enum': 
+                return ['measure_text'];
+            case 'boolean': 
+                return ['measure_binary'];
+            case 'number': 
+            default:
+                return ['measure_numeric'];
         }
     }
 
     _filterSensorCapabilities(capabilities, type, unit) {
         // filter by type
-        var matches = capabilities.filter(id => CAPABILITIES[id].type === type);
-        if(matches.length === 1) return matches;
-        if(matches.length > 1) capabilities = matches;
+        var matches = capabilities;
+        
+        if(type) {
+            matches= capabilities.filter(id => CAPABILITIES[id].type === type);
+            if(matches.length === 1) return matches;
+            if(matches.length > 1) capabilities = matches;
+        }
 
         // filter read-only capabilities
         matches = capabilities.filter(id => !CAPABILITIES[id].setable);
-        if(matches.length === 1) return matches;
-        if(matches.length > 1) capabilities = matches;
-
-        // filter by uiComponent 'sensor'
-        matches = capabilities.filter(id => CAPABILITIES[id].uiComponent === 'sensor');
         if(matches.length === 1) return matches;
         if(matches.length > 1) capabilities = matches;
 
@@ -457,18 +531,20 @@ class MQTTHomeAssistantDiscovery extends Homey.Driver {
         if(capabilities.length > 0) {
             switch(type){
                 case 'boolean': // prever 'alarm_' types for boolean
-                    capabilities = capabilities.filter(id => id.startsWith('alarm_'));
+                    matches = capabilities.filter(id => id.startsWith('alarm_'));
+                    break;
                 default: // prever 'measure_' capabilities
-                    capabilities = capabilities.filter(id => id.startsWith('measure_'));
+                    matches = capabilities.filter(id => id.startsWith('measure_'));
+                    break;
             }
         }
 
-        return capabilities;
+        return matches.length > 0 ? matches : capabilities;
     }
 
     async stop() {
         delete this._running;
-        delete this._discoveryTopic;
+        delete this._devices;
         delete this._rootTopic;
 
         await this.mqttClient.release(); // unsubscribe
