@@ -1,5 +1,14 @@
 ## Change Log  
 
+#### 3.6.1
+Home Assistant auto discovery:
+- group entities/capabilities per device
+- allow optional device_id in discovery topic
+- retain HomeAssistant config topics
+- customize capability display names
+- added default capabilities for sensor types: text, numeric & binary
+- improved HA entity to capability matching
+
 #### 3.6.0
 - Home Assistant Discovery driver
 - Renamed `setTopic` to `commandTopic`

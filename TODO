@@ -10,7 +10,6 @@ Settings:
 
 HASS:
 - light modes
-
 - Include configuration overrides
 - Duplicate (unavailable) onoff entity (light & switch) for light devices
 - Update lights & dimming (prevent brightness sliders returning to previous position due 'onoff' call)
@@ -54,8 +53,6 @@ MQTT Device:
 Discovery (auto discover external devices):
 ! [Check] Capability matches Nefit
 - Detect already configured devices & mark them created
-- Implement HA discovery
-- Keep a record of previous discovery topic
 
 Commands:
 - Updating state for multiple devices (e.g. all devices in a room) == Homie broadcast?
@@ -73,6 +70,7 @@ Insights / System info:
 - (All) Prometheus functionality
 
 ======= DONE =======
+- HA Discovery: group by device + custom display names
 - HA Discovery: MQTT_statestream + BluePrint
 - MQTT Device: handle message loops
 - MQTT Device: custom icon

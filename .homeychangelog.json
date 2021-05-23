@@ -85,5 +85,8 @@
   },
   "3.6.0": {
     "en": "added Home Assistant Discovery"
+  },
+  "3.6.1": {
+    "en": "Improved Home Assistant auto discovery of devices"
   }
 }
