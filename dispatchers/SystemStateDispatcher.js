@@ -4,7 +4,14 @@ const Log = require('../Log');
 const normalize = require('../normalize');
 
 const TOPIC = '{deviceId}/system/info';
-const DELAY = 30000;
+const TOPIC_SYSLOAD_1 = '/systemload/1min';
+const TOPIC_SYSLOAD_5 = '/systemload/5min';
+const TOPIC_SYSLOAD_15 = '/systemload/15min';
+const TOPIC_MEMUSAGE_APPS = '/memusage/apps';
+const TOPIC_MEMUSAGE_TOTAL = '/memusage/total';
+const TOPIC_MEMUSAGE_USED = '/memusage/used';
+const TOPIC_MEMUSAGE_FREE = '/memusage/free';
+const DELAY = 60000;
 
 /*
 {
@@ -61,6 +68,7 @@ class SystemStateDispatcher {
         this.mqttClient = mqttClient;
         this.messageQueue = messageQueue;
         this.settings = settings;
+        this.counter = 0; // counter for updates to count 5/15min intervals
 
         this._registerCallback = this.register.bind(this);
         this._unregisterCallback = this.unregister.bind(this);
@@ -105,6 +113,13 @@ class SystemStateDispatcher {
                 }
             }
             this.topic = topic;
+            this.TOPIC_SYSLOAD_1 = this.topic.replace('/info', TOPIC_SYSLOAD_1);
+            this.TOPIC_SYSLOAD_5 = this.topic.replace('/info', TOPIC_SYSLOAD_5);
+            this.TOPIC_SYSLOAD_15 = this.topic.replace('/info', TOPIC_SYSLOAD_15);
+            this.TOPIC_MEMUSAGE_APPS = this.topic.replace('/info', TOPIC_MEMUSAGE_APPS);
+            this.TOPIC_MEMUSAGE_TOTAL = this.topic.replace('/info', TOPIC_MEMUSAGE_TOTAL);
+            this.TOPIC_MEMUSAGE_USED = this.topic.replace('/info', TOPIC_MEMUSAGE_USED);
+            this.TOPIC_MEMUSAGE_FREE = this.topic.replace('/info', TOPIC_MEMUSAGE_FREE);
 
             await this.update();
 
@@ -130,25 +145,82 @@ class SystemStateDispatcher {
 
     async update() {
         this._resetTimeout();
+        Log.debug('System info update...');
+
         if (!this.enabled || !this.registered) return;
 
         try {
+            
+            let sysinfo = await this.api.system.getInfo();
             // TODO: Create state value messages for each value of interest
             const info = {
-                system: await this.api.system.getInfo(),
+                system: sysinfo,
                 //storage: await this.api.system.getStorageStats(),
                 //memory: await this.api.system.getMemoryStats(),
                 timestamp: new Date().getTime()
             };
             this.messageQueue.add(this.topic, info, { qos: 0, retain: true });
 
+            // systemload for 1 min interval
+            this.messageQueue.add(this.TOPIC_SYSLOAD_1, sysinfo.loadavg[0], { qos: 0, retain: true });
+            // systemload for 5 min interval
+            if ( this.counter == 0 || this.counter == 5 || this.counter == 10 || this.counter == 15 ){
+                this.messageQueue.add(this.TOPIC_SYSLOAD_5, sysinfo.loadavg[1], { qos: 0, retain: true });
+                // Memory info for 5 min interval
+                let meminfo = await this.getMemoryUsage();
+                this.messageQueue.add(this.TOPIC_MEMUSAGE_APPS, meminfo.apps, { qos: 0, retain: true });
+                this.messageQueue.add(this.TOPIC_MEMUSAGE_FREE, meminfo.free, { qos: 0, retain: true });
+                this.messageQueue.add(this.TOPIC_MEMUSAGE_USED, meminfo.used, { qos: 0, retain: true });
+                this.messageQueue.add(this.TOPIC_MEMUSAGE_TOTAL, meminfo.total, { qos: 0, retain: true });
+            }
+            // systemload for 15 min interval
+            if ( this.counter == 0 || this.counter >= 15 ){
+                this.messageQueue.add(this.TOPIC_SYSLOAD_15, sysinfo.loadavg[2], { qos: 0, retain: true });
+                this.counter = 0;
+            }
         } catch (e) {
             Log.error("Failed to fetch system info");
             Log.info(e);
         }
-
+        
+        this.counter ++;
         // loop
         this.timeout = setTimeout(() => this.update().catch(e => Log.error(e)), DELAY);
+    }
+
+    async getMemoryUsage(){
+        let array = [];
+        let used = 0;
+        let free = 0;
+        let total = 0;
+        let json_dict;
+
+        let mem = await this.api.system.getMemoryInfo( );
+
+        for(var i in mem.types)
+            array.push(mem.types [i]);
+        array = array.sort((a, b) => {
+        return (a.size > b.size) ? -1 : 1;
+        });
+        json_dict = "{";
+        for(var i in array){
+            used += array[i].size;
+            array[i].size = Math.round(array[i].size /1000 /10)/100; 
+            json_dict += '"'+array[i].name+'":"'+array[i].size+'"';
+            if ( i<array.length-1)
+            json_dict+=",";
+        }
+        json_dict += "}";
+
+        free = ( mem.total - used ) / 1000 / 1000;
+        used = used / 1000 / 1000;
+        total = mem.total / 1000 / 1000;
+        return {
+            'apps': json_dict,
+            'total': total,
+            'used': used,
+            'free': free
+        }
     }
 
     async destroy() {
