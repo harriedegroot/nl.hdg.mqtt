@@ -797,6 +797,14 @@ class HomeAssistantDispatcher {
             case 'number':
             case 'float':
             case 'integer':
+                const unit = capability.units && typeof capability.units === 'object' ? capability.units['en'] : capability.units;
+                cfg = {
+                    type: 'sensor',
+                    payload: {
+                        unit_of_measurement: unit ? unit : " "
+                    }
+                };
+                return cfg;    
             case 'string':
             case 'enum':
                 cfg = {
