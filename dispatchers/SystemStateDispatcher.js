@@ -11,7 +11,8 @@ const TOPIC_MEMUSAGE_APPS = '/memusage/apps';
 const TOPIC_MEMUSAGE_TOTAL = '/memusage/total';
 const TOPIC_MEMUSAGE_USED = '/memusage/used';
 const TOPIC_MEMUSAGE_FREE = '/memusage/free';
-const DELAY = 60000;
+const DELAY_SYS = 60000;        // 10 min for info + system load
+const DELAY_MEM = 1200000;  // 20 min for memory usage
 
 /*
 {
@@ -121,7 +122,8 @@ class SystemStateDispatcher {
             this.TOPIC_MEMUSAGE_USED = this.topic.replace('/info', TOPIC_MEMUSAGE_USED);
             this.TOPIC_MEMUSAGE_FREE = this.topic.replace('/info', TOPIC_MEMUSAGE_FREE);
 
-            await this.update();
+            await this.updateSys();
+            //await this.updateMem();
 
             Log.debug('System info dispatcher registered');
         } catch (e) {
@@ -132,19 +134,27 @@ class SystemStateDispatcher {
 
     async unregister() {
         this.registered = false;
-        this._resetTimeout();
+        this._resetTimeoutSys();
+        this._resetTimeoutMem();
         Log.debug('System info dispatcher unregistered');
     }
 
-    _resetTimeout() {
-        if (this.timeout) {
-            clearTimeout(this.timeout);
-            this.timeout = undefined;
+    _resetTimeoutSys() {
+        if (this.timeoutSys) {
+            clearTimeout(this.timeoutSys);
+            this.timeoutSys = undefined;
         }
     }
 
-    async update() {
-        this._resetTimeout();
+    _resetTimeoutMem() {
+        if (this.timeoutMem) {
+            clearTimeout(this.timeoutMem);
+            this.timeoutMem = undefined;
+        }
+    }
+
+    async updateSys() {
+        this._resetTimeoutSys();
         Log.debug('System info update...');
 
         if (!this.enabled || !this.registered) return;
@@ -166,12 +176,6 @@ class SystemStateDispatcher {
             // systemload for 5 min interval
             if ( this.counter == 0 || this.counter == 5 || this.counter == 10 || this.counter == 15 ){
                 this.messageQueue.add(this.TOPIC_SYSLOAD_5, sysinfo.loadavg[1], { qos: 0, retain: true });
-                // Memory info for 5 min interval
-                let meminfo = await this.getMemoryUsage();
-                this.messageQueue.add(this.TOPIC_MEMUSAGE_APPS, meminfo.apps, { qos: 0, retain: true });
-                this.messageQueue.add(this.TOPIC_MEMUSAGE_FREE, meminfo.free, { qos: 0, retain: true });
-                this.messageQueue.add(this.TOPIC_MEMUSAGE_USED, meminfo.used, { qos: 0, retain: true });
-                this.messageQueue.add(this.TOPIC_MEMUSAGE_TOTAL, meminfo.total, { qos: 0, retain: true });
             }
             // systemload for 15 min interval
             if ( this.counter == 0 || this.counter >= 15 ){
@@ -185,7 +189,28 @@ class SystemStateDispatcher {
         
         this.counter ++;
         // loop
-        this.timeout = setTimeout(() => this.update().catch(e => Log.error(e)), DELAY);
+        this.timeoutSys = setTimeout(() => this.updateSys().catch(e => Log.error(e)), DELAY_SYS);
+    }
+
+    async updateMem() {
+        this._resetTimeoutMem();
+        Log.debug('Memory info update...');
+
+        if (!this.enabled || !this.registered) return;
+
+        try {
+            // Memory info for 5 min interval
+            let meminfo = await this.getMemoryUsage();
+            this.messageQueue.add(this.TOPIC_MEMUSAGE_APPS, meminfo.apps, { qos: 0, retain: true });
+            this.messageQueue.add(this.TOPIC_MEMUSAGE_FREE, meminfo.free, { qos: 0, retain: true });
+            this.messageQueue.add(this.TOPIC_MEMUSAGE_USED, meminfo.used, { qos: 0, retain: true });
+            this.messageQueue.add(this.TOPIC_MEMUSAGE_TOTAL, meminfo.total, { qos: 0, retain: true });
+        } catch (e) {
+            Log.error("Failed to fetch memory info");
+            Log.info(e);
+        }
+        // loop
+        this.timeoutMem = setTimeout(() => this.updateMem().catch(e => Log.error(e)), DELAY_MEM);
     }
 
     async getMemoryUsage(){
