@@ -47,6 +47,8 @@ const defaultSettings = {
     "willMessage": "offline",
 
     "loglevel": "info",
+
+    "performanceDelay": "0",
 };
 
 //////////////////////////////////////////////

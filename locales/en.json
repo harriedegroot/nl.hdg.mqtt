@@ -102,7 +102,9 @@
     "willMessage": "Last will message",
     "reset": "Reset",
     "defaultSettings": "",
-    "restoreSettings": "Restore default settings"
+    "restoreSettings": "Restore default settings",
+    "performance": "Performance",
+    "performanceDelay": "Send message delay (ms)"
   },
   "tab2": {
     "title": "Devices",

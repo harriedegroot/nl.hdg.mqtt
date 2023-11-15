@@ -1,9 +1,6 @@
 'use strict';
 
 const DEBUG = process.env.DEBUG === '1';
-if (DEBUG) {
-    require('inspector').open(9229, '0.0.0.0', false);
-}
 
 const STARTUP_DELAY = 30 * 1000; // wait 30 sec. before starting the broadcasts
 
@@ -38,11 +35,25 @@ const DEFAULT_LOG_LEVEL = 'info';
 class MQTTHub extends Homey.App {
 
     async onInit() {
+
+        if  (DEBUG ){
+            if (this.homey.platform == "local"){
+                try{ 
+                    require('inspector').waitForDebugger();
+                }
+                catch(error){
+                    require('inspector').open(9229, '0.0.0.0', true);
+                }
+            }
+        }
+
         try {
             Log.info('MQTT Hub is running...');
 
             this.homey.on('unload', () => this.uninstall());
-
+            this.homey.on('memwarn', async (data) => await this.onMemwarn(data));
+            this.homey.on('cpuwarn', async (data) => await this.onCpuwarn(data));
+    
             this.settings = this.homey.settings.get('settings') || {};
             this.birthWill = this.settings.birthWill !== false;
 
@@ -64,7 +75,7 @@ class MQTTHub extends Homey.App {
 
             Log.debug("Initialize MQTT Client & Message queue");
             this.mqttClient = new MQTTClient(this.homey);
-            this.messageQueue = new MessageQueue(this.mqttClient);
+            this.messageQueue = new MessageQueue(this.mqttClient, this.settings.performanceDelay);
             this.topicsRegistry = new TopicsRegistry(this.messageQueue);
 
             // Suppress memory leak warning
@@ -486,6 +497,30 @@ class MQTTHub extends Homey.App {
             // nothing...
         }
     }
+
+    async onMemwarn(data){
+		if (data == undefined){
+			data = {
+				count: 0,
+				limit: 0
+			};
+		}
+		Log.debug("A memory warning has occured: "+data.count+"/"+data.limit);
+		// this._flowTriggerAppMemwarn.trigger(data).catch(error => this.log("onMemwarn() flow trigger error: ", error.message));
+
+	}
+
+	async onCpuwarn(data){
+		if (data == undefined){
+			data = {
+				count: 0,
+				limit: 0
+			};
+		}
+		Log.debug("A CPU warning has occured: "+data.count+"/"+data.limit);
+		// this._flowTriggerAppCpuwarn.trigger(data).catch(error => this.log("onCpuwarn() flow trigger error: ", error.message));
+
+	}
 }
 
 module.exports = MQTTHub;
