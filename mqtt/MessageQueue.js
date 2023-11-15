@@ -7,7 +7,7 @@ const Message = require('./Message');
 const DELAY = 0; // Wait 10 ms before sending next message to give Homey some breathing time
 
 class MessageQueue {
-    constructor(mqttClient) {
+    constructor(mqttClient, delay = DELAY) {
         this.mqttClient = mqttClient;
         this.queue = [];
         this.messages = new Map();
@@ -15,6 +15,7 @@ class MessageQueue {
 
         // Clear message queue when MQTT Client uninstalled
         this.mqttClient.onUnRegistered.subscribe(() => this.clear());
+        this.delay = delay;
     }
 
     add(topic, payload, opt, process) {
@@ -81,9 +82,9 @@ class MessageQueue {
                     Log.error(e);
                 }
 
-                if (DELAY) {
+                if (this.delay) {
                     try {
-                        await delay(DELAY); // give Homey some breathing time
+                        await delay(this.delay); // give Homey some breathing time
                     } catch (e) {
                         Log.error("MessageQueue: delay failure");
                         Log.error(e);

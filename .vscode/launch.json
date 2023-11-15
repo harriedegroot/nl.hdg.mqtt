@@ -1,0 +1,25 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "attach",
+            "restart": true,
+            "name": "Attach MQTT-Hub Homey Pro 23",
+            "address": "192.168.1.15",
+            "port": 9229,
+            "localRoot": "${workspaceFolder}",
+            "remoteRoot": "/app/"
+        },
+        {
+            "type": "node",
+            "request": "attach",
+            "restart": true,
+            "name": "Attach MQTT-Hub to Homey Pro 19",
+            "address": "192.168.1.13",
+            "port": 9229,
+            "localRoot": "${workspaceFolder}",
+            "remoteRoot": "/"
+        }
+    ]
+}
