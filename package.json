@@ -14,7 +14,7 @@
     "homey-lib": "^2.9.2",
     "lodash": "^4.17.21",
     "jsonpath": "^1.1.1",
-    "mathjs": "9.3.2",
+    "mathjs": "15.2.0",
     "json-templater": "^1.2.0"
   }
 }
